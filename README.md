@@ -7,6 +7,14 @@
 
 ---
 
+## Screenshots
+
+| Main / Ads | Cases | Tasks |
+|---|---|---|
+| ![Main page](docs/screenshots/main-page.png) | ![Cases](docs/screenshots/cases.png) | ![Tasks](docs/screenshots/tasks.png) |
+
+---
+
 ## Overview
 
 This repository is a modified build of [GAMP/Gizmo.Client.UI](https://github.com/GAMP/Gizmo.Client.UI) — the open-source Blazor WebView WPF skin for Gizmo Client 2.x — with a full integration of the **GGBook** platform API.
