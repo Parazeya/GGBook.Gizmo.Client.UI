@@ -122,6 +122,8 @@ namespace Gizmo.Client.UI.Pages
         private GGBookClient? _ggBook;
         private GGBookClient GGBook => _ggBook ??= new GGBookClient(HttpClientFactory, Configuration);
 
+        private string TasksCacheKey => $"tasks_{UserViewState.Id}";
+
         private bool    _loading;
         private string? _error;
 
@@ -142,6 +144,25 @@ namespace Gizmo.Client.UI.Pages
         private async Task LoadAsync()
         {
             if (!GGBook.IsConfigured) { _error = GGModL10n.Get(GGModL10n.ErrApiNotCfg); return; }
+
+            if (GGModCache.TryGet(TasksCacheKey, out var cached))
+            {
+                try
+                {
+                    var data = JsonSerializer.Deserialize<TasksListResponse>(cached);
+                    if (data is not null)
+                    {
+                        _groups        = data.Tasks.Where(g => g.List?.Count > 0).Select(GroupFromDto).ToList();
+                        _progress      = data.Progress.Result;
+                        _unclaimed     = data.UnclaimedRewards.Result;
+                        _isVerificated = data.IsVerificated;
+                        _activeTab     = 0;
+                        return;
+                    }
+                }
+                catch { }
+            }
+
             _loading         = true;
             _error           = null;
             _claimAllError   = null;
@@ -160,6 +181,7 @@ namespace Gizmo.Client.UI.Pages
                 _unclaimed     = data.UnclaimedRewards.Result;
                 _isVerificated = data.IsVerificated;
                 _activeTab     = 0;
+                GGModCache.Set(TasksCacheKey, body);
             }
             catch (OperationCanceledException) { _error = GGModL10n.Get(GGModL10n.ErrTimeout); }
             catch                              { _error = GGModL10n.Get(GGModL10n.ErrNetwork); }
@@ -179,6 +201,7 @@ namespace Gizmo.Client.UI.Pages
                 var body = await resp.Content.ReadAsStringAsync(cts.Token);
                 if (!resp.IsSuccessStatusCode) { _claimAllError = ExtractApiError(body) ?? string.Format(GGModL10n.Get(GGModL10n.ErrServerCodeFmt), (int)resp.StatusCode); return; }
                 _claimAllSuccess = true;
+                GGModCache.Invalidate(TasksCacheKey);
                 // Reload from server to get accurate state
                 await LoadAsync();
             }
@@ -204,6 +227,7 @@ namespace Gizmo.Client.UI.Pages
                     _claimErrors[item.Id] = ExtractApiError(body) ?? string.Format(GGModL10n.Get(GGModL10n.ErrServerCodeFmt), (int)resp.StatusCode);
                     return;
                 }
+                GGModCache.Invalidate(TasksCacheKey);
                 // Optimistic update: mark this task as claimed in local progress
                 var pg = _progress.FirstOrDefault(p => p.Group == item.GroupId);
                 if (pg is not null)

@@ -170,6 +170,9 @@ namespace Gizmo.Client.UI.Pages
         private GGBookClient? _ggBook;
         private GGBookClient GGBook => _ggBook ??= new GGBookClient(HttpClientFactory, Configuration);
 
+        private string CaseListCacheKey    => $"cases_list_{UserViewState.Id}";
+        private string CaseHistCacheKey    => $"cases_hist_{UserViewState.Id}";
+
         private const int SpinDurationMs    = 7500;
         private const int ItemWidthPx       = 90;
         private const int ItemGapPx         = 3;
@@ -287,6 +290,14 @@ namespace Gizmo.Client.UI.Pages
         private async Task LoadCasesAsync()
         {
             if (!GGBook.IsConfigured) { _casesError = GGModL10n.Get(GGModL10n.ErrApiNotCfg); return; }
+
+            if (GGModCache.TryGet(CaseListCacheKey, out var cached))
+            {
+                var data = JsonSerializer.Deserialize<CasesListResponse>(cached);
+                _cases = data?.Cases.Select(CaseFromDto).ToList() ?? new();
+                return;
+            }
+
             _casesLoading = true;
             _casesError   = null;
             try
@@ -297,6 +308,7 @@ namespace Gizmo.Client.UI.Pages
                 if (!resp.IsSuccessStatusCode) { _casesError = ExtractApiError(body) ?? string.Format(GGModL10n.Get(GGModL10n.ErrServerCodeFmt), (int)resp.StatusCode); return; }
                 var data      = JsonSerializer.Deserialize<CasesListResponse>(body);
                 _cases        = data?.Cases.Select(CaseFromDto).ToList() ?? new();
+                GGModCache.Set(CaseListCacheKey, body);
             }
             catch (OperationCanceledException) { _casesError = GGModL10n.Get(GGModL10n.ErrTimeout); }
             catch                              { _casesError = GGModL10n.Get(GGModL10n.ErrNetwork); }
@@ -310,6 +322,37 @@ namespace Gizmo.Client.UI.Pages
             _history.Clear();
             _historyPage       = 0;
             _historyTotalPages = 0;
+
+            if (GGBook.IsConfigured && GGModCache.TryGet(CaseHistCacheKey, out var cached))
+            {
+                try
+                {
+                    var data = JsonSerializer.Deserialize<HistoryPageResponse>(cached);
+                    if (data is not null)
+                    {
+                        _historyPage       = 1;
+                        _historyTotalPages = data.TotalPages;
+                        foreach (var item in data.Result)
+                        {
+                            var c = item.Expand?.Case;
+                            var r = item.Expand?.Reward;
+                            _history.Add(new CaseHistoryEntry
+                            {
+                                CaseName         = c?.Name ?? "—",
+                                CasePictureUrl   = GGBook.CasePicUrl(c?.Id, c?.Picture),
+                                RewardName       = r?.Name ?? "—",
+                                RewardPictureUrl = GGBook.RewardPicUrl(r?.Id, r?.Picture, "52x52"),
+                                RewardType       = r?.RewardType ?? "gift",
+                                RewardColor      = ColorFromType(r?.RewardType, r?.Color),
+                                Date             = ParsePbDate(item.Created),
+                            });
+                        }
+                    }
+                }
+                catch { }
+                return;
+            }
+
             await LoadHistoryNextPageAsync();
         }
 
@@ -345,6 +388,8 @@ namespace Gizmo.Client.UI.Pages
                             Date             = ParsePbDate(item.Created),
                         });
                     }
+                    if (_historyPage == 1)
+                        GGModCache.Set(CaseHistCacheKey, body);
                 }
             }
             catch { _historyPage--; }
@@ -526,6 +571,8 @@ namespace Gizmo.Client.UI.Pages
             StateHasChanged();
 
             await Task.Delay(SpinDurationMs + 300);
+
+            GGModCache.Invalidate(CaseHistCacheKey);
 
             _history.Insert(0, new CaseHistoryEntry
             {
