@@ -104,24 +104,52 @@ If `GGBookBaseUrl` is empty or missing, all GGMod features are automatically dis
 git clone --recurse-submodules https://github.com/Parazeya/GGBook.Gizmo.Client.UI.git
 cd GGBook.Gizmo.Client.UI
 
-# 2. Publish
+# 2. Build skin
 cd Gizmo.Client.UI.Host.WPF
 dotnet publish -c Release -o ../deploy
-```
 
-The output `deploy/` folder contains all required DLLs and assets.
+# 3. Build web API plugin
+cd ../Gizmo.Plugin.GGBook
+dotnet publish -c Release -o ../deploy-plugin
+```
 
 ---
 
 ## Deployment
 
-Copy `Gizmo.Client.UI.dll` from the publish output into your Gizmo Client skin folder:
+### 1. Skin (Gizmo.Client.UI)
+
+Copy `Gizmo.Client.UI.dll` into your Gizmo Client skin folder:
 
 ```
 C:\Program Files\NETProjects\Gizmo Server\skins\<SkinName>\Gizmo.Client.UI.dll
 ```
 
-Then place your configured `composition.json` in the same folder and restart the Gizmo Client.
+Place your configured `composition.json` in the same folder.
+
+### 2. Web API Plugin (Gizmo.Plugin.GGBook)
+
+> A pre-built release is available in [`dist/webmodules/`](dist/webmodules/).
+
+Copy all files from `release/webmodules/` into the Gizmo Server webmodules folder (create it if it doesn't exist):
+
+```
+C:\Program Files\NETProjects\Gizmo Server\webmodules\Gizmo.Plugin.GGBook\
+```
+
+The plugin exposes the following endpoints on the Gizmo Server port:
+
+| Method | Route | Description |
+|---|---|---|
+| `GET` | `/api/ggbook/ping` | Health check |
+| `GET` | `/api/ggbook/config` | Read current `UserToken` / `ClubToken` from `composition.json` |
+| `POST` | `/api/ggbook/config` | Update `UserToken` / `ClubToken` in `composition.json` |
+| `POST` | `/api/ggbook/sync-port` | Sync Gizmo Server port into `composition.json` |
+| `GET` | `/api/ggbook/versions` | Show skin DLL versions |
+
+Requests must include the header `X-GGMod-Key: <ApiKey>` (configured in `composition.json` → `GGMod.ApiKey`). If `ApiKey` is empty, all requests are allowed (initial setup mode).
+
+Restart the Gizmo Client after deploying both components.
 
 ---
 
@@ -139,6 +167,10 @@ Then place your configured `composition.json` in the same folder and restart the
 │   ├── Pages/Cases/                    # Cases module (CasesIndex.razor + .razor.cs)
 │   └── Pages/Tasks/                    # Tasks module (TasksIndex.razor + .razor.cs)
 ├── Gizmo.Client.UI.Host.WPF/           # WPF host (HostWindow with WebView2 suspend)
+├── Gizmo.Plugin.GGBook/                # Web API plugin for Gizmo Server
+│   ├── Controllers/GGBookController.cs # REST endpoints (ping, config, sync-port, versions)
+│   └── Filters/ApiKeyAuthAttribute.cs  # X-GGMod-Key header authentication
+├── dist/webmodules/                    # Pre-built plugin DLL (ready to deploy)
 ├── Gizmo.Client.UI.GGMod/             # Early GGMod scaffold (not active in production)
 └── Submodules/                         # Upstream Gizmo dependencies
 ```
