@@ -9,7 +9,7 @@
 
 ## Screenshots
 
-| Main / Ads | Cases | Tasks |
+| Home page | Cases | Tasks |
 |---|---|---|
 | ![Main page](docs/screenshots/main-page.png) | ![Cases](docs/screenshots/cases.png) | ![Tasks](docs/screenshots/tasks.png) |
 
