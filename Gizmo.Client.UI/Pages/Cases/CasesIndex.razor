@@ -25,13 +25,14 @@
 
     /* ── Roulette ── */
     .gg-roulette-item {
-        flex-shrink: 0; width: 9rem; height: 9rem;
+        flex-shrink: 0; width: 11rem; height: 11rem;
         border-radius: 0.6rem;
         background: rgba(8,11,18,0.98);
         position: relative; overflow: hidden;
         display: flex; align-items: center; justify-content: center;
         user-select: none;
         border: 1px solid rgba(255,255,255,0.08);
+        contain: layout paint style;
     }
     .gg-roulette-item-img { position:absolute;inset:0;width:100%;height:100%;object-fit:cover; }
     .gg-roulette-item-icon { display:flex;align-items:center;justify-content:center;position:absolute;inset:0; }
@@ -52,16 +53,16 @@
     .gg-rcard-chance {
         position:absolute;top:0.5rem;right:0.5rem;
         background:rgba(0,0,0,0.65);backdrop-filter:blur(0.4rem);
-        color:#fff;font-size:1rem;font-weight:700;
-        padding:0.2rem 0.5rem;border-radius:0.6rem;line-height:1.4;
+        color:#fff;font-size:1.2rem;font-weight:700;
+        padding:0.3rem 0.7rem;border-radius:0.6rem;line-height:1.4;
     }
     .gg-rcard-name-bar {
         position:absolute;bottom:0;left:0;right:0;
-        padding:1.8rem 0.5rem 0.5rem;
+        padding:2.2rem 0.7rem 0.7rem;
         background:linear-gradient(to top,rgba(0,0,0,0.85) 0%,transparent 100%);
     }
     .gg-rcard-name {
-        display:block;color:#fff;font-size:1rem;font-weight:700;
+        display:block;color:#fff;font-size:1.2rem;font-weight:700;
         text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     }
 
@@ -87,9 +88,9 @@
     /* ── Case action row buttons ── */
     .gg-open-btn {
         display: flex; align-items: center; justify-content: center; gap: 0.6rem;
-        width: auto; min-width: 16rem; padding: 0.85rem 1.8rem;
+        width: auto; min-width: 19rem; padding: 1.1rem 2.4rem;
         background: linear-gradient(135deg, #4ecdc4 0%, #2ab7ae 100%);
-        color: #0a0e16; font-size: 1.3rem; font-weight: 700;
+        color: #0a0e16; font-size: 1.55rem; font-weight: 700;
         border: none; border-radius: 1rem; cursor: pointer;
         box-shadow: 0 0.4rem 1.6rem rgba(78,205,196,0.35);
         transition: filter 0.15s, transform 0.12s, box-shadow 0.15s;
@@ -139,7 +140,7 @@ else if (GGModConfig.Cases)
         {
             <!-- LIST VIEW -->
             <div style="height:100%;overflow-y:auto;padding:2rem 2.4rem;" class="giz-scrollbar--v">
-                <span style="display:block;font-size:2.2rem;font-weight:700;color:#FAFAFA;font-family:Rubik,sans-serif;letter-spacing:0.04em;margin-bottom:1.8rem;text-shadow:0 2px 12px rgba(0,0,0,0.8);">@GGModL10n.Get(GGModL10n.CasesTitle)</span>
+                <span style="display:block;font-size:2.6rem;font-weight:700;color:#FAFAFA;font-family:Rubik,sans-serif;letter-spacing:0.04em;margin-bottom:2rem;text-shadow:0 2px 12px rgba(0,0,0,0.8);">@GGModL10n.Get(GGModL10n.CasesTitle)</span>
 
                 @if (_casesLoading)
                 {
@@ -163,7 +164,7 @@ else if (GGModConfig.Cases)
                 }
                 else
                 {
-                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(20rem,1fr));gap:1.4rem;">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(24rem,1fr));gap:1.8rem;">
                         @foreach (var c in _cases)
                         {
                             <div class="gg-case-card"
@@ -183,15 +184,15 @@ else if (GGModConfig.Cases)
                                     </div>
                                 }
 
-                                <div style="position:absolute;bottom:0;left:0;right:0;padding:5rem 1.2rem 1.2rem;background:linear-gradient(to top,rgba(0,0,0,0.97) 0%,rgba(0,0,0,0.6) 60%,transparent 100%);">
-                                    <span style="display:block;font-size:1.35rem;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.06em;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">@c.Name</span>
+                                <div style="position:absolute;bottom:0;left:0;right:0;padding:5rem 1.4rem 1.4rem;background:linear-gradient(to top,rgba(0,0,0,0.97) 0%,rgba(0,0,0,0.6) 60%,transparent 100%);">
+                                    <span style="display:block;font-size:1.6rem;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.06em;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">@c.Name</span>
                                 </div>
 
                                 @if (c.PointsPrice > 0)
                                 {
                                     <div style="position:absolute;top:0.8rem;left:0.8rem;display:flex;align-items:center;gap:0.5rem;padding:0.45rem 1rem;border-radius:2rem;background:rgba(0,0,0,0.85);border:1px solid rgba(240,192,64,0.4);">
                                         <Icon SVGIcon="Icons.Star_Client" Size="IconSizes.Small" Style="color:#F0C040;" />
-                                        <span style="font-size:1.2rem;font-weight:700;color:#F0C040;">@c.PointsPrice</span>
+                                        <span style="font-size:1.4rem;font-weight:700;color:#F0C040;">@c.PointsPrice</span>
                                     </div>
                                 }
 
@@ -238,8 +239,6 @@ else if (GGModConfig.Cases)
                         <!-- Side edge fades -->
                         <div style="position:absolute;left:0;top:0;bottom:0;width:13rem;background:linear-gradient(to right,#080b12 40%,transparent 100%);z-index:2;pointer-events:none;"></div>
                         <div style="position:absolute;right:0;top:0;bottom:0;width:13rem;background:linear-gradient(to left,#080b12 40%,transparent 100%);z-index:2;pointer-events:none;"></div>
-                        <!-- Glowing center selection box (frames the winning slot) -->
-                        <div style="position:absolute;left:50%;top:1rem;bottom:1rem;transform:translateX(-50%);width:9.2rem;border:2px solid rgba(78,205,196,0.55);border-radius:0.7rem;z-index:3;pointer-events:none;box-shadow:0 0 0 1px rgba(78,205,196,0.1),0 0 2.5rem rgba(78,205,196,0.2),inset 0 0 2rem rgba(78,205,196,0.07);"></div>
                         <!-- Win arrows -->
                         <div class="gg-win-line" style="position:absolute;left:50%;top:0;transform:translateX(-50%);width:0;height:0;border-left:1.1rem solid transparent;border-right:1.1rem solid transparent;border-top:1.4rem solid #4ecdc4;z-index:5;filter:drop-shadow(0 0 6px #4ecdc4);pointer-events:none;"></div>
                         <div class="gg-win-line" style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:1.1rem solid transparent;border-right:1.1rem solid transparent;border-bottom:1.4rem solid #4ecdc4;z-index:5;filter:drop-shadow(0 0 6px #4ecdc4);pointer-events:none;"></div>

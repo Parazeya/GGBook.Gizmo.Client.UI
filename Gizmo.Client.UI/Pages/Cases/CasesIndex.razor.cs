@@ -217,6 +217,45 @@ namespace Gizmo.Client.UI.Pages
             await Task.WhenAll(LoadCasesAsync(), LoadHistoryFirstPageAsync());
         }
 
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (_wheelItems.Count > 0)
+                await FreezeRouletteGifsAsync();
+        }
+
+        private async Task FreezeRouletteGifsAsync()
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval", @"(function() {
+                    document.querySelectorAll('.gg-roulette-item-img').forEach(function(img) {
+                        if (img.dataset.gifFrozen === '1') return;
+                        function freeze() {
+                            if (!img.complete || img.naturalWidth === 0) return;
+                            var canvas = document.createElement('canvas');
+                            canvas.width = img.naturalWidth;
+                            canvas.height = img.naturalHeight;
+                            canvas.className = img.className;
+                            canvas.style.position = 'absolute';
+                            canvas.style.inset = '0';
+                            canvas.style.width = '100%';
+                            canvas.style.height = '100%';
+                            canvas.style.objectFit = 'cover';
+                            try {
+                                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                                img.parentNode.insertBefore(canvas, img);
+                                img.style.display = 'none';
+                                img.dataset.gifFrozen = '1';
+                            } catch(e) {}
+                        }
+                        if (img.complete && img.naturalWidth > 0) { freeze(); }
+                        else { img.addEventListener('load', freeze, { once: true }); }
+                    });
+                })()");
+            }
+            catch { }
+        }
+
         // ── DTO mapping ──────────────────────────────────────────────────────────
 
         private CaseModel CaseFromDto(CaseApiDto dto) => new()
