@@ -365,3 +365,6 @@ package-lock.json
 
 # Editor backup files
 *.bak
+
+# IDE settings
+.vscode/
