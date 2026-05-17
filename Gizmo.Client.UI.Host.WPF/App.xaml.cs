@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Windows;
+using Gizmo.Client.UI.Host.WPF.Services;
 using Gizmo.Client.UI.Services;
 using Gizmo.UI;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +15,11 @@ namespace Gizmo.Client.UI.Host.WPF
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnExit(ExitEventArgs e)
+        {
+            base.OnExit(e);
+        }
+
         protected async override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -22,7 +28,6 @@ namespace Gizmo.Client.UI.Host.WPF
             ShutdownMode = ShutdownMode.OnMainWindowClose;
 
             var hostBuilder = new HostBuilder();
-
 
             hostBuilder.ConfigureServices((context, serviceCollection) =>
             {
@@ -41,9 +46,11 @@ namespace Gizmo.Client.UI.Host.WPF
                 serviceCollection.AddSingleton<IImageService, ImageService>();
 
                 serviceCollection.AddSingleton<IInputLanguageService, WpfInputLenguageService>();
+                serviceCollection.AddSingleton<INetworkStatusService, NetworkStatusService>();
+                serviceCollection.AddSingleton<IProcessManagerService, ProcessManagerService>();
 
                 serviceCollection.AddSingleton<IHostWindow, HostWindow>();
-                serviceCollection.AddSingleton<INotificationsHost,NotificationsHost>();
+                serviceCollection.AddSingleton<INotificationsHost, NotificationsHost>();
 
             }).ConfigureLogging(loggingBuilder =>
             {
@@ -60,7 +67,7 @@ namespace Gizmo.Client.UI.Host.WPF
             var host = hostBuilder.Build();
 
             Resources.Add("services", host.Services);
-         
+
             var compositionService = host.Services.GetRequiredService<DesktopUICompositionService>();
 
             string compositionFile = Path.Combine(Environment.CurrentDirectory, @"composition.json");

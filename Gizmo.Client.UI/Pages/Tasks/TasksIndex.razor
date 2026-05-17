@@ -1,0 +1,413 @@
+@namespace Gizmo.Client.UI.Pages
+@inherits ComponentBase
+
+<style>
+    @@keyframes gg-spin { to { transform: rotate(360deg); } }
+    .tk-spinner {
+        width: 3.2rem; height: 3.2rem;
+        border: 0.35rem solid rgba(255,255,255,0.1);
+        border-top-color: #4ecdc4;
+        border-radius: 50%;
+        animation: gg-spin 0.7s linear infinite;
+    }
+    .tk-spinner-sm {
+        display: inline-block;
+        width: 1.1rem; height: 1.1rem;
+        border-width: 0.18rem;
+    }
+
+    /* ── Page shell (same overlay as Cases) ── */
+    .tk-shell {
+        height: 100%; display: flex; flex-direction: column; overflow: hidden;
+        background: rgba(6,9,14,0.6);
+        backdrop-filter: blur(0.5rem);
+        -webkit-backdrop-filter: blur(0.5rem);
+    }
+
+    /* ── Scrollable body ── */
+    .tk-body {
+        flex: 1; overflow-y: auto; overflow-x: hidden;
+        padding: 2rem 2.4rem 3rem;
+    }
+
+    /* ── Centered container ── */
+    .tk-wrap {
+        max-width: 72rem;
+        margin: 0 auto;
+        display: flex; flex-direction: column; gap: 1.6rem;
+    }
+
+    /* ── Page title ── */
+    .tk-title {
+        font-size: 2.2rem; font-weight: 700; color: #FAFAFA;
+        font-family: Rubik, sans-serif; letter-spacing: 0.04em;
+        text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+    }
+
+    /* ── Tabs ── */
+    .tk-tabs {
+        display: flex; gap: 0.5rem; flex-wrap: wrap;
+        padding: 0.3rem;
+        background: rgba(0,0,0,0.3);
+        border-radius: 1.2rem;
+        border: 1px solid rgba(255,255,255,0.07);
+        width: fit-content;
+    }
+    .tk-tab {
+        padding: 0.6rem 1.6rem;
+        border-radius: 0.9rem; border: none;
+        background: transparent;
+        color: rgba(255,255,255,0.45);
+        font-size: 1.1rem; font-weight: 600;
+        cursor: pointer; transition: all 0.18s;
+        letter-spacing: 0.01em;
+    }
+    .tk-tab:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.06); }
+    .tk-tab--active {
+        background: rgba(78,205,196,0.2);
+        color: #4ecdc4;
+        box-shadow: 0 0 0 1px rgba(78,205,196,0.4);
+    }
+
+    /* ── Unclaimed banner ── */
+    .tk-unclaimed {
+        border-radius: 1.2rem;
+        background: linear-gradient(135deg, rgba(78,205,196,0.14) 0%, rgba(20,184,166,0.08) 100%);
+        border: 1px solid rgba(78,205,196,0.3);
+        padding: 1.2rem 1.4rem;
+        display: flex; flex-direction: column; gap: 0.8rem;
+    }
+    .tk-unclaimed-head {
+        display: flex; align-items: center; gap: 0.6rem;
+        color: #4ecdc4; font-size: 1.15rem; font-weight: 700;
+    }
+    .tk-unclaimed-reward {
+        color: rgba(255,255,255,0.7); font-size: 1rem;
+        padding-left: 0.2rem;
+    }
+    .tk-unclaimed-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.6rem; }
+    .tk-claim-all-btn {
+        display: flex; align-items: center; gap: 0.5rem;
+        padding: 0.55rem 1.4rem; border-radius: 0.8rem; border: none; cursor: pointer;
+        background: linear-gradient(135deg, #4ecdc4, #20c997);
+        color: #fff; font-size: 1.05rem; font-weight: 700;
+        transition: opacity 0.15s, transform 0.1s;
+        box-shadow: 0 0.3rem 1rem rgba(78,205,196,0.35);
+    }
+    .tk-claim-all-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .tk-claim-all-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Verify warning ── */
+    .tk-verify {
+        display: flex; align-items: center; gap: 0.8rem;
+        padding: 0.9rem 1.2rem; border-radius: 1rem;
+        background: rgba(240,192,64,0.1); border: 1px solid rgba(240,192,64,0.3);
+        color: #f0c040; font-size: 1.05rem;
+    }
+
+    /* ── Task list ── */
+    .tk-list { display: flex; flex-direction: column; gap: 0.7rem; }
+
+    /* ── Task card ── */
+    .tk-card {
+        display: flex; align-items: stretch;
+        border-radius: 1.1rem; overflow: hidden;
+        background: rgba(12,17,26,0.72);
+        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(0.4rem);
+        -webkit-backdrop-filter: blur(0.4rem);
+        transition: border-color 0.15s, background 0.15s;
+    }
+    .tk-card:hover { background: rgba(16,22,33,0.85); }
+    .tk-card--claimable {
+        border-color: rgba(78,205,196,0.5);
+        background: rgba(12,17,26,0.82);
+        box-shadow: 0 0 0 1px rgba(78,205,196,0.12), inset 0 0 2rem rgba(78,205,196,0.04);
+    }
+    .tk-card--done { opacity: 0.48; }
+    .tk-card--error { border-color: rgba(224,92,92,0.5); background: rgba(20,8,8,0.75); }
+
+    /* accent bar */
+    .tk-bar { width: 0.3rem; flex-shrink: 0; }
+
+    /* icon cell */
+    .tk-icon-cell {
+        width: 4.4rem; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(0,0,0,0.25);
+    }
+
+    /* body */
+    .tk-card-body {
+        flex: 1; min-width: 0;
+        padding: 1.1rem 1.2rem;
+        display: flex; flex-direction: column; gap: 0.4rem;
+    }
+    .tk-card-title {
+        color: #fff; font-size: 1.25rem; font-weight: 700;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+    }
+    .tk-card-qty { color: rgba(255,255,255,0.38); font-size: 1rem; }
+    .tk-card-reward {
+        display: flex; align-items: center; gap: 0.5rem;
+        margin-top: 0.15rem;
+    }
+    .tk-card-reward-lbl { font-size: 1rem; color: rgba(255,255,255,0.45); }
+    .tk-card-reward-val { font-size: 1.15rem; font-weight: 700; }
+    .tk-card-inline-error {
+        display: flex; align-items: center; gap: 0.35rem;
+        color: #e05c5c; font-size: 0.9rem; font-weight: 600;
+        margin-top: 0.1rem;
+    }
+
+    /* action area */
+    .tk-card-action {
+        display: flex; align-items: center; justify-content: center;
+        padding: 0 1.1rem; flex-shrink: 0; min-width: 7rem;
+    }
+    .tk-done-badge {
+        display: flex; align-items: center; gap: 0.35rem;
+        color: #34c38f; font-size: 0.92rem; font-weight: 700; white-space: nowrap;
+    }
+    .tk-pending-badge {
+        display: flex; align-items: center; justify-content: center;
+        color: rgba(255,255,255,0.22);
+    }
+    .tk-claim-btn {
+        padding: 0.5rem 1.2rem; border-radius: 0.7rem; border: none; cursor: pointer;
+        background: linear-gradient(135deg, #4ecdc4, #20c997);
+        color: #fff; font-size: 0.95rem; font-weight: 700;
+        white-space: nowrap;
+        display: flex; align-items: center; gap: 0.4rem;
+        transition: opacity 0.15s, transform 0.1s;
+        box-shadow: 0 0.2rem 0.8rem rgba(78,205,196,0.3);
+    }
+    .tk-claim-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .tk-claim-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+    .tk-claim-btn--error {
+        background: linear-gradient(135deg, #e05c5c, #c0392b) !important;
+        box-shadow: 0 0.2rem 0.8rem rgba(224,92,92,0.3) !important;
+    }
+
+    /* ── Error / success ── */
+    .tk-error   { color: #e05c5c; font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem; }
+    .tk-success { color: #34c38f; font-size: 1.05rem; }
+    .tk-retry-btn {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        padding: 0.55rem 1.3rem; border-radius: 0.7rem;
+        border: 1px solid rgba(78,205,196,0.3);
+        background: rgba(78,205,196,0.1);
+        color: #4ecdc4; font-size: 1rem; font-weight: 600; cursor: pointer;
+        transition: background 0.15s;
+    }
+    .tk-retry-btn:hover { background: rgba(78,205,196,0.2); }
+
+    /* ── Empty state ── */
+    .tk-empty {
+        color: rgba(255,255,255,0.25); font-size: 1.15rem;
+        text-align: center; padding: 4rem 0;
+    }
+</style>
+
+@if (!GGModConfig.IsResolved)
+{
+    <div style="display:flex;justify-content:center;padding:6rem 0;">
+        <div class="tk-spinner"></div>
+    </div>
+}
+else if (GGModConfig.Tasks)
+{
+<div class="tk-shell">
+    <div class="tk-body giz-scrollbar--v">
+        <div class="tk-wrap">
+
+            <span class="tk-title">@GGModL10n.Get(GGModL10n.TasksTitle)</span>
+
+            @* ── Loading ── *@
+            @if (_loading)
+            {
+                <div style="display:flex;align-items:center;justify-content:center;padding:6rem 0;">
+                    <div class="tk-spinner"></div>
+                </div>
+            }
+            else if (_error is not null)
+            {
+                <div style="display:flex;flex-direction:column;align-items:flex-start;gap:0.8rem;">
+                    <div class="tk-error">
+                        <Icon SVGIcon="Icons.Info_Client" Size="IconSizes.Small" Style="color:#e05c5c;flex-shrink:0;" />
+                        @_error
+                    </div>
+                    <button class="tk-retry-btn" @onclick="LoadAsync">
+                        <Icon SVGIcon="Icons.Refresh" Size="IconSizes.Small" />
+                        @GGModL10n.Get(GGModL10n.Retry)
+                    </button>
+                </div>
+            }
+            else
+            {
+                @* ── Unclaimed rewards banner ── *@
+                @if (_unclaimed.Count > 0)
+                {
+                    <div class="tk-unclaimed">
+                        <div class="tk-unclaimed-head">
+                            <Icon SVGIcon="Icons.Star_Client" Size="IconSizes.Small" Style="color:#4ecdc4;" />
+                            @GGModL10n.Get(GGModL10n.UnclaimedTitle) &nbsp;<span style="opacity:0.6;font-weight:400;">(@_unclaimed.Count)</span>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:0.2rem;">
+                            @foreach (var r in _unclaimed)
+                            {
+                                <div class="tk-unclaimed-reward">· @RewardTitleFromUnclaimed(r)</div>
+                            }
+                        </div>
+                        <div class="tk-unclaimed-footer">
+                            <div>
+                                @if (_claimAllError is not null)
+                                {
+                                    <div class="tk-error" style="font-size:0.95rem;">@_claimAllError</div>
+                                }
+                                @if (_claimAllSuccess)
+                                {
+                                    <div class="tk-success">@GGModL10n.Get(GGModL10n.ClaimAllSuccess)</div>
+                                }
+                            </div>
+                            <button class="tk-claim-all-btn" disabled="@_claimingAll" @onclick="ClaimAllAsync">
+                                @if (_claimingAll)
+                                {
+                                    <div class="tk-spinner tk-spinner-sm"></div>
+                                    <span>@GGModL10n.Get(GGModL10n.Claiming)</span>
+                                }
+                                else
+                                {
+                                    <Icon SVGIcon="Icons.Star_Client" Size="IconSizes.Small" Style="color:#fff;" />
+                                    <span>@GGModL10n.Get(GGModL10n.ClaimAllBtn)</span>
+                                }
+                            </button>
+                        </div>
+                    </div>
+                }
+
+                @* ── Tabs ── *@
+                @if (_groups.Count > 1)
+                {
+                    <div class="tk-tabs">
+                        @for (int i = 0; i < _groups.Count; i++)
+                        {
+                            var idx = i;
+                            var g   = _groups[i];
+                            <button class="tk-tab @(_activeTab == idx ? "tk-tab--active" : "")"
+                                    @onclick="() => _activeTab = idx">
+                                @GroupTabLabel(g)
+                            </button>
+                        }
+                    </div>
+                }
+
+                @* ── Active group ── *@
+                @if (_groups.Count > 0)
+                {
+                    var group = _groups[_activeTab];
+
+                    @if (group.VerificationRequired && !_isVerificated)
+                    {
+                        <div class="tk-verify">
+                            <Icon SVGIcon="Icons.Warning_Client" Size="IconSizes.Small" Style="color:#f0c040;flex-shrink:0;" />
+                            @GGModL10n.Get(GGModL10n.VerifyWarning)
+                        </div>
+                    }
+
+                    <div class="tk-list">
+                        @foreach (var task in group.Items)
+                        {
+                            var done      = IsDone(group.Id, task.Id);
+                            var verified  = !group.VerificationRequired || _isVerificated;
+                            var claimable = !done && verified && IsClaimable(group.Id, task.Id);
+                            var color     = TaskColor(task.TaskType);
+                            var rcolor    = RewardColor(task.RewardType);
+                            var claiming  = _claimingIds.Contains(task.Id);
+                            _claimErrors.TryGetValue(task.Id, out var cardError);
+
+                            <div class="tk-card @(claimable ? "tk-card--claimable" : "") @(done ? "tk-card--done" : "") @(cardError is not null ? "tk-card--error" : "")">
+
+                                <div class="tk-bar" style="background:@(cardError is not null ? "#e05c5c" : color);"></div>
+
+                                <div class="tk-icon-cell">
+                                    <Icon SVGIcon="@TaskIcon(task.TaskType)" Size="IconSizes.Medium"
+                                          Style="@($"color:{(cardError is not null ? "#e05c5c" : color)};")" />
+                                </div>
+
+                                <div class="tk-card-body">
+                                    <div class="tk-card-title">@TaskTitle(task)</div>
+                                    @if (task.TaskQuantity > 1)
+                                    {
+                                        <div class="tk-card-qty">×@task.TaskQuantity</div>
+                                    }
+                                    @if (cardError is not null)
+                                    {
+                                        <div class="tk-card-inline-error">
+                                            <Icon SVGIcon="Icons.Info_Client" Size="IconSizes.Small" Style="color:#e05c5c;flex-shrink:0;" />
+                                            @cardError
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="tk-card-reward">
+                                            <Icon SVGIcon="@RewardIcon(task.RewardType)" Size="IconSizes.Small"
+                                                  Style="@($"color:{rcolor};")" />
+                                            <span class="tk-card-reward-lbl">@GGModL10n.Get(GGModL10n.RewardLabel)</span>
+                                            <span class="tk-card-reward-val" style="color:@rcolor;">@RewardTitle(task)</span>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="tk-card-action">
+                                    @if (done)
+                                    {
+                                        <div class="tk-done-badge">
+                                            <Icon SVGIcon="Icons.Success_Client" Size="IconSizes.Small" Style="color:#34c38f;" />
+                                            @GGModL10n.Get(GGModL10n.DoneBadge)
+                                        </div>
+                                    }
+                                    else if (claimable)
+                                    {
+                                        <button class="tk-claim-btn @(cardError is not null ? "tk-claim-btn--error" : "")"
+                                                disabled="@claiming"
+                                                @onclick="() => ClaimSingleAsync(task)">
+                                            @if (claiming)
+                                            {
+                                                <div class="tk-spinner tk-spinner-sm"></div>
+                                            }
+                                            else if (cardError is not null)
+                                            {
+                                                <Icon SVGIcon="Icons.Refresh" Size="IconSizes.Small" Style="color:#fff;" />
+                                                <span>@GGModL10n.Get(GGModL10n.Retry)</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@GGModL10n.Get(GGModL10n.ClaimBtn)</span>
+                                            }
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <div class="tk-pending-badge">
+                                            <Icon SVGIcon="Icons.Clock_Client" Size="IconSizes.Medium"
+                                                  Style="color:rgba(255,255,255,0.2);" />
+                                        </div>
+                                    }
+                                </div>
+
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="tk-empty">@GGModL10n.Get(GGModL10n.NoTasks)</div>
+                }
+            }
+
+        </div>
+    </div>
+</div>
+}

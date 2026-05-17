@@ -1,6 +1,797 @@
 ﻿@inherits LayoutComponentBase
 @using Microsoft.Extensions.Options
 
+<style>
+    /* ── Root wrapper: top bar + main row ── */
+    .giz-root {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* ── Top bar ── */
+    /* backdrop-filter moved to ::before to avoid Chromium bug where
+       backdrop-filter on an ancestor makes position:fixed children
+       position relative to that ancestor instead of the viewport */
+    .giz-top-bar {
+        flex-shrink: 0;
+        position: relative;
+        display: flex;
+        align-items: center;
+        padding: 0 1.6rem;
+        gap: 1rem;
+        height: 7rem;
+        background: transparent;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+        z-index: 500;
+    }
+    .giz-top-bar::before {
+        content: '';
+        position: absolute;
+        top: 0; right: 0; bottom: 0; left: 0;
+        background: rgba(4,6,10,0.88);
+        backdrop-filter: blur(2rem);
+        -webkit-backdrop-filter: blur(2rem);
+        pointer-events: none;
+        z-index: -1;
+    }
+    /* Search — left side */
+    .giz-top-bar__left {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+    /* Info cluster — absolutely centered */
+    .giz-top-bar__center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        pointer-events: none;
+    }
+    .giz-top-bar__center > * {
+        pointer-events: auto;
+    }
+    /* Action buttons + user — pinned to the right */
+    .giz-top-bar__right {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+    }
+    .giz-actions-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        height: 100%;
+    }
+    .giz-top-bar .giz-header__user-menu-item {
+        height: 100% !important;
+    }
+    .giz-top-bar .giz-user-menu-button {
+        height: 5rem !important;
+    }
+    /* Топ-бар не обрезает выпадающие меню */
+    .giz-top-bar { overflow: visible !important; }
+    .giz-actions-bar { overflow: visible !important; }
+    .giz-top-bar .giz-header__user-menu-item { overflow: visible !important; }
+    /* Дропдауны: z-index внутри стэкинг-контекста топ-бара (z-index: 500).
+       overflow и max-height не трогаем — скин управляет ими через внутренние элементы,
+       которые имеют box-shadow/border-radius (overflow:hidden обрезает тени). */
+    .giz-top-bar .giz-dropdown-menu {
+        z-index: 9000 !important;
+        position: absolute !important;
+        top: 100% !important;
+        right: 0 !important;
+        overflow: visible !important;
+    }
+
+    /* ── Main row: sidebar + body + user panel ── */
+    .giz-container {
+        display: flex !important;
+        flex-direction: row !important;
+        flex: 1 !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+        position: relative !important;
+    }
+    .giz-app__header { display: none !important; }
+    .giz-app__body {
+        flex: 1 !important;
+        min-width: 0 !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    /* ── Sidebar shell (icon-only) ── */
+    .giz-sidebar {
+        width: 6.5rem;
+        flex-shrink: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: rgba(4,6,10,0.92);
+        backdrop-filter: blur(2rem);
+        -webkit-backdrop-filter: blur(2rem);
+        border-right: 1px solid rgba(255,255,255,0.07);
+        z-index: 100;
+    }
+    .giz-sidebar__inner {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 2rem 0 1.6rem;
+        align-items: center;
+    }
+
+    /* ── Brand ── */
+    .giz-sidebar__brand {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+        padding: 0 2rem 1.8rem;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+        margin-bottom: 1.4rem;
+        flex-shrink: 0;
+    }
+    .giz-sidebar__brand > span {
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: #FAFAFA;
+        font-family: Rubik, sans-serif;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    /* ── Navigation ── */
+    .giz-sidebar__nav {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 0 0.8rem;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    .giz-sidebar__fill { flex: 1; min-height: 0.8rem; }
+
+    /* Override skin CSS: vertical icon-only nav */
+    .giz-sidebar .giz-header__modules-menu {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.2rem !important;
+        padding: 0 !important;
+        height: auto !important;
+        width: 100% !important;
+        flex-wrap: nowrap !important;
+    }
+    .giz-sidebar .giz-header__modules-menu-item {
+        width: 100% !important;
+        height: auto !important;
+    }
+    .giz-sidebar .giz-header__modules-menu-item > a {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0 !important;
+        padding: 1.1rem !important;
+        border-radius: 1rem !important;
+        height: auto !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        color: rgba(255,255,255,0.4) !important;
+        transition: background 0.15s, color 0.15s !important;
+        text-decoration: none !important;
+    }
+    .giz-sidebar .giz-header__modules-menu-item > a:hover {
+        background: rgba(255,255,255,0.07) !important;
+        color: rgba(255,255,255,0.9) !important;
+    }
+    .giz-sidebar .giz-header__modules-menu-item > a.active {
+        background: rgba(78,205,196,0.13) !important;
+        color: #4ecdc4 !important;
+    }
+    .giz-sidebar .giz-header__modules-menu-item > a.active::before {
+        display: none !important;
+    }
+    .giz-sidebar .giz-header__modules-menu-item > a .giz-icon--large {
+        width: 2.4rem !important;
+        height: 2.4rem !important;
+        flex-shrink: 0 !important;
+    }
+    /* Hide text labels — icon-only mode */
+    .giz-sidebar .giz-header__modules-menu-item > a > span {
+        display: none !important;
+    }
+
+    /* ── Right user panel ── */
+    .giz-user-panel {
+        width: 26rem;
+        flex-shrink: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        /* NO overflow:hidden — дропдауны должны выходить за пределы панели */
+        background: rgba(4,6,10,0.92);
+        backdrop-filter: blur(2rem);
+        -webkit-backdrop-filter: blur(2rem);
+        border-left: 1px solid rgba(255,255,255,0.07);
+        z-index: 150;
+        position: relative;
+    }
+    .giz-user-panel__menu {
+        flex: 1;
+        overflow: visible;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    /* Balance rows — vertical in right panel */
+    .giz-user-panel .giz-header__user-menu {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        width: 100% !important;
+        gap: 0 !important;
+        align-items: stretch !important;
+        position: relative !important;
+        padding: 1.2rem 1.4rem !important;
+    }
+    .giz-user-panel .giz-header__user-menu-item {
+        display: flex !important;
+        align-items: center !important;
+        gap: 1rem !important;
+        padding: 1rem 0.4rem !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        border-top: 1px solid rgba(255,255,255,0.05) !important;
+        font-size: 1.4rem !important;
+        font-weight: 600 !important;
+        height: auto !important;
+        color: rgba(255,255,255,0.85) !important;
+        white-space: nowrap !important;
+        position: relative !important;
+    }
+    .giz-user-panel .giz-header__user-menu > .giz-header__user-menu-item:first-child,
+    .giz-user-panel .giz-header__user-menu > .giz-header__user-menu-item:nth-child(2) {
+        border-top: none !important;
+    }
+    /* Все дропдауны/попапы выходят за пределы панели */
+    .giz-user-panel .giz-user-balance-tooltip-wrapper { z-index: 9999; }
+    .giz-user-panel .giz-header-user-balance          { z-index: 9999; }
+
+    /* ── Home page ── */
+    .gg-home {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+        background: rgba(6,9,14,0.4);
+    }
+    .gg-home__hero {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        flex-shrink: 0;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+        overflow: hidden;
+    }
+    .gg-home__quick-launch { flex: 1; min-width: 0; overflow: hidden; }
+    .gg-home__news-rotator {
+        width: 36rem;
+        flex-shrink: 0;
+        border-left: 1px solid rgba(255,255,255,0.07);
+        overflow: hidden;
+    }
+    .gg-home__feed {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 2rem 2.4rem 2.4rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2.8rem;
+        min-height: 0;
+    }
+    .gg-home__section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+    .gg-home__section-hd {
+        display: flex;
+        align-items: center;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .gg-home__section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: rgba(255,255,255,0.32);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        font-family: Rubik, sans-serif;
+    }
+
+    /* ── Profile header (top of right panel) ── */
+    .giz-profile-header {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+        padding: 1.8rem 1.4rem 1.4rem;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+        flex-shrink: 0;
+    }
+    .giz-profile-header__avatar {
+        flex-shrink: 0;
+    }
+    .giz-profile-header .giz-user-avatar,
+    .giz-profile-header .giz-icon.giz-user-avatar {
+        width: 4.8rem !important;
+        height: 4.8rem !important;
+        border-radius: 50% !important;
+        background: rgba(78,205,196,0.12) !important;
+        color: #4ecdc4 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    .giz-profile-header__info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        min-width: 0;
+        flex: 1;
+    }
+    .giz-profile-header__name {
+        font-size: 1.45rem;
+        font-weight: 700;
+        color: rgba(255,255,255,0.92);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-family: Rubik, sans-serif;
+    }
+    .giz-profile-header__host {
+        font-size: 1.1rem;
+        color: rgba(255,255,255,0.36);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 500;
+    }
+
+    /* ── Search pill: always visible ── */
+    .giz-top-bar .giz-header__global-search {
+        width: 42rem;
+    }
+    .giz-top-bar .giz-global-search {
+        width: 100% !important;
+        height: 4.4rem !important;
+        border-radius: 3rem !important;
+        background-color: rgba(255,255,255,0.07) !important;
+        border: 1px solid rgba(255,255,255,0.12) !important;
+        transition: border-color 0.2s, background-color 0.2s !important;
+    }
+    .giz-top-bar .giz-global-search:hover,
+    .giz-top-bar .giz-global-search.nonemtpy,
+    .giz-top-bar .giz-global-search:focus-within {
+        width: 100% !important;
+    }
+    .giz-top-bar .giz-global-search:focus-within {
+        border-color: rgba(78,205,196,0.5) !important;
+        background-color: rgba(255,255,255,0.1) !important;
+    }
+    .giz-top-bar .giz-global-search input {
+        display: block !important;
+        font-size: 1.35rem !important;
+        color: rgba(255,255,255,0.9) !important;
+        line-height: normal !important;
+    }
+    .giz-top-bar .giz-global-search input::placeholder {
+        color: rgba(255,255,255,0.32) !important;
+    }
+    .giz-top-bar .giz-global-search > .giz-icon {
+        color: rgba(255,255,255,0.38) !important;
+    }
+    .giz-top-bar .giz-global-search .giz-close-button {
+        display: block !important;
+    }
+    .giz-top-bar .giz-global-search .giz-global-search-dropdown {
+        background-color: rgba(10,14,22,0.97) !important;
+        backdrop-filter: blur(2rem) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 1.4rem !important;
+        box-shadow: 0 1.6rem 4rem rgba(0,0,0,0.6) !important;
+        width: 54rem !important;
+        left: 0 !important;
+        transform: none !important;
+        z-index: 9001 !important;
+        margin-top: 0.6rem !important;
+    }
+
+    /* ── Right panel: time product (tariff) card ── */
+    .giz-user-panel .giz-header-user-balance {
+        background-color: rgba(78,205,196,0.1) !important;
+        color: #4ecdc4 !important;
+        border-radius: 0.8rem !important;
+        border: 1px solid rgba(78,205,196,0.25) !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        gap: 0.8rem !important;
+        font-weight: 600 !important;
+        font-size: 1.3rem !important;
+    }
+    .giz-user-panel .giz-header-user-balance > .giz-icon,
+    .giz-user-panel .giz-header-user-balance svg {
+        color: #4ecdc4 !important;
+        fill: #4ecdc4 !important;
+    }
+    .giz-user-panel .giz-header__user-menu-item__icon {
+        color: rgba(255,255,255,0.38) !important;
+        display: flex !important;
+        align-items: center !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* ── Tariff tooltip: open LEFT of the right panel ── */
+    .giz-user-panel .giz-user-balance-tooltip-wrapper {
+        top: 0 !important;
+        left: auto !important;
+        right: 100% !important;
+        transform: none !important;
+        margin-right: 1.2rem !important;
+        z-index: 9999 !important;
+    }
+    .giz-user-panel .giz-user-balance-tooltip {
+        background-color: rgba(10,14,22,0.97) !important;
+        backdrop-filter: blur(2rem) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 1.2rem !important;
+        box-shadow: 0 1.6rem 4rem rgba(0,0,0,0.6) !important;
+        min-width: 48rem !important;
+        color: rgba(255,255,255,0.9) !important;
+    }
+    .giz-user-panel .giz-user-balance-tooltip__header__link {
+        border-bottom-color: #4ecdc4 !important;
+        color: #4ecdc4 !important;
+    }
+
+    /* ── Top bar: ghost icon buttons ── */
+    .giz-top-bar .giz-header__user-menu-item {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    /* Icon buttons: deposit, steam, active apps, notifications, assistance */
+    .giz-top-bar .user-menu-item-button--box {
+        background: transparent !important;
+        color: rgba(255,255,255,0.48) !important;
+        border: none !important;
+        border-radius: 0.9rem !important;
+        width: 4.2rem !important;
+        height: 4.2rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: background 0.15s, color 0.15s !important;
+        flex-shrink: 0 !important;
+    }
+    .giz-top-bar .user-menu-item-button--box:hover {
+        background: rgba(255,255,255,0.09) !important;
+        color: rgba(255,255,255,0.92) !important;
+    }
+    .giz-top-bar .open > .user-menu-item-button--box {
+        background: rgba(78,205,196,0.15) !important;
+        color: #4ecdc4 !important;
+    }
+    /* Shrink icons inside ghost buttons */
+    .giz-top-bar .user-menu-item-button--box .giz-icon {
+        width: 2.2rem !important;
+        height: 2.2rem !important;
+        color: inherit !important;
+    }
+    .giz-top-bar .user-menu-item-button--box svg {
+        width: 2rem !important;
+        height: 2rem !important;
+        fill: currentColor !important;
+    }
+
+    /* PC 46 user button: compact pill */
+    .giz-top-bar .giz-user-menu-button {
+        background: rgba(255,255,255,0.07) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 2.4rem !important;
+        height: auto !important;
+        padding: 0.65rem 1.1rem 0.65rem 0.7rem !important;
+        gap: 0.6rem !important;
+        color: rgba(255,255,255,0.75) !important;
+        font-size: 1.3rem !important;
+        font-weight: 500 !important;
+        display: flex !important;
+        align-items: center !important;
+        box-shadow: none !important;
+        transition: background 0.15s, border-color 0.15s, color 0.15s !important;
+        margin-left: 0.6rem !important;
+    }
+    .giz-top-bar .giz-user-menu-button:hover {
+        background: rgba(255,255,255,0.12) !important;
+        border-color: rgba(255,255,255,0.16) !important;
+        color: rgba(255,255,255,0.95) !important;
+    }
+    .giz-top-bar .giz-user-dropdown.open > .giz-user-menu-button {
+        background: rgba(78,205,196,0.12) !important;
+        border-color: rgba(78,205,196,0.3) !important;
+        color: #4ecdc4 !important;
+    }
+    /* Avatar inside PC pill */
+    .giz-top-bar .giz-user-menu-button .giz-user-avatar,
+    .giz-top-bar .giz-user-menu-button .giz-icon.giz-user-avatar {
+        width: 2.6rem !important;
+        height: 2.6rem !important;
+        border-radius: 50% !important;
+        color: inherit !important;
+        flex-shrink: 0 !important;
+    }
+    /* Chevron/arrow in PC pill */
+    .giz-top-bar .giz-user-menu-button .giz-icon--extra-large {
+        width: 1.6rem !important;
+        height: 1.6rem !important;
+        color: rgba(255,255,255,0.3) !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* ── Top bar info cluster ── */
+    .giz-topbar-info {
+        display: flex;
+        align-items: center;
+        height: 4.4rem;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.09);
+        border-radius: 1.2rem;
+        overflow: visible;
+        white-space: nowrap;
+    }
+    .giz-topbar-info__pc {
+        padding: 0 1.4rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: rgba(255,255,255,0.85);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-family: Rubik, sans-serif;
+    }
+    .giz-topbar-info__sep {
+        width: 1px;
+        height: 2.2rem;
+        background: rgba(255,255,255,0.1);
+        flex-shrink: 0;
+    }
+    .giz-topbar-info__tariff {
+        padding: 0 1.1rem;
+        display: flex;
+        align-items: center;
+    }
+    .giz-topbar-info__stat {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0 1.1rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: rgba(255,255,255,0.82);
+    }
+    .giz-topbar-info__stat--hidden {
+        color: rgba(255,255,255,0.3) !important;
+        font-style: italic;
+        font-weight: 400 !important;
+    }
+    .giz-topbar-info__stat .giz-icon {
+        width: 1.6rem !important;
+        height: 1.6rem !important;
+        color: rgba(255,255,255,0.4) !important;
+        flex-shrink: 0 !important;
+    }
+    .giz-topbar-info__toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        border-left: 1px solid rgba(255,255,255,0.08);
+        cursor: pointer;
+        color: rgba(255,255,255,0.3);
+        padding: 0 1rem;
+        height: 100%;
+        border-radius: 0 1.2rem 1.2rem 0;
+        transition: color 0.15s, background 0.15s;
+    }
+    .giz-topbar-info__toggle:hover {
+        color: rgba(255,255,255,0.75);
+        background: rgba(255,255,255,0.06);
+    }
+    .giz-topbar-info__toggle .giz-icon {
+        width: 1.7rem !important;
+        height: 1.7rem !important;
+        color: inherit !important;
+    }
+    /* Tariff card inside cluster: transparent, teal text */
+    .giz-topbar-info .giz-header-user-balance {
+        background-color: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        color: #4ecdc4 !important;
+        padding: 0 !important;
+        height: auto !important;
+        font-size: 1.3rem !important;
+        font-weight: 600 !important;
+        gap: 0.5rem !important;
+    }
+    .giz-topbar-info .giz-header-user-balance > .giz-icon,
+    .giz-topbar-info .giz-header-user-balance svg {
+        color: #4ecdc4 !important;
+        width: 1.8rem !important;
+        height: 1.8rem !important;
+    }
+    /* Tooltip opens downward from the cluster */
+    .giz-topbar-info .giz-user-balance-tooltip-wrapper {
+        top: calc(100% + 1rem) !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        right: auto !important;
+        margin-right: 0 !important;
+        z-index: 9001 !important;
+    }
+    .giz-topbar-info .giz-user-balance-tooltip {
+        background-color: rgba(10,14,22,0.97) !important;
+        backdrop-filter: blur(2rem) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 1.2rem !important;
+        box-shadow: 0 1.6rem 4rem rgba(0,0,0,0.6) !important;
+        color: rgba(255,255,255,0.9) !important;
+    }
+
+    /* ══════════════════════════════════════════════
+       DROPDOWN PANEL REDESIGN — dark glass
+       ══════════════════════════════════════════════ */
+    .giz-top-bar .giz-active-apps,
+    .giz-top-bar .giz-user-links,
+    .giz-top-bar .giz-menu-notifications,
+    .giz-top-bar .giz-menu-assistance,
+    .giz-top-bar .giz-user-online-deposit-menu {
+        background: rgba(10,14,22,0.97) !important;
+        backdrop-filter: blur(2rem) !important;
+        -webkit-backdrop-filter: blur(2rem) !important;
+        border: 1px solid rgba(255,255,255,0.09) !important;
+        border-radius: 1.2rem !important;
+        box-shadow: 0 2rem 5rem rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.04) !important;
+        color: rgba(255,255,255,0.85) !important;
+    }
+
+    /* Dropdown headers */
+    .giz-top-bar .giz-active-apps__header,
+    .giz-top-bar .giz-menu-notifications__header {
+        color: rgba(255,255,255,0.95) !important;
+        font-size: 1.6rem !important;
+        padding: 1.4rem 1.6rem 1.1rem !important;
+        border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+    }
+
+    /* Notifications body */
+    .giz-top-bar .giz-menu-notifications__body {
+        padding: 0.8rem !important;
+    }
+
+    /* Notifications footer — teal accent instead of blue */
+    .giz-top-bar .giz-menu-notifications__footer {
+        color: #4ecdc4 !important;
+        border-top: 1px solid rgba(255,255,255,0.07) !important;
+        font-size: 1.4rem !important;
+    }
+
+    /* User links list — compact gap, inner padding */
+    .giz-top-bar .giz-user-links {
+        gap: 0.3rem !important;
+        padding: 0.7rem !important;
+    }
+    .giz-top-bar .giz-user-links-item {
+        color: rgba(255,255,255,0.72) !important;
+        border-radius: 0.8rem !important;
+        padding: 0.8rem 1rem !important;
+        transition: background 0.15s, color 0.15s !important;
+    }
+    .giz-top-bar .giz-user-links-item:hover {
+        background: rgba(255,255,255,0.07) !important;
+        color: rgba(255,255,255,0.95) !important;
+    }
+    .giz-top-bar .giz-user-links-item__icon {
+        background-color: rgba(255,255,255,0.07) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+    .giz-top-bar .giz-user-links-item:hover .giz-user-links-item__icon {
+        background-color: rgba(78,205,196,0.15) !important;
+    }
+    .giz-top-bar .giz-user-links-item:hover .giz-user-links-item__icon svg {
+        color: #4ecdc4 !important;
+    }
+
+    /* Open-state teal for all icon buttons */
+    .giz-top-bar .giz-active-apps-dropdown.open .user-menu-item-button--box,
+    .giz-top-bar .giz-notifications-dropdown.open .user-menu-item-button--box,
+    .giz-top-bar .giz-assistance-dropdown.open .user-menu-item-button--box,
+    .giz-top-bar .giz-user-online-deposit-dropdown.open .user-menu-item-button--box {
+        background: rgba(78,205,196,0.15) !important;
+        color: #4ecdc4 !important;
+    }
+
+    /* ══════════════════════════════════════════════
+       DIALOG / MODAL REDESIGN — dark glass
+       ══════════════════════════════════════════════ */
+
+    /* Overlay — soft dark blur instead of heavy gradient */
+    [client-theme] .giz-dialog {
+        background: rgba(0,0,0,0.55) !important;
+        backdrop-filter: blur(0.6rem) !important;
+        -webkit-backdrop-filter: blur(0.6rem) !important;
+    }
+
+    /* Card wrapper — was orange, now transparent pass-through */
+    [client-theme] .giz-dialog > .giz-card {
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        border-radius: 1.6rem !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+    }
+    [client-theme] .giz-dialog > .giz-card::before {
+        display: none !important;
+    }
+
+    /* Client dialog panel — glass surface */
+    [client-theme] .giz-client-dialog {
+        background: rgba(10,14,22,0.98) !important;
+        background-color: rgba(10,14,22,0.98) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 1.6rem !important;
+        box-shadow: 0 2.4rem 7rem rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.04) !important;
+        color: rgba(255,255,255,0.9) !important;
+    }
+
+    /* Dialog header text */
+    [client-theme] .giz-client-dialog__header__title {
+        color: rgba(255,255,255,0.95) !important;
+    }
+    [client-theme] .giz-client-dialog__header__subtitle {
+        color: rgba(255,255,255,0.5) !important;
+    }
+
+    /* Separator line between header and body */
+    [client-theme] .giz-client-dialog__header {
+        border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+        padding-bottom: 1.6rem !important;
+        margin-bottom: 1.6rem !important;
+    }
+
+    /* Footer separator */
+    [client-theme] .giz-client-dialog__footer {
+        border-top: 1px solid rgba(255,255,255,0.07) !important;
+        padding-top: 1.6rem !important;
+        margin-top: 1.6rem !important;
+    }
+</style>
+
 @if (!string.IsNullOrEmpty(ClientInterfaceOptions.CurrentValue.StyleSheet))
 {
     <HeadContent>
@@ -12,12 +803,25 @@
     <div class="giz-background">
         <img src="@WallpaperViewState.Wallpaper" alt='loading' />
     </div>
-    <div class="giz-container">
-        <div class="giz-app__header">
-            <Header />
+    <div class="giz-root">
+        <div class="giz-top-bar">
+            <div class="giz-top-bar__left">
+                <HeaderGlobalSearch />
+            </div>
+            <div class="giz-top-bar__center">
+                <TopBarInfoCluster />
+            </div>
+            <div class="giz-top-bar__right">
+                <UserActionsBar />
+            </div>
         </div>
-        <div class="giz-app__body">
-            @Body
+        <div class="giz-container">
+            <aside class="giz-sidebar">
+                <Header />
+            </aside>
+            <div class="giz-app__body">
+                @Body
+            </div>
         </div>
     </div>
 

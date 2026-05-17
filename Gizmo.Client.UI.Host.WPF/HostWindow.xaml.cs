@@ -47,10 +47,21 @@ namespace Gizmo.Client.UI.Host.WPF
         {
             var staticFiles = Path.Combine(Environment.CurrentDirectory, "static");
             if (Directory.Exists(staticFiles))
-            {
-                //map static folder
-                _BLAZOR_WEB_VIEW.WebView.CoreWebView2.SetVirtualHostNameToFolderMapping("static", staticFiles, CoreWebView2HostResourceAccessKind.Allow);
-            }
+                _BLAZOR_WEB_VIEW.WebView.CoreWebView2.SetVirtualHostNameToFolderMapping(
+                    "static", staticFiles, CoreWebView2HostResourceAccessKind.Allow);
+
+            StateChanged += OnWindowStateChanged;
+        }
+
+        // Suspend Chromium entirely when minimized — CPU drops to ~0 for the WebView2 process.
+        private async void OnWindowStateChanged(object? sender, EventArgs e)
+        {
+            var wv = _BLAZOR_WEB_VIEW.WebView.CoreWebView2;
+            if (wv is null) return;
+            if (WindowState == WindowState.Minimized)
+                await wv.TrySuspendAsync();
+            else
+                wv.Resume();
         }
 
         /// <summary>

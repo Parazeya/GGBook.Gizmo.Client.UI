@@ -1,0 +1,133 @@
+@namespace Gizmo.Client.UI
+@inherits ComponentBase
+
+<div class="giz-header__user-menu-item">
+    <button class="user-menu-item-button--box" @onclick="ToggleModal" @onclick:stopPropagation="true" title="Пополнение Steam">
+        <svg style="width:1.4rem;height:1.4rem;" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.605 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.29-.249-1.878-.03l1.523.63c.956.4 1.409 1.5 1.009 2.455-.397.957-1.497 1.41-2.454 1.012H7.54zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.665 0-3.015 1.353-3.015 3.015 0 1.665 1.35 3.015 3.015 3.015 1.663 0 3.015-1.35 3.015-3.015zm-5.273.012c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.252 0-2.265-1.014-2.265-2.265z"/>
+        </svg>
+    </button>
+</div>
+
+@if (_modalVisible)
+{
+    <div @onclick="CloseModal" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:9100;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;">
+        <div @onclick:stopPropagation="true"
+             style="width:min(92vw,46rem);background:rgba(10,14,22,0.98);border:1px solid rgba(255,255,255,0.1);border-radius:1.6rem;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 2.4rem 7rem rgba(0,0,0,0.85),0 0 0 1px rgba(255,255,255,0.04);">
+
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:2rem 2.4rem 1.6rem;border-bottom:1px solid rgba(255,255,255,0.07);">
+                <span style="font-size:2.4rem;font-weight:700;color:#FAFAFA;font-family:Rubik,sans-serif;letter-spacing:0.03em;">ПОПОЛНЕНИЕ STEAM</span>
+                <IconButton SVGIcon="Icons.Close" Variant="ButtonVariants.Text" Size="ButtonSizes.Small" Class="close-btn" @onclick="CloseModal" />
+            </div>
+
+            <div style="padding:2rem 2.4rem;display:flex;flex-direction:column;gap:1.6rem;">
+
+                <div style="font-size:1.4rem;color:rgba(255,255,255,0.6);line-height:2.2rem;">
+                    Быстрое пополнение аккаунтов СНГ.<br />
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:0.8rem;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <span style="font-size:1.4rem;font-weight:700;color:#FAFAFA;">Логин Steam</span>
+                        <div style="position:relative;">
+                            <span @onmouseenter="() => _helpTooltipVisible = true"
+                                  @onmouseleave="() => _helpTooltipVisible = false"
+                                  @onclick="OpenSteamHelpAsync"
+                                  style="font-size:1.3rem;color:#3F8CFF;cursor:pointer;text-decoration:underline;user-select:none;">
+                                Где искать Логин?
+                            </span>
+                            @if (_helpTooltipVisible)
+                            {
+                                <div style="position:absolute;right:0;bottom:calc(100% + 8px);background:#2e333a;border:1px solid rgba(255,255,255,0.12);border-radius:0.8rem;padding:1rem 1.4rem;font-size:1.3rem;color:#FAFAFA;white-space:nowrap;z-index:10001;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+                                    Необходимо использовать Имя пользователя, а не никнейм
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:0.4rem;">
+                        <TextInput UpdateOnInput="true"
+                                   Value="@_steamLogin"
+                                   ValueChanged="@((string v) => _steamLogin = v)"
+                                   Placeholder="Имя пользователя Steam"
+                                   IsFullWidth="true"
+                                   ValidationErrorStyle="ValidationErrorStyles.BorderOnly" />
+                        @if (_recentLogins.Count > 0)
+                        {
+                            <div style="display:flex;flex-wrap:wrap;gap:0rem;margin-top: 0;padding:0.2rem 0;">
+                                @foreach (var login in _recentLogins.Take(5))
+                                {
+                                    <Button Variant="ButtonVariants.Outline"
+                                            Size="ButtonSizes.Small"
+                                            Text="@login"
+                                            @onclick="() => SelectLogin(login)" />
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:0.8rem;">
+                    <span style="font-size:1.4rem;font-weight:700;color:#FAFAFA;">Сумма пополнения (RUB)</span>
+                    <TextInput UpdateOnInput="true"
+                               Value="@_amountStr"
+                               ValueChanged="@((string v) => _amountStr = v)"
+                               Placeholder="@($"{MinAmount}–{MaxAmount}")"
+                               IsFullWidth="true"
+                               ValidationErrorStyle="ValidationErrorStyles.BorderOnly" />
+                    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0.6rem;">
+                        @foreach (var preset in new[] { 500, 1000, 1500, 2500, 5000, 9000 })
+                        {
+                            <Button Variant="@(_amountStr == preset.ToString() ? ButtonVariants.Fill : ButtonVariants.Outline)"
+                                    Size="ButtonSizes.Small"
+                                    Text="@($"{preset} ₽")"
+                                    @onclick="() => SetAmount(preset)" />
+                        }
+                    </div>
+                </div>
+
+                <div style="border-top:1px solid rgba(246,251,253,0.06);border-bottom:1px solid rgba(246,251,253,0.06);padding:1.2rem 0;display:flex;flex-direction:column;gap:0.6rem;font-size:1.4rem;">
+                        <div style="display:flex;justify-content:space-between;color:rgba(255,255,255,0.55);">
+                            <span>Конверсия (6%)</span>
+                            <span>@ConversionFee.ToString("F2")</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;color:rgba(255,255,255,0.55);">
+                            <span>Пополнение в ₽</span>
+                            <span>@Amount.ToString("F2")</span>
+                        </div>
+                        @if (_cachedKztRate.HasValue)
+                        {
+                            <div style="display:flex;justify-content:space-between;color:rgba(255,255,255,0.55);">
+                                <span>Пополнение в ₮</span>
+                                <span>~@KztAmount.ToString("F2")</span>
+                            </div>
+                        }
+                        <div style="display:flex;justify-content:space-between;font-weight:700;color:#FAFAFA;margin-top:0.6rem;padding-top:1rem;border-top:1px solid rgba(246,251,253,0.06);font-size:1.5rem;">
+                            <span>Итого к оплате:</span>
+                            <span>@Total.ToString("F2") ₽</span>
+                        </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(_errorMessage))
+                {
+                    <div style="display:flex;align-items:flex-start;gap:1rem;background:rgba(247,59,59,0.12);border:1px solid rgba(247,59,59,0.35);border-radius:0.8rem;padding:1.2rem 1.4rem;">
+                        <svg style="width:1.6rem;height:1.6rem;flex-shrink:0;margin-top:0.2rem;" viewBox="0 0 24 24" fill="#F73B3B" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                        </svg>
+                        <span style="font-size:1.3rem;color:#F73B3B;line-height:1.8rem;">@_errorMessage</span>
+                    </div>
+                }
+
+                <Button IsDisabled="@_loading"
+                        Color="ButtonColors.Accent"
+                        IsFullWidth="true"
+                        Text="@(_loading ? "Загрузка..." : "Пополнить Steam")"
+                        @onclick="TopupSteam" />
+
+                <div style="display:flex;justify-content:center;padding-top:0.4rem;">
+                    <img src="https://steam.parazey.com/sbp.webp" alt="СБП" style="height:3.2rem;" />
+                </div>
+
+            </div>
+        </div>
+    </div>
+}

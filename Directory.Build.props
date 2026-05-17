@@ -1,0 +1,9 @@
+<Project>
+  <!-- Security vulnerability overrides for transitive packages -->
+  <ItemGroup>
+    <!-- GHSA-8g4q-xg66-9fp4: System.Text.Json < 6.0.7 -->
+    <PackageReference Include="System.Text.Json" Version="6.0.11" />
+    <!-- GHSA-ghhp-997w-qr28: System.Text.Encodings.Web < 4.5.1 (source: Microsoft.AspNetCore.WebUtilities 2.2.0) -->
+    <PackageReference Include="System.Text.Encodings.Web" Version="6.0.1" />
+  </ItemGroup>
+</Project>

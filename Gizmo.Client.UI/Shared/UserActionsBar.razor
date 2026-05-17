@@ -1,0 +1,20 @@
+@namespace Gizmo.Client.UI
+@inherits CustomDOMComponentBase
+
+<div class="giz-actions-bar">
+    @if (UserOnlineDepositViewState.IsEnabled)
+    {
+        <HeaderUserMenuUserOnlineDeposit @onclick="ShowOnlineDeposits" />
+    }
+    @if (GGModConfig.SteamTopup)
+    {
+        <SteamTopup />
+    }
+    <HeaderUserMenuActiveApps @onclick="UserMenuViewService.ToggleActiveApps" />
+    <HeaderUserMenuNotifications @onclick="UserMenuViewService.ToggleNotifications" />
+    @if (AssistanceRequestViewState.IsEnabled)
+    {
+        <HeaderUserMenuAssistance @onclick="UserMenuViewService.ToggleAssistanceRequests" />
+    }
+    <HeaderUserMenuUserLinks @onclick="UserMenuViewService.ToggleUserLinks" />
+</div>

@@ -1,0 +1,51 @@
+@namespace Gizmo.Client.UI
+@inherits CustomDOMComponentBase
+@using System.Globalization
+
+<div class="giz-topbar-info">
+    <div class="giz-topbar-info__pc">
+        <HostNumber />
+    </div>
+
+    @if (!_hideBalance)
+    {
+        <div class="giz-topbar-info__sep"></div>
+        <div class="giz-topbar-info__tariff">
+            <HeaderUserBalanceCurrentTimeProduct />
+        </div>
+        <div class="giz-topbar-info__sep"></div>
+        <div class="giz-topbar-info__stat">
+            <Icon Size="IconSizes.Small" SVGIcon="Icons.Schedule_Client" />
+            @if (UserBalanceViewState.Time.HasValue)
+            {
+                <span>@((int)UserBalanceViewState.Time.Value.TotalHours):@UserBalanceViewState.Time.Value.ToString("mm")</span>
+            }
+            else
+            {
+                <Icon SVGIcon="Icons.Infinite" Color="#FFC700" />
+            }
+        </div>
+        <div class="giz-topbar-info__sep"></div>
+        <div class="giz-topbar-info__stat">
+            <Points2Icon />
+            <span>@UserBalanceViewState.PointsBalance</span>
+        </div>
+        <div class="giz-topbar-info__sep"></div>
+        <div class="giz-topbar-info__stat">
+            <span>@UserBalanceViewState.Balance.ToString("C", CultureInfo.CurrentCulture)</span>
+        </div>
+        <button class="giz-topbar-info__toggle" @onclick="ToggleBalance" title="Скрыть баланс">
+            <Icon Size="IconSizes.Small" SVGIcon="Icons.EyeClose_Client" />
+        </button>
+    }
+    else
+    {
+        <div class="giz-topbar-info__sep"></div>
+        <div class="giz-topbar-info__stat giz-topbar-info__stat--hidden">
+            <span>Скрыто</span>
+        </div>
+        <button class="giz-topbar-info__toggle" @onclick="ToggleBalance" title="Показать баланс">
+            <Icon Size="IconSizes.Small" SVGIcon="Icons.EyeOpen_Client" />
+        </button>
+    }
+</div>

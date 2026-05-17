@@ -2,6 +2,7 @@
 @inherits CustomDOMComponentBase
 @layout _Layout_Login
 @using System.Threading;
+@using System.Text.Json;
 @using Gizmo.UI;
 @using Microsoft.AspNetCore.Components.Forms
 
@@ -130,12 +131,93 @@
                     </div>
                 }
             }
+
+            @* GGBook: Откуда о нас узнали *@
+            @if (GGModConfig.Ads && _adOptions.Count > 0)
+            {
+                <div class="giz-registration-form-input">
+                    <Select Value="@_selectedAdCode"
+                            ValueChanged="@((string? v) => _selectedAdCode = v)"
+                            ValueExpression="@(() => _selectedAdCode)"
+                            Size="InputSizes.Small"
+                            HandleSVGIcon="Icons.Select_Client"
+                            IsFullWidth="true"
+                            Label="@GGModL10n.Get(GGModL10n.WhereHear)"
+                            OpenDirection="PopupOpenDirections.Cursor"
+                            PopupClass="giz-scrollbar--v">
+                        <SelectItem Value="@((string?)null)" Text="@GGModL10n.Get(GGModL10n.NoSpecify)" />
+                        @foreach (var ad in _adOptions)
+                        {
+                            <SelectItem Value="@ad.Code" Text="@ad.Name" />
+                        }
+                    </Select>
+                </div>
+            }
+
+            @* GGBook: Реферальный код *@
+            @if (GGModConfig.ReferralSystem)
+            {
+            <div class="giz-registration-form-input">
+                <label style="display:block;font-size:1.4rem;font-weight:400;line-height:2.2rem;margin-bottom:0.4rem;">@GGModL10n.Get(GGModL10n.RefCode)</label>
+                <div style="display:flex;gap:1.2rem;">
+                    <div style="flex:1;min-width:0;">
+                        <TextInput UpdateOnInput="true"
+                                   Value="@_refCode"
+                                   ValueChanged="@((string v) => { _refCode = v; _refValid = null; })"
+                                   ValueExpression="@(() => _refCode)"
+                                   Size="InputSizes.Small"
+                                   IsFullWidth="true"
+                                   IsReadOnly="@(_refValid == true)">
+                            <RightContent>
+                                @if (_refValid == true)
+                                {
+                                    <span style="color:#24C38E;font-size:1.6rem;padding-right:0.8rem;line-height:1;">✓</span>
+                                }
+                                else if (_refValid == false)
+                                {
+                                    <span style="color:#FF4443;font-size:1.6rem;padding-right:0.8rem;line-height:1;">✗</span>
+                                }
+                            </RightContent>
+                        </TextInput>
+                    </div>
+                    @if (_refValid == true)
+                    {
+                        <Button Variant="ButtonVariants.Outline"
+                                Size="ButtonSizes.Small"
+                                Style="height:4.0rem;padding:0 1.6rem;"
+                                @onclick="@(() => { _refCode = string.Empty; _refValid = null; StateHasChanged(); })">
+                            <span>@GGModL10n.Get(GGModL10n.Change)</span>
+                        </Button>
+                    }
+                    else
+                    {
+                        <Button IsDisabled="@(string.IsNullOrWhiteSpace(_refCode) || _refChecking)"
+                                Variant="ButtonVariants.Outline"
+                                Size="ButtonSizes.Small"
+                                Style="height:4.0rem;padding:0 1.6rem;"
+                                @onclick="CheckRefCodeAsync">
+                            @if (_refChecking)
+                            {
+                                <Spinner />
+                            }
+                            else
+                            {
+                                <span>@GGModL10n.Get(GGModL10n.Check)</span>
+                            }
+                        </Button>
+                    }
+                </div>
+            </div>
+            }
+
             <div>
-                <Button IsDisabled="@(ViewState.IsValid == false)"
+                <Button IsDisabled="@(ViewState.IsValid == false || ViewState.IsLoading
+                                      || (GGModConfig.ReferralSystem && !string.IsNullOrWhiteSpace(_refCode) && _refValid != true)
+                                      || (_adOptions.Count > 0 && _selectedAdCode == null))"
                         Color="ButtonColors.Accent"
                         Size="ButtonSizes.Large"
                         IsFullWidth="true"
-                        @onclick="@UserRegistrationBasicFieldsViewService.SubmitAsync">@LocalizationService.GetString("GIZ_GEN_CONTINUE")</Button>
+                        @onclick="@HandleSubmitAsync">@LocalizationService.GetString("GIZ_GEN_CONTINUE")</Button>
             </div>
         </EditForm>
     </CardBody>

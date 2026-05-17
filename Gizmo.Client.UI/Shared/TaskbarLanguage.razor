@@ -1,0 +1,37 @@
+@namespace Gizmo.Client.UI.Shared
+@inherits ComponentBase
+@implements IDisposable
+@inject IInputLanguageService LangService
+
+<button class="tb-lang-btn tb-icon-btn @(_cycling ? "tb-icon-btn--active" : "")"
+        @onclick="CycleLanguage"
+        title="Язык ввода">
+    @LangService.CurrentInputLanguage.TwoLetterISOLanguageName.ToUpperInvariant()
+</button>
+
+@code {
+    private bool _cycling;
+
+    protected override void OnInitialized() =>
+        LangService.LangauageChange += OnLangChanged;
+
+    private async void OnLangChanged(object? s, EventArgs e) =>
+        await InvokeAsync(StateHasChanged);
+
+    private async Task CycleLanguage()
+    {
+        var langs = LangService.AvailableInputLanguages.ToList();
+        if (langs.Count < 2) return;
+
+        var current = LangService.CurrentInputLanguage;
+        var idx = langs.FindIndex(l => l.TwoLetterISOLanguageName == current.TwoLetterISOLanguageName);
+        var next = langs[(idx + 1) % langs.Count];
+
+        _cycling = true;
+        await LangService.SetCurrentInputLanguageAsync(next);
+        _cycling = false;
+    }
+
+    public void Dispose() =>
+        LangService.LangauageChange -= OnLangChanged;
+}

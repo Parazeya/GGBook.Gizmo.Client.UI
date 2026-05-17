@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.Services;
 using Gizmo.Client.UI.View.States;
@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace Gizmo.Client.UI
 {
-    public partial class HeaderUserMenu : CustomDOMComponentBase
+    public partial class UserActionsBar : CustomDOMComponentBase
     {
         [Inject]
         IClientDialogService DialogService { get; set; }
@@ -23,14 +23,8 @@ namespace Gizmo.Client.UI
         [Inject]
         public AssistanceRequestViewState AssistanceRequestViewState { get; set; }
 
-        [Inject]
-        public UserProfileViewState UserProfileViewState { get; set; }
-
         private async Task ShowOnlineDeposits()
         {
-            //UserMenuViewService.ToggleUserOnlineDeposit();
-
-            //Open Dialog
             var dialog = await DialogService.ShowUserOnlineDepositsDialogAsync();
             if (dialog.Result == AddComponentResultCode.Opened)
                 _ = await dialog.WaitForResultAsync();
@@ -40,8 +34,6 @@ namespace Gizmo.Client.UI
         {
             this.SubscribeChange(UserOnlineDepositViewState);
             this.SubscribeChange(AssistanceRequestViewState);
-            this.SubscribeChange(UserProfileViewState);
-
             base.OnInitialized();
         }
 
@@ -49,8 +41,6 @@ namespace Gizmo.Client.UI
         {
             this.UnsubscribeChange(AssistanceRequestViewState);
             this.UnsubscribeChange(UserOnlineDepositViewState);
-            this.UnsubscribeChange(UserProfileViewState);
-
             base.Dispose();
         }
     }

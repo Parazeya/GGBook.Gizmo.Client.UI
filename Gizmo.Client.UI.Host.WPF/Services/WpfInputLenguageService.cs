@@ -14,14 +14,17 @@ namespace Gizmo.Client.UI.Host.WPF
     {
         public WpfInputLenguageService()
         {
+            InputLanguageManager.Current.InputLanguageChanged += (_, _) =>
+                LangauageChange?.Invoke(this, EventArgs.Empty);
         }
-        
+
         public event EventHandler<EventArgs> LangauageChange;
 
-  
         public IEnumerable<CultureInfo> AvailableInputLanguages => InputLanguageManager.Current.AvailableInputLanguages.OfType<CultureInfo>();
 
-        public CultureInfo CurrentInputLanguage => throw new NotImplementedException();
+        public CultureInfo CurrentInputLanguage =>
+            InputLanguageManager.Current.CurrentInputLanguage as CultureInfo
+            ?? CultureInfo.CurrentCulture;
 
         public async Task SetCurrentInputLanguageAsync(CultureInfo culture)
         {

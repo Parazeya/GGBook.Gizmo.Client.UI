@@ -1,3 +1,265 @@
 [client-theme] .giz-button--fill.primary:not(.disabled) {
 	/*background: #3F8CFF;*/
 }
+
+/* ════════════════════════════════════════════════════════
+   SIDEBAR LAYOUT
+   Replaces the horizontal header with a vertical sidebar.
+════════════════════════════════════════════════════════ */
+
+/* Root container: flex row instead of column */
+[client-theme] .giz-container {
+    display: flex !important;
+    flex-direction: row !important;
+    height: 100% !important;
+    overflow: hidden !important;
+}
+
+/* Hide the old header wrapper (now replaced by .giz-sidebar) */
+[client-theme] .giz-app__header {
+    display: none !important;
+}
+
+/* ── Sidebar shell ─────────────────────────────────── */
+
+[client-theme] .giz-sidebar {
+    width: 23rem;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: rgba(4, 6, 10, 0.92);
+    backdrop-filter: blur(2rem);
+    -webkit-backdrop-filter: blur(2rem);
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    z-index: 100;
+    overflow: hidden;
+}
+
+[client-theme] .giz-sidebar__inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 2rem 0 1.6rem;
+}
+
+/* ── Brand / logo ──────────────────────────────────── */
+
+[client-theme] .giz-sidebar__brand {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 0 2rem 1.8rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    margin-bottom: 1.4rem;
+    flex-shrink: 0;
+}
+
+[client-theme] .giz-sidebar__brand span {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #FAFAFA;
+    font-family: Rubik, sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+/* ── Navigation ────────────────────────────────────── */
+
+[client-theme] .giz-sidebar__nav {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 1.2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Module menu — vertical stack */
+[client-theme] .giz-sidebar__nav .giz-header__modules-menu {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.2rem !important;
+    padding: 0 !important;
+    flex-wrap: nowrap !important;
+    height: auto !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+}
+
+[client-theme] .giz-sidebar__nav .giz-header__modules-menu-item {
+    width: 100% !important;
+    height: auto !important;
+}
+
+[client-theme] .giz-sidebar__nav .giz-header__modules-menu-item a {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 1.2rem !important;
+    padding: 1.1rem 1.6rem !important;
+    border-radius: 1rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    color: rgba(255, 255, 255, 0.45) !important;
+    text-decoration: none !important;
+    font-size: 1.3rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em !important;
+    transition: background 0.15s ease, color 0.15s ease !important;
+    min-height: 0 !important;
+    height: auto !important;
+}
+
+[client-theme] .giz-sidebar__nav .giz-header__modules-menu-item a:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: rgba(255, 255, 255, 0.88) !important;
+}
+
+[client-theme] .giz-sidebar__nav .giz-header__modules-menu-item a.active {
+    background: rgba(78, 205, 196, 0.13) !important;
+    color: #4ecdc4 !important;
+    box-shadow: inset 3px 0 0 #4ecdc4 !important;
+}
+
+[client-theme] .giz-sidebar__nav .giz-header__modules-menu-item a svg {
+    width: 2.2rem !important;
+    height: 2.2rem !important;
+    flex-shrink: 0 !important;
+}
+
+[client-theme] .giz-sidebar__nav .giz-header__modules-menu-item a span {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Spacer between nav and bottom ────────────────── */
+
+[client-theme] .giz-sidebar__fill {
+    flex: 1;
+    min-height: 1rem;
+}
+
+/* ── Search ────────────────────────────────────────── */
+
+[client-theme] .giz-sidebar__search {
+    padding: 0 1.2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 1.2rem;
+    margin-top: 1rem;
+    flex-shrink: 0;
+}
+
+/* ── User area (balance + action buttons) ──────────── */
+
+[client-theme] .giz-sidebar__user {
+    padding: 0.8rem 1.2rem 0;
+    flex-shrink: 0;
+}
+
+[client-theme] .giz-sidebar__user .giz-header__user-menu {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0.3rem !important;
+    width: 100% !important;
+    height: auto !important;
+}
+
+[client-theme] .giz-sidebar__user .giz-header__user-menu-item {
+    padding: 0.5rem !important;
+    border-radius: 0.7rem !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-size: 1.2rem !important;
+}
+
+/* ── App body — takes remaining width ──────────────── */
+
+[client-theme] .giz-app__body {
+    flex: 1 !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* ════════════════════════════════════════════════════════
+   HOME PAGE — modern layout
+════════════════════════════════════════════════════════ */
+
+[client-theme] .gg-home {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    background: rgba(6, 9, 14, 0.4);
+    backdrop-filter: blur(0.4rem);
+}
+
+/* ── Hero: QuickLauncher + News side by side ───────── */
+
+[client-theme] .gg-home__hero {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    overflow: hidden;
+}
+
+[client-theme] .gg-home__quick-launch {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+[client-theme] .gg-home__news-rotator {
+    width: 36rem;
+    flex-shrink: 0;
+    border-left: 1px solid rgba(255, 255, 255, 0.07);
+    overflow: hidden;
+}
+
+/* ── Scrollable feed (ads + sections) ─────────────── */
+
+[client-theme] .gg-home__feed {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2rem 2.4rem 2.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.8rem;
+    min-height: 0;
+}
+
+/* ── Section ───────────────────────────────────────── */
+
+[client-theme] .gg-home__section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+[client-theme] .gg-home__section-hd {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[client-theme] .gg-home__section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.32);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-family: Rubik, sans-serif;
+}

@@ -1,0 +1,93 @@
+@namespace Gizmo.Client.UI.Shared
+@inherits ComponentBase
+@implements IDisposable
+@inject IProcessManagerService ProcService
+
+@if (_open)
+{
+    <div class="tb-overlay" @onclick="Close"></div>
+    <div class="tb-popup tb-popup--left">
+        <div class="tb-popup__header">
+            <span>Процессы</span>
+            <div style="display:flex;align-items:center;gap:0.8rem;">
+                <button class="tb-refresh-btn" @onclick="RefreshList" title="Обновить">↻</button>
+                <button class="tb-close-btn" @onclick="Close">✕</button>
+            </div>
+        </div>
+        <div class="tb-popup__section tb-proc-list">
+            @if (_processes.Count == 0)
+            {
+                <div class="tb-proc-empty">Нет активных процессов</div>
+            }
+            else
+            {
+                @foreach (var p in _processes)
+                {
+                    <div class="tb-proc-row">
+                        <div class="tb-proc-info">
+                            <span class="tb-proc-name" title="@p.Title">@p.Name</span>
+                            <span class="tb-proc-mem">@FormatMemory(p.MemoryBytes)</span>
+                        </div>
+                        <button class="tb-kill-btn" @onclick="() => Kill(p.Pid)" title="Завершить">✕</button>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+}
+
+<button class="tb-icon-btn @(_open ? "tb-icon-btn--active" : "")" @onclick="Toggle" title="Процессы">
+    <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+    </svg>
+</button>
+
+@code {
+    private bool _open;
+    private List<ManagedProcessInfo> _processes = new();
+    private PeriodicTimer? _timer;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        _timer = new PeriodicTimer(TimeSpan.FromSeconds(3));
+        _ = PollAsync();
+    }
+
+    private async Task PollAsync()
+    {
+        while (_timer is not null && await _timer.WaitForNextTickAsync())
+        {
+            if (_open)
+            {
+                RefreshList();
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    private void Toggle()
+    {
+        _open = !_open;
+        if (_open) RefreshList();
+    }
+
+    private void Close() => _open = false;
+
+    private void RefreshList() => _processes = ProcService.GetProcesses().ToList();
+
+    private void Kill(int pid)
+    {
+        ProcService.KillProcess(pid);
+        RefreshList();
+    }
+
+    private static string FormatMemory(long bytes)
+    {
+        if (bytes >= 1_073_741_824) return $"{bytes / 1_073_741_824.0:F1} ГБ";
+        if (bytes >= 1_048_576) return $"{bytes / 1_048_576} МБ";
+        return $"{bytes / 1024} КБ";
+    }
+
+    public void Dispose() => _timer?.Dispose();
+}

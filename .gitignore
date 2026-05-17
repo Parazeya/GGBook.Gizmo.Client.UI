@@ -362,3 +362,6 @@ MigrationBackup/
 Gizmo.Client.UI/wwwroot/
 node_modules/
 package-lock.json
+
+# Editor backup files
+*.bak

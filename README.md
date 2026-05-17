@@ -1,125 +1,159 @@
-# **Gizmo.Client.UI**
+# GGBook — Gizmo Client UI Integration (v2)
 
-Web based client UI.
+> [!IMPORTANT]
+> **Compatibility notice:** This project is built for **Gizmo Client version 2** and is **not compatible with Gizmo Client version 3**.
+>
+> **GGBook required:** The Cases, Tasks, Referral, Ads, and Steam Top-Up modules will not function without a valid [GGBook](https://ggbook.ru) server configuration. All GGMod features are silently disabled if the configuration is absent or the server is unreachable.
 
-## We have two types of UI that can be used:
+---
 
-- Web browser based UI from the **Gizmo.Client.UI.Host.Web** folder
-- Windows app based UI from the **Gizmo.Client.UI.Host.WPF** folder
+## Overview
 
-# **Prerequisites**
+This repository is a modified build of [GAMP/Gizmo.Client.UI](https://github.com/GAMP/Gizmo.Client.UI) — the open-source Blazor WebView WPF skin for Gizmo Client 2.x — with a full integration of the **GGBook** platform API.
 
-### Make sure you have installed the following prerequisites on your development machine:
+GGBook is a club management extension that adds gamification features (cases/loot boxes, daily tasks, referral system, promotions) on top of the base Gizmo Client.
 
-- Git (https://git-scm.com/downloads)
-- .NET 6.0 SDK (https://dotnet.microsoft.com/download/dotnet/6.0)
-- Node.js (https://nodejs.org/en/download/)
-- npm (https://www.npmjs.com/get-npm)
+---
 
-# **Run the project in debug mode**
+## What's included
 
-### Follow the steps below to run the project:
+### GGBook Modules
 
-- Clone the repository using the following command `git clone https://github.com/GAMP/Gizmo.Client.UI.git -b dev --recurse-submodules`
-- #### Visual Studio 2022
-  - Open the solution - **Gizmo.Client.UI.sln**
-  - Set the startup project to **Gizmo.Client.UI.Host.Web** or **Gizmo.Client.UI.Host.WPF**
-  - Press **F5** or button to run the project
-- #### Visual Studio Code
-  - Install the **ms-dotnettools.csdevkit** extension
-  - Select the **SOLUTION EXPLORER** tab
-  - Right click on the **Gizmo.Client.UI.Host.Web** or **Gizmo.Client.UI.Host.WPF** folder and select **Debug** option
-  - Choose the **Start New instance**
+| Module | Description |
+|---|---|
+| **Cases** | Loot-box style case opening with animated roulette, key purchases, reward history |
+| **Tasks** | Daily / weekly / custom task groups with progress tracking and reward claiming |
+| **Referral system** | Auto-fires referral and ad-code registration on new user sign-up |
+| **Config-driven** | All modules are toggled server-side via `/client/config` — zero client config changes needed |
 
-# **Style guide (Gizmo.Client.UI\src\scss)**
+### Localization
 
-## **Adding a new theme**
+All UI strings are localized into **13 languages** via `GGModL10n`:
 
-### Follow the steps below to customize the theme:
+`English` `Russian` `Ukrainian` `Belarusian` `Kazakh` `Uzbek` `Azerbaijani` `Georgian` `Armenian` `Kyrgyz` `Tajik` `Turkmen` `Romanian`
 
-- Open the **'~\themes'** folder
-- Copy the current theme folder and rename it to **custom_theme_name**
-- Change the value of the **$theme-attr-name** variable in the **'~\themes\custom_theme_name\variables.scss'** file to **custom_theme_name**
-- Add the **main.scss** from the **custom_theme_name** folder to the **'~\main.scss'** file as an import.
-- Customize any styles in the **custom_theme_name** folder
+Slavic / Romanian plural forms are handled automatically.
 
-## **Adding or overriding styles with an embedded approach**
+### Navigation
 
-### To add or override the styles, follow these steps:
+- Module navigation icons (Cases, Tasks) are shown or hidden based on the server config response
+- Icons remain hidden until the config is resolved to avoid flicker on startup
+- Navigating to a disabled module's page shows a loading spinner until config resolves, then renders nothing (the icon is already hidden)
 
-- Use the **'~\external.scss'** file
+### Performance optimizations
 
-## **Overriding the current theme**
+- **WebView2 suspend on minimize** — Chromium JS engine and GPU compositor are fully suspended when the window is minimized, reducing CPU to near zero
+- **Removed dead code** — `CustomTaskbar`, `TaskbarWindow`, `VolumeService`, and related files were removed as they were not referenced in the active UI
+- **Upstream merge isolation** — All GGBook-specific logic in `App.razor.cs` was extracted into `App.razor.GGMod.cs` (partial class), minimizing the diff against the upstream repository
 
-### To override the theme styles, follow these steps:
+---
 
-- Use your .css file to override the current theme styles.
-- Put this file in the **'~\static\'** folder.
-- Add this file name with an extension to the app configuration file **'options.json'** to the **'ClientInterface.StyleSheet'** section.
-- Ctrl + F5 to refresh the app.
+## Prerequisites
 
-For more information and samples check the **'Gizmo.Client.UI\src\theme'** folder.
+- [Gizmo Client 2.x](https://www.waredot.com) installed on the target machine
+- A running [GGBook](https://ggbook.ru) server instance
+- .NET 6 SDK (for building)
+- Node.js 16+ (for webpack asset build)
 
-## **Changing the background image**
+---
 
-### To change the background image, follow these steps:
+## Configuration
 
-- Use your .png file to override the current background image.
-- Put this file in the **'~\static\'** folder.
-- Add this file name with an extension to the app configuration file **'options.json'** to the **'ClientInterface.Background'** section.
-- Ctrl + F5 to refresh the app.
+All GGBook settings live in the skin's `composition.json`:
 
-# **JavaScript guide (Gizmo.Client.UI\src\js)**
+```json
+{
+  "UIComposition": {
+    "AppAssembly": "Gizmo.Client.UI.dll",
+    "AdditionalAssemblies": [ "Gizmo.Web.Components.dll" ],
+    "RootComponentType": "Gizmo.Client.UI.App,Gizmo.Client.UI",
+    "NotificationsComponentType": "Gizmo.Client.UI.Components.NotificationsHost,Gizmo.Client.UI"
+  },
+  "GGMod": {
+    "GGBookBaseUrl": "https://your-ggbook-server.example.com",
+    "GGBookStorageUrl": "https://your-ggbook-storage.example.com",
+    "UserToken": "<base64-user-token>",
+    "ClubToken": "<club-token>"
+  }
+}
+```
 
-## **Adding a new JavaScript function**
+| Field | Description |
+|---|---|
+| `GGBookBaseUrl` | Base URL of your GGBook API server |
+| `GGBookStorageUrl` | Base URL for static assets (case/reward images) |
+| `UserToken` | Authorization token (sent as `Authorization: Basic <token>`) |
+| `ClubToken` | Club identifier (sent as `Club: <token>`) |
 
-### Follow the steps below to add new JavaScript function:
+If `GGBookBaseUrl` is empty or missing, all GGMod features are automatically disabled — the skin works as a standard Gizmo Client skin.
 
-- To create new JavaScript functions, use the **'~\external.js'** file and the **ExternalFunctions** class.
-- To use these functions, call them using the syntax **'ExternalFunctions.functionName()'**.
-- To use JavaScript libraries add to the **Gizmo.Client.UI\src\webpack\package.json** as a npm packages in the **dependencies** section.
+---
 
-## **Invokeing Client.UI functions with JavaScript**
+## Building
 
-### Follow the steps below to invoke Client.UI functions with JavaScript:
+```bash
+# 1. Clone with submodules
+git clone --recurse-submodules https://github.com/Parazeya/GGBook.Gizmo.Client.UI.git
+cd GGBook.Gizmo.Client.UI
 
-- To invoke Client.UI functions with JavaScript, use the **'~\api.js'** file and the functions from the **ClientAPI** class.
-- To use these functions, call them using the syntax **'ClientAPI.functionName()'**.
+# 2. Publish
+cd Gizmo.Client.UI.Host.WPF
+dotnet publish -c Release -o ../deploy
+```
 
-# **Custom HTML guide**
+The output `deploy/` folder contains all required DLLs and assets.
 
-## **Adding custom HTML content**
+---
 
-### Follow the steps below to add custom HTML content:
+## Deployment
 
-- To add custom HTML content, use a special Client.UI API property.
-- It isn't possible for the following elements: **html**, **head**, **body**, **script**, **link**, **meta**, **base**, **title**.
-- This content there is embeded in the **index.html** file in the `<body>` tag.
-- Make the custom HTML element in a text editor, for example:
+Copy `Gizmo.Client.UI.dll` from the publish output into your Gizmo Client skin folder:
 
-        <div _onload='ExternalFunctions.testFunction({""key"": 1, ""value"": ""string""})' class='external-css_content'>
-            <h1 class=""external-css"" onclick=""ExternalFunctions.testAlert()"">Test external CSS and JavaScript</h1>
-        </div>
+```
+C:\Program Files\NETProjects\Gizmo Server\skins\<SkinName>\Gizmo.Client.UI.dll
+```
 
-  - It is possible to use the **\_onload** attribute to call the **ExternalFunctions.testFunction** function when the element is loaded.
-  - The **ExternalFunctions.testFunction** in the custom HTML can be used with and without parameters.
-  - The parameters should be sended like a **string**, **int**, **bool**, **array**, **JSON object**.
-  - The defined **ExternalFunctions.testFunction** must receive a **Map** object as a **parameters**.
-  - The **parameters.Data** of the defined function is this sent data like a string.
-  - The **parameters** can have some **parameters.Key** and **parameters.Value** properties from the Client.UI application.
-  - To define a CSS class, look at the **Style guide**.
-  - To define a JavaScript function, look at the **JavaScript guide**.
+Then place your configured `composition.json` in the same folder and restart the Gizmo Client.
 
-# **Publishing the project**
+---
 
-## It can be published in two ways:
+## Project structure
 
-### 1. Publishing the project as a Gizmo.Client skin
+```
+├── Gizmo.Client.UI/                    # Main Blazor component library
+│   ├── App.razor.cs                    # Upstream lifecycle (minimal GGMod footprint)
+│   ├── App.razor.GGMod.cs              # GGBook config fetch + post-registration hooks
+│   ├── Code/Services/
+│   │   ├── GGBookClient.cs             # HTTP client wrapper for GGBook API
+│   │   ├── GGModConfig.cs              # Runtime feature flags (populated from /client/config)
+│   │   ├── GGModL10n.cs                # Localization for all GGMod strings (13 languages)
+│   │   └── GGBookRegistrationContext.cs # Pending referral/ad-code state across registration
+│   ├── Pages/Cases/                    # Cases module (CasesIndex.razor + .razor.cs)
+│   └── Pages/Tasks/                    # Tasks module (TasksIndex.razor + .razor.cs)
+├── Gizmo.Client.UI.Host.WPF/           # WPF host (HostWindow with WebView2 suspend)
+├── Gizmo.Client.UI.GGMod/             # Early GGMod scaffold (not active in production)
+└── Submodules/                         # Upstream Gizmo dependencies
+```
 
-- Open the **'~\Gizmo.Client.UI.Host.WPF'** folder
-- Open the terminal and run the follofing command `dotnet publish -c Release -o C:\client_skinname_folder`
+---
 
-### 2. Publishing the project as a standalone application
+## Upstream compatibility
 
-- Open the **'~\Gizmo.Client.UI.Host.Web'** folder
-- Open the terminal and run the follofing command `dotnet publish -c Release -o C:\client_app_folder`
+This project tracks [GAMP/Gizmo.Client.UI](https://github.com/GAMP/Gizmo.Client.UI). GGBook-specific changes are isolated to:
+
+| File | Change |
+|---|---|
+| `App.razor.cs` | 3 lines marked `// GGMod` (event wiring + one await) |
+| `App.razor.GGMod.cs` | New file — owns all GGBook logic |
+| `Shared/HeaderModulesMenu.razor` | 1-line filter call |
+| `Shared/HeaderModulesMenu.razor.cs` | `ShouldShowModule()` helper + event subscription |
+| `Pages/Login/RegistrationBasicFields.razor` | GGBook referral/ad fields |
+| `Shared/UserActionsBar.razor` | Steam Top-Up button |
+
+When upstream releases an update, apply the upstream diff to the upstream-touched files and keep the `// GGMod` markers as re-apply guides.
+
+---
+
+## License
+
+This project inherits the license of the upstream [GAMP/Gizmo.Client.UI](https://github.com/GAMP/Gizmo.Client.UI) repository. GGBook integration code is provided as-is.
