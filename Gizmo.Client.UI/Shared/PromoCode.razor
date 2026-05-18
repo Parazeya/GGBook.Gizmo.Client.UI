@@ -1,0 +1,65 @@
+@namespace Gizmo.Client.UI
+@inherits ComponentBase
+@using Gizmo.Client.UI.Services
+
+<div class="giz-header__user-menu-item" data-tooltip="@GGModL10n.Get(GGModL10n.TooltipPromocode)">
+    <button class="user-menu-item-button--box" @onclick="ToggleModal" @onclick:stopPropagation="true" title="Промокод">
+        <svg style="width:1.4rem;height:1.4rem;" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21.41 11.58L12.41 2.58C12.05 2.22 11.55 2 11 2H4C2.9 2 2 2.9 2 4V11C2 11.55 2.22 12.05 2.59 12.42L11.59 21.42C11.95 21.78 12.45 22 13 22C13.55 22 14.05 21.78 14.41 21.41L21.41 14.41C21.78 14.05 22 13.55 22 13C22 12.45 21.77 11.94 21.41 11.58ZM5.5 7C4.67 7 4 6.33 4 5.5C4 4.67 4.67 4 5.5 4C6.33 4 7 4.67 7 5.5C7 6.33 6.33 7 5.5 7Z"/>
+        </svg>
+    </button>
+</div>
+
+@if (_modalVisible)
+{
+    <div @onclick="CloseModal" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:9100;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;">
+        <div @onclick:stopPropagation="true"
+             style="width:min(92vw,42rem);background:rgba(10,14,22,0.98);border:1px solid rgba(255,255,255,0.1);border-radius:1.6rem;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 2.4rem 7rem rgba(0,0,0,0.85),0 0 0 1px rgba(255,255,255,0.04);">
+
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:2rem 2.4rem 1.6rem;border-bottom:1px solid rgba(255,255,255,0.07);">
+                <span style="font-size:2.4rem;font-weight:700;color:#FAFAFA;font-family:Rubik,sans-serif;letter-spacing:0.03em;">@GGModL10n.Get(GGModL10n.PromoTitle)</span>
+                <IconButton SVGIcon="Icons.Close" Variant="ButtonVariants.Text" Size="ButtonSizes.Small" @onclick="CloseModal" />
+            </div>
+
+            <div style="padding:2rem 2.4rem;display:flex;flex-direction:column;gap:1.6rem;">
+
+                <div style="display:flex;flex-direction:column;gap:0.8rem;">
+                    <span style="font-size:1.4rem;font-weight:700;color:#FAFAFA;">@GGModL10n.Get(GGModL10n.PromoInputLabel)</span>
+                    <TextInput UpdateOnInput="true"
+                               Value="@_code"
+                               ValueChanged="@((string v) => _code = v)"
+                               Placeholder="@GGModL10n.Get(GGModL10n.PromoPlaceholder)"
+                               IsFullWidth="true"
+                               ValidationErrorStyle="ValidationErrorStyles.BorderOnly" />
+                </div>
+
+                @if (!string.IsNullOrEmpty(_successMessage))
+                {
+                    <div style="display:flex;align-items:flex-start;gap:1rem;background:rgba(59,200,100,0.12);border:1px solid rgba(59,200,100,0.35);border-radius:0.8rem;padding:1.2rem 1.4rem;">
+                        <svg style="width:1.6rem;height:1.6rem;flex-shrink:0;margin-top:0.2rem;" viewBox="0 0 24 24" fill="#3BC864" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                        </svg>
+                        <span style="font-size:1.3rem;color:#3BC864;line-height:1.8rem;">@_successMessage</span>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(_errorMessage))
+                {
+                    <div style="display:flex;align-items:flex-start;gap:1rem;background:rgba(247,59,59,0.12);border:1px solid rgba(247,59,59,0.35);border-radius:0.8rem;padding:1.2rem 1.4rem;">
+                        <svg style="width:1.6rem;height:1.6rem;flex-shrink:0;margin-top:0.2rem;" viewBox="0 0 24 24" fill="#F73B3B" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                        </svg>
+                        <span style="font-size:1.3rem;color:#F73B3B;line-height:1.8rem;">@_errorMessage</span>
+                    </div>
+                }
+
+                <Button IsDisabled="@(_loading || !string.IsNullOrEmpty(_successMessage))"
+                        Color="ButtonColors.Accent"
+                        IsFullWidth="true"
+                        Text="@(_loading ? GGModL10n.Get(GGModL10n.PromoLoading) : GGModL10n.Get(GGModL10n.PromoSubmitBtn))"
+                        @onclick="UsePromocodeAsync" />
+
+            </div>
+        </div>
+    </div>
+}

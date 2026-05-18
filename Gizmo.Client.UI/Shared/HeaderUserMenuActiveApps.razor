@@ -1,7 +1,7 @@
 ﻿@namespace Gizmo.Client.UI
 @inherits CustomDOMComponentBase
 
-<div class="giz-header__user-menu-item giz-active-apps-dropdown @(UserMenuViewState.ActiveAppsIsVisible ? "open" : "")">
+<div class="giz-header__user-menu-item giz-active-apps-dropdown @(UserMenuViewState.ActiveAppsIsVisible ? "open" : "")" data-tooltip="@GGModL10n.Get(GGModL10n.TooltipActiveApps)">
     <button class="user-menu-item-button--box" @onclick="(args) => OnClick.InvokeAsync(args)" @onclick:stopPropagation="true">
         <Icon SVGIcon="Icons.GridView_Client" />
     </button>

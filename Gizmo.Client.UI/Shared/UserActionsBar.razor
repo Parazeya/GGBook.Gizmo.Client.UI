@@ -6,6 +6,10 @@
     {
         <HeaderUserMenuUserOnlineDeposit @onclick="ShowOnlineDeposits" />
     }
+    @if (GGModConfig.Promocodes)
+    {
+        <PromoCode />
+    }
     @if (GGModConfig.SteamTopup)
     {
         <SteamTopup />

@@ -47,7 +47,8 @@ public partial class App
                 ads:            data.GetProperty("ads").GetBoolean(),
                 cases:          data.GetProperty("cases").GetBoolean(),
                 tasks:          data.GetProperty("tasks").GetBoolean(),
-                steamtopup:     data.GetProperty("steamtopup").GetBoolean()
+                steamtopup:     data.GetProperty("steamtopup").GetBoolean(),
+                promocodes:     data.TryGetProperty("promocodes", out var promoEl) && promoEl.GetBoolean()
             );
         }
         catch (Exception ex)

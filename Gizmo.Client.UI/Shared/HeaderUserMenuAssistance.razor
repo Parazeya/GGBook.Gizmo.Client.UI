@@ -1,7 +1,7 @@
 ﻿@namespace Gizmo.Client.UI
 @inherits CustomDOMComponentBase
 
-<div class="giz-header__user-menu-item giz-assistance-dropdown @(UserMenuViewState.AssistanceRequestsIsVisible ? "open" : "")">
+<div class="giz-header__user-menu-item giz-assistance-dropdown @(UserMenuViewState.AssistanceRequestsIsVisible ? "open" : "")" data-tooltip="@GGModL10n.Get(GGModL10n.TooltipAssistance)">
     <button class="user-menu-item-button--box" @onclick="(args) => OnClick.InvokeAsync(args)" @onclick:stopPropagation="true">
         <Icon SVGIcon="Icons.Assistance_Client" />
     </button>

@@ -27,19 +27,19 @@
     /* ── Scrollable body ── */
     .tk-body {
         flex: 1; overflow-y: auto; overflow-x: hidden;
-        padding: 2rem 2.4rem 3rem;
+        padding: 2.4rem 3rem 3.6rem;
     }
 
     /* ── Centered container ── */
     .tk-wrap {
-        max-width: 72rem;
+        max-width: 90rem;
         margin: 0 auto;
-        display: flex; flex-direction: column; gap: 1.6rem;
+        display: flex; flex-direction: column; gap: 2rem;
     }
 
     /* ── Page title ── */
     .tk-title {
-        font-size: 2.2rem; font-weight: 700; color: #FAFAFA;
+        font-size: 2.6rem; font-weight: 700; color: #FAFAFA;
         font-family: Rubik, sans-serif; letter-spacing: 0.04em;
         text-shadow: 0 2px 12px rgba(0,0,0,0.8);
     }
@@ -47,18 +47,18 @@
     /* ── Tabs ── */
     .tk-tabs {
         display: flex; gap: 0.5rem; flex-wrap: wrap;
-        padding: 0.3rem;
+        padding: 0.4rem;
         background: rgba(0,0,0,0.3);
         border-radius: 1.2rem;
         border: 1px solid rgba(255,255,255,0.07);
         width: fit-content;
     }
     .tk-tab {
-        padding: 0.6rem 1.6rem;
+        padding: 0.75rem 2rem;
         border-radius: 0.9rem; border: none;
         background: transparent;
         color: rgba(255,255,255,0.45);
-        font-size: 1.1rem; font-weight: 600;
+        font-size: 1.3rem; font-weight: 600;
         cursor: pointer; transition: all 0.18s;
         letter-spacing: 0.01em;
     }
@@ -79,18 +79,18 @@
     }
     .tk-unclaimed-head {
         display: flex; align-items: center; gap: 0.6rem;
-        color: #4ecdc4; font-size: 1.15rem; font-weight: 700;
+        color: #4ecdc4; font-size: 1.35rem; font-weight: 700;
     }
     .tk-unclaimed-reward {
-        color: rgba(255,255,255,0.7); font-size: 1rem;
+        color: rgba(255,255,255,0.7); font-size: 1.2rem;
         padding-left: 0.2rem;
     }
     .tk-unclaimed-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.6rem; }
     .tk-claim-all-btn {
         display: flex; align-items: center; gap: 0.5rem;
-        padding: 0.55rem 1.4rem; border-radius: 0.8rem; border: none; cursor: pointer;
+        padding: 0.75rem 1.8rem; border-radius: 0.8rem; border: none; cursor: pointer;
         background: linear-gradient(135deg, #4ecdc4, #20c997);
-        color: #fff; font-size: 1.05rem; font-weight: 700;
+        color: #fff; font-size: 1.25rem; font-weight: 700;
         transition: opacity 0.15s, transform 0.1s;
         box-shadow: 0 0.3rem 1rem rgba(78,205,196,0.35);
     }
@@ -106,7 +106,7 @@
     }
 
     /* ── Task list ── */
-    .tk-list { display: flex; flex-direction: column; gap: 0.7rem; }
+    .tk-list { display: flex; flex-direction: column; gap: 1rem; }
 
     /* ── Task card ── */
     .tk-card {
@@ -132,7 +132,7 @@
 
     /* icon cell */
     .tk-icon-cell {
-        width: 4.4rem; flex-shrink: 0;
+        width: 5.5rem; flex-shrink: 0;
         display: flex; align-items: center; justify-content: center;
         background: rgba(0,0,0,0.25);
     }
@@ -140,42 +140,42 @@
     /* body */
     .tk-card-body {
         flex: 1; min-width: 0;
-        padding: 1.1rem 1.2rem;
-        display: flex; flex-direction: column; gap: 0.4rem;
+        padding: 1.4rem 1.6rem;
+        display: flex; flex-direction: column; gap: 0.5rem;
     }
     .tk-card-title {
-        color: #fff; font-size: 1.25rem; font-weight: 700;
+        color: #fff; font-size: 1.5rem; font-weight: 700;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         text-shadow: 0 1px 4px rgba(0,0,0,0.7);
     }
-    .tk-card-qty { color: rgba(255,255,255,0.38); font-size: 1rem; }
+    .tk-card-qty { color: rgba(255,255,255,0.38); font-size: 1.2rem; }
     .tk-card-reward {
         display: flex; align-items: center; gap: 0.5rem;
         margin-top: 0.15rem;
     }
-    .tk-card-reward-lbl { font-size: 1rem; color: rgba(255,255,255,0.45); }
-    .tk-card-reward-val { font-size: 1.15rem; font-weight: 700; }
+    .tk-card-reward-lbl { font-size: 1.2rem; color: rgba(255,255,255,0.45); }
+    .tk-card-reward-val { font-size: 1.35rem; font-weight: 700; }
     .tk-card-inline-error {
         display: flex; align-items: center; gap: 0.35rem;
-        color: #e05c5c; font-size: 0.9rem; font-weight: 600;
+        color: #e05c5c; font-size: 1.05rem; font-weight: 600;
         margin-top: 0.1rem;
     }
 
     /* action area */
     .tk-card-action {
         display: flex; align-items: center; justify-content: center;
-        padding: 0 1.1rem; flex-shrink: 0; min-width: 7rem;
+        padding: 0 1.4rem; flex-shrink: 0; min-width: 9rem;
     }
     .tk-done-badge {
         display: flex; align-items: center; gap: 0.35rem;
-        color: #34c38f; font-size: 0.92rem; font-weight: 700; white-space: nowrap;
+        color: #34c38f; font-size: 1.1rem; font-weight: 700; white-space: nowrap;
     }
     .tk-pending-badge {
         display: flex; align-items: center; justify-content: center;
         color: rgba(255,255,255,0.22);
     }
     .tk-claim-btn {
-        padding: 0.5rem 1.2rem; border-radius: 0.7rem; border: none; cursor: pointer;
+        padding: 0.65rem 1.5rem; border-radius: 0.7rem; border: none; cursor: pointer;
         background: linear-gradient(135deg, #4ecdc4, #20c997);
         color: #fff; font-size: 0.95rem; font-weight: 700;
         white-space: nowrap;

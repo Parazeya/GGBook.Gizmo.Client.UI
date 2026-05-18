@@ -231,8 +231,15 @@ namespace Gizmo.Client.UI.Pages
             try
             {
                 await JSRuntime.InvokeVoidAsync("eval", @"(function() {
+                    // Remove stale JS-injected canvases from previous Blazor renders.
+                    // Blazor reuses DOM nodes via incremental diffing, so canvas elements
+                    // inserted by JS persist across re-renders and overlay new content.
+                    document.querySelectorAll('.gg-roulette-item').forEach(function(item) {
+                        item.querySelectorAll('canvas').forEach(function(c) { c.remove(); });
+                        var img = item.querySelector('.gg-roulette-item-img');
+                        if (img) { img.style.display = ''; img.removeAttribute('data-gif-frozen'); }
+                    });
                     document.querySelectorAll('.gg-roulette-item-img').forEach(function(img) {
-                        if (img.dataset.gifFrozen === '1') return;
                         function freeze() {
                             if (!img.complete || img.naturalWidth === 0) return;
                             var canvas = document.createElement('canvas');
@@ -248,7 +255,6 @@ namespace Gizmo.Client.UI.Pages
                                 canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
                                 img.parentNode.insertBefore(canvas, img);
                                 img.style.display = 'none';
-                                img.dataset.gifFrozen = '1';
                             } catch(e) {}
                         }
                         if (img.complete && img.naturalWidth > 0) { freeze(); }

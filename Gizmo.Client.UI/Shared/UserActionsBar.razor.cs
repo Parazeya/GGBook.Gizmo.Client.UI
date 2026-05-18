@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.Services;
@@ -34,14 +35,19 @@ namespace Gizmo.Client.UI
         {
             this.SubscribeChange(UserOnlineDepositViewState);
             this.SubscribeChange(AssistanceRequestViewState);
+            GGModConfig.ConfigResolved += OnGGModConfigResolved;
             base.OnInitialized();
         }
 
         public override void Dispose()
         {
+            GGModConfig.ConfigResolved -= OnGGModConfigResolved;
             this.UnsubscribeChange(AssistanceRequestViewState);
             this.UnsubscribeChange(UserOnlineDepositViewState);
             base.Dispose();
         }
+
+        private void OnGGModConfigResolved(object? sender, EventArgs e)
+            => InvokeAsync(StateHasChanged);
     }
 }
