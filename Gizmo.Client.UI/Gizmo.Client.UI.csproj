@@ -5,6 +5,8 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    <InformationalVersion>$([System.DateTime]::UtcNow.ToString("yyyy.MM.dd.HHmm"))</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 	</PropertyGroup>
   
 	<ItemGroup>
