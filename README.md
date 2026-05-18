@@ -58,7 +58,7 @@ Slavic / Romanian plural forms are handled automatically.
 
 ## Prerequisites
 
-- [Gizmo Client 2.x](https://www.waredot.com) installed on the target machine
+- [Gizmo Client 2.x](https://gizmopowered.com) installed on the target machine
 - A running [GGBook](https://ggbook.ru) server instance
 - .NET 6 SDK (for building)
 - Node.js 16+ (for webpack asset build)
@@ -117,17 +117,33 @@ dotnet publish -c Release -o ../deploy-plugin
 
 ## Deployment
 
-### 1. Skin (Gizmo.Client.UI)
+### 1. Skin DLLs (Gizmo.Client.UI)
 
-Copy `Gizmo.Client.UI.dll` into your Gizmo Client skin folder:
+Copy `Gizmo.Client.UI.dll` and `Gizmo.Web.Components.dll` into your Gizmo Client skin folder:
 
 ```
 C:\Program Files\NETProjects\Gizmo Server\skins\<SkinName>\Gizmo.Client.UI.dll
+C:\Program Files\NETProjects\Gizmo Server\skins\<SkinName>\Gizmo.Web.Components.dll
 ```
 
 Place your configured `composition.json` in the same folder.
 
-### 2. Web API Plugin (Gizmo.Plugin.GGBook)
+### 2. Styles
+
+Build the webpack bundle from the `Gizmo.Client.UI/Gizmo.Client.UI/` folder:
+
+```bash
+cd Gizmo.Client.UI/Gizmo.Client.UI
+npm run build_prod
+```
+
+Then copy the entire contents of `wwwroot/` into the skin's content folder:
+
+```
+C:\Program Files\NETProjects\Gizmo Server\skins\<SkinName>\wwwroot\_content\Gizmo.Client.UI\
+```
+
+### 3. Web API Plugin (Gizmo.Plugin.GGBook)
 
 > A pre-built release is available in [`dist/webmodules/`](dist/webmodules/).
 
