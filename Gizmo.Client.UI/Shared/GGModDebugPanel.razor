@@ -1,0 +1,74 @@
+@using Gizmo.Client.UI.Services
+@implements IDisposable
+
+@if (GGModConfig.Debug && GGModDebugLog.PanelVisible)
+{
+    <div style="
+        position:fixed; bottom:0; left:0; right:0; height:28rem; z-index:99999;
+        background:rgba(8,11,18,0.97); border-top:1px solid rgba(78,205,196,0.4);
+        display:flex; flex-direction:column; font-family:monospace; font-size:1.2rem;">
+
+        <div style="display:flex; align-items:center; gap:1rem; padding:0.6rem 1.2rem;
+                    border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0;">
+            <span style="color:#4ecdc4; font-weight:700; font-size:1.3rem;">GGBook Debug</span>
+            <span style="color:rgba(255,255,255,0.35); font-size:1.1rem;">(@_entries.Count записей)</span>
+            <button @onclick="Clear"
+                    style="margin-left:auto; background:rgba(255,68,67,0.15); border:1px solid rgba(255,68,67,0.4);
+                           color:#ff4443; padding:0.2rem 1rem; border-radius:0.3rem; cursor:pointer; font-size:1.1rem;">
+                Очистить
+            </button>
+            <button @onclick="Hide"
+                    style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
+                           color:rgba(255,255,255,0.6); padding:0.2rem 1rem; border-radius:0.3rem; cursor:pointer; font-size:1.1rem;">
+                ✕
+            </button>
+        </div>
+
+        <div @ref="_scrollRef" style="overflow-y:auto; flex:1; padding:0.6rem 1.2rem;">
+            @foreach (var entry in _entries)
+            {
+                <div style="display:flex; gap:1rem; padding:0.15rem 0; border-bottom:1px solid rgba(255,255,255,0.04);">
+                    <span style="color:rgba(255,255,255,0.25); flex-shrink:0; width:8rem;">
+                        @entry.Time.ToString("HH:mm:ss.fff")
+                    </span>
+                    <span style="color:@entry.LevelColor; flex-shrink:0; width:3.5rem;">
+                        @entry.LevelLabel
+                    </span>
+                    <span style="color:rgba(255,255,255,0.8); word-break:break-all;">
+                        @entry.Message
+                    </span>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<GGModLogEntry> _entries = new();
+    private ElementReference _scrollRef;
+
+    protected override void OnInitialized()
+    {
+        GGModDebugLog.Updated += OnUpdated;
+        Refresh();
+    }
+
+    public void Dispose()
+    {
+        GGModDebugLog.Updated -= OnUpdated;
+    }
+
+    private void Hide() => GGModDebugLog.TogglePanel();
+
+    private void Clear() { GGModDebugLog.Clear(); }
+
+    private void OnUpdated(object? sender, EventArgs e)
+    {
+        _ = InvokeAsync(() => { Refresh(); StateHasChanged(); });
+    }
+
+    private void Refresh()
+    {
+        _entries = new List<GGModLogEntry>(GGModDebugLog.Entries);
+    }
+}

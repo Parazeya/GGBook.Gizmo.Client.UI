@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
@@ -99,6 +100,8 @@ namespace Gizmo.Client.UI.Shared
         {
             //UserIdleViewService.Toggle();
         }
+
+        private void ToggleDebugPanel() => GGModDebugLog.TogglePanel();
 
         protected override async Task OnInitializedAsync()
         {

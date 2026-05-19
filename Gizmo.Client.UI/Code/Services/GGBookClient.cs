@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -9,7 +10,6 @@ namespace Gizmo.Client.UI.Services
 {
     /// <summary>
     /// Helper for GGBook API calls. Construct directly — not registered in DI.
-    /// Requires IHttpClientFactory and IConfiguration, both universally available.
     /// </summary>
     public sealed class GGBookClient
     {
@@ -19,6 +19,9 @@ namespace Gizmo.Client.UI.Services
         private readonly string _userToken;
         private readonly string _clubToken;
 
+        public bool IsConfigured => !string.IsNullOrEmpty(_baseUrl);
+        public bool Debug        { get; }
+
         public GGBookClient(IHttpClientFactory factory, IConfiguration config)
         {
             _factory    = factory;
@@ -26,9 +29,8 @@ namespace Gizmo.Client.UI.Services
             _storageUrl = (config["GGMod:GGBookStorageUrl"] ?? "").TrimEnd('/');
             _userToken  = config["GGMod:UserToken"] ?? "";
             _clubToken  = config["GGMod:ClubToken"] ?? "";
+            Debug       = config["GGMod:Debug"]?.Equals("true", System.StringComparison.OrdinalIgnoreCase) ?? false;
         }
-
-        public bool IsConfigured => !string.IsNullOrEmpty(_baseUrl);
 
         private HttpClient CreateClient()
         {
@@ -40,13 +42,31 @@ namespace Gizmo.Client.UI.Services
             return client;
         }
 
+        private void LogRequestHeaders(HttpClient client, string method, string path)
+        {
+            if (!GGModConfig.Debug) return;
+            var auth = client.DefaultRequestHeaders.Contains("Authorization") ? "present" : "missing";
+            var club = client.DefaultRequestHeaders.Contains("Club")          ? "present" : "missing";
+            GGModDebugLog.Info($"  {method} {_baseUrl}{path} | Auth={auth} Club={club}");
+        }
+
         public Task<HttpResponseMessage> GetAsync(string path, CancellationToken ct = default)
             => CreateClient().GetAsync(_baseUrl + path, ct);
 
         public Task<HttpResponseMessage> PostJsonAsync(string path, object payload, CancellationToken ct = default)
         {
+            var client  = CreateClient();
+            LogRequestHeaders(client, "POST (json)", path);
             var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-            return CreateClient().PostAsync(_baseUrl + path, content, ct);
+            return client.PostAsync(_baseUrl + path, content, ct);
+        }
+
+        public Task<HttpResponseMessage> PostFormAsync(string path, Dictionary<string, string> fields, CancellationToken ct = default)
+        {
+            var client  = CreateClient();
+            LogRequestHeaders(client, "POST (form)", path);
+            var content = new FormUrlEncodedContent(fields);
+            return client.PostAsync(_baseUrl + path, content, ct);
         }
 
         public string CasePicUrl(string? caseId, string? picture) =>

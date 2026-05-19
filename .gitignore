@@ -368,3 +368,10 @@ package-lock.json
 
 # IDE settings
 .vscode/
+
+# GGMod build & deploy artifacts
+deploy.ps1
+deploy-no-copy.ps1
+version.json
+*.zip
+.claude/

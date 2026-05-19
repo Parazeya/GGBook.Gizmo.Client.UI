@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @using Gizmo.UI;
 @using Microsoft.Extensions.Options
+@using System.Reflection
 
 @if (!string.IsNullOrEmpty(ClientUIOptions.Value.StyleSheet))
 {
@@ -56,9 +57,12 @@
 
                 <div class="giz-server">
                     <Layout_LoginServerConnection />
-                    <div class="giz-version">
+                    <div class="giz-version" @ondblclick="ToggleDebugPanel" style="cursor:default;">
                         <div class="giz-version__title">@LocalizationService.GetString("GIZ_SYSTEM_VERSION")</div>
                         <div class="giz-version__version">@ClientVersionViewState.Version</div>
+                        <div class="giz-version__version" style="opacity:0.55;font-size:0.85em;">
+                            GGBook @(typeof(App).Assembly.GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "—")
+                        </div>
                     </div>
                 </div>
             </div>

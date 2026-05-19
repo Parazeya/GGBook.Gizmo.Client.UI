@@ -108,18 +108,59 @@ namespace Gizmo.Client.UI.Pages
 
         public async Task HandleSubmitAsync()
         {
-            // Store pending GGBook data before navigation happens inside SubmitAsync
-            GGBookRegistrationContext.Set(
-                _selectedAdCode,
-                (_refValid == true && !string.IsNullOrWhiteSpace(_refCode)) ? _refCode : null
-            );
+            var adCode   = _selectedAdCode;
+            var refCode  = (_refValid == true && !string.IsNullOrWhiteSpace(_refCode)) ? _refCode : null;
+            var username = ViewState.Username; // capture before SubmitAsync may clear state
+
+            GGModDebugLog.Info($"HandleSubmitAsync: username={username} adCode={adCode ?? "null"} refCode={refCode ?? "null"}");
 
             await UserRegistrationBasicFieldsViewService.SubmitAsync();
+
+            if (ViewState.HasError)
+            {
+                GGModDebugLog.Warn("HandleSubmitAsync: SubmitAsync returned with error — skipping GGBook calls");
+                return;
+            }
+
+            await FireGGBookRegistrationAsync(username, adCode, refCode);
         }
 
         #endregion
 
         #region PRIVATE
+
+        private async Task FireGGBookRegistrationAsync(string username, string? adCode, string? refCode)
+        {
+            if (string.IsNullOrEmpty(username)) return;
+            if (adCode is null && refCode is null) return;
+            if (!GGBook.IsConfigured) { GGModDebugLog.Error("FireGGBookRegistration: GGBook not configured"); return; }
+
+            GGModDebugLog.Info($"FireGGBookRegistration: username={username} ad={adCode ?? "null"} ref={refCode ?? "null"}");
+
+            try
+            {
+                if (adCode is not null)
+                {
+                    GGModDebugLog.Info("FireGGBookRegistration: POST /user/ad");
+                    var r = await GGBook.PostFormAsync("/user/ad", new Dictionary<string, string> { ["username"] = username, ["value"] = adCode });
+                    GGModDebugLog.Log($"  /user/ad → {(int)r.StatusCode}", r.IsSuccessStatusCode ? GGModLogLevel.Ok : GGModLogLevel.Warn);
+                }
+
+                if (refCode is not null)
+                {
+                    GGModDebugLog.Info("FireGGBookRegistration: POST /user/ref/create");
+                    var r = await GGBook.PostFormAsync("/user/ref/create", new Dictionary<string, string> { ["username"] = username, ["value"] = refCode });
+                    GGModDebugLog.Log($"  /user/ref/create → {(int)r.StatusCode}", r.IsSuccessStatusCode ? GGModLogLevel.Ok : GGModLogLevel.Warn);
+                }
+
+                GGModDebugLog.Ok($"FireGGBookRegistration: done for username={username}");
+            }
+            catch (Exception ex)
+            {
+                GGModDebugLog.Error($"FireGGBookRegistration: exception — {ex.Message}");
+                Logger.LogError(ex, "GGBook registration calls failed (username={Username}).", username);
+            }
+        }
 
         private async Task LoadAdsAsync()
         {

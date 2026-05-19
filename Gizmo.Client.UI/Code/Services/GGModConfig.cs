@@ -8,6 +8,7 @@ namespace Gizmo.Client.UI.Services
     /// </summary>
     public static class GGModConfig
     {
+        public static bool Debug           { get; private set; }
         public static bool IsResolved      { get; private set; }
         public static bool ReferralSystem  { get; private set; }
         public static bool Ads             { get; private set; }
@@ -15,6 +16,8 @@ namespace Gizmo.Client.UI.Services
         public static bool Tasks           { get; private set; }
         public static bool SteamTopup      { get; private set; }
         public static bool Promocodes      { get; private set; }
+
+        public static void SetDebug(bool debug) => Debug = debug;
 
         // Fires once when Apply() or SetUnavailable() completes — subscribers re-render nav/pages.
         public static event EventHandler? ConfigResolved;
