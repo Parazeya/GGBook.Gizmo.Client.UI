@@ -45,9 +45,16 @@ namespace Gizmo.Client.UI.Pages
         [JsonPropertyName("rewardValue")]    public string           RewardValue    { get; init; } = "";
         [JsonPropertyName("rewardDuration")] public int              RewardDuration { get; init; }
         [JsonPropertyName("rewardDetails")]  public RewardDetailsDto? RewardDetails { get; init; }
+        [JsonPropertyName("taskDetails")]    public TaskDetailsDto?   TaskDetails   { get; init; }
     }
 
     internal sealed class RewardDetailsDto
+    {
+        [JsonPropertyName("name")]    public string  Name    { get; init; } = "";
+        [JsonPropertyName("picture")] public string? Picture { get; init; }
+    }
+
+    internal sealed class TaskDetailsDto
     {
         [JsonPropertyName("name")]    public string  Name    { get; init; } = "";
         [JsonPropertyName("picture")] public string? Picture { get; init; }
@@ -276,7 +283,7 @@ namespace Gizmo.Client.UI.Pages
         {
             Id             = dto.Id,
             GroupId        = groupId,
-            TaskName       = dto.Task,
+            TaskName       = dto.TaskDetails?.Name ?? string.Empty,
             TaskType       = dto.TaskType,
             TaskValue      = dto.TaskValue,
             TaskQuantity   = dto.TaskQuantity,
