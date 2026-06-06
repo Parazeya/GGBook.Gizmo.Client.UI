@@ -800,7 +800,7 @@ window.onAnimationEndEvent = function onAnimationEndEvent(event) {
 
 window.ggModDebugInit = function(dotNetRef) {
   window.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+    if (e.ctrlKey && e.shiftKey && e.key === 'O') {
       e.preventDefault();
       dotNetRef.invokeMethodAsync('ToggleFromKey');
     }
