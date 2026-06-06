@@ -679,6 +679,11 @@ namespace Gizmo.Client.UI.Pages
             "error.case_not_found"           => GGModL10n.Get(GGModL10n.ErrCaseNotFound),
             "error.invalid_input_data"       => GGModL10n.Get(GGModL10n.ErrInvalidInput),
             "error.undefined"                => GGModL10n.Get(GGModL10n.ErrCaseInternal),
+            "error.case_user_group_restricted" => GGModL10n.Get(GGModL10n.ErrCaseUserGroupRestricted),
+            "error.case_misconfigured"       => GGModL10n.Get(GGModL10n.ErrCaseMisconfigured),
+            "error.case_no_reward_selected"  => GGModL10n.Get(GGModL10n.ErrCaseNoRewardSelected),
+            "error.case_user_not_found"      => GGModL10n.Get(GGModL10n.ErrCaseUserNotFound),
+            "error.case_no_rewards"          => GGModL10n.Get(GGModL10n.ErrCaseNoRewards),
             _                                => key ?? GGModL10n.Get(GGModL10n.ErrUnknown),
         };
 

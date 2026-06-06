@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -42,31 +43,45 @@ namespace Gizmo.Client.UI.Services
             return client;
         }
 
-        private void LogRequestHeaders(HttpClient client, string method, string path)
+        private static async System.Threading.Tasks.Task LogResponseAsync(HttpResponseMessage response, string path)
         {
             if (!GGModConfig.Debug) return;
-            var auth = client.DefaultRequestHeaders.Contains("Authorization") ? "present" : "missing";
-            var club = client.DefaultRequestHeaders.Contains("Club")          ? "present" : "missing";
-            GGModDebugLog.Info($"  {method} {_baseUrl}{path} | Auth={auth} Club={club}");
+            await response.Content.LoadIntoBufferAsync();
+            var body = await response.Content.ReadAsStringAsync();
+            var snippet = body.Length > 300 ? body[..300] + "…" : body;
+            var level = response.IsSuccessStatusCode ? GGModLogLevel.Ok : GGModLogLevel.Error;
+            GGModDebugLog.Log($"  ← {(int)response.StatusCode} {path} | {snippet}", level);
         }
 
-        public Task<HttpResponseMessage> GetAsync(string path, CancellationToken ct = default)
-            => CreateClient().GetAsync(_baseUrl + path, ct);
-
-        public Task<HttpResponseMessage> PostJsonAsync(string path, object payload, CancellationToken ct = default)
+        public async Task<HttpResponseMessage> GetAsync(string path, CancellationToken ct = default)
         {
-            var client  = CreateClient();
-            LogRequestHeaders(client, "POST (json)", path);
-            var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-            return client.PostAsync(_baseUrl + path, content, ct);
+            var client = CreateClient();
+            GGModDebugLog.Info($"  GET {_baseUrl}{path}");
+            var response = await client.GetAsync(_baseUrl + path, ct);
+            await LogResponseAsync(response, path);
+            return response;
         }
 
-        public Task<HttpResponseMessage> PostFormAsync(string path, Dictionary<string, string> fields, CancellationToken ct = default)
+        public async Task<HttpResponseMessage> PostJsonAsync(string path, object payload, CancellationToken ct = default)
         {
             var client  = CreateClient();
-            LogRequestHeaders(client, "POST (form)", path);
-            var content = new FormUrlEncodedContent(fields);
-            return client.PostAsync(_baseUrl + path, content, ct);
+            var body    = JsonSerializer.Serialize(payload);
+            GGModDebugLog.Info($"  POST {_baseUrl}{path} ← {body}");
+            var content  = new StringContent(body, Encoding.UTF8, "application/json");
+            var response = await client.PostAsync(_baseUrl + path, content, ct);
+            await LogResponseAsync(response, path);
+            return response;
+        }
+
+        public async Task<HttpResponseMessage> PostFormAsync(string path, Dictionary<string, string> fields, CancellationToken ct = default)
+        {
+            var client  = CreateClient();
+            var bodyStr = string.Join("&", fields.Keys.Select(k => $"{k}={fields[k]}"));
+            GGModDebugLog.Info($"  POST (form) {_baseUrl}{path} ← {bodyStr}");
+            var content  = new FormUrlEncodedContent(fields);
+            var response = await client.PostAsync(_baseUrl + path, content, ct);
+            await LogResponseAsync(response, path);
+            return response;
         }
 
         public string CasePicUrl(string? caseId, string? picture) =>

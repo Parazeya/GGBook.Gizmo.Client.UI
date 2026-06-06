@@ -798,6 +798,15 @@ window.onAnimationEndEvent = function onAnimationEndEvent(event) {
   onAnimationEvent(event, 2);
 };
 
+window.ggModDebugInit = function(dotNetRef) {
+  window.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+      e.preventDefault();
+      dotNetRef.invokeMethodAsync('ToggleFromKey');
+    }
+  });
+};
+
 window.onAnimationCancelEvent = function onAnimationCancelEvent(event) {
   onAnimationEvent(event, 3);
 };

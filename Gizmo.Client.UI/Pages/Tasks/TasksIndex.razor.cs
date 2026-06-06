@@ -324,7 +324,9 @@ namespace Gizmo.Client.UI.Pages
             "play"             => string.Format(GGModL10n.Get(GGModL10n.TaskTypePlay),        t.TaskValue),
             "deposit"          => string.Format(GGModL10n.Get(GGModL10n.TaskTypeDeposit),     t.TaskValue),
             "spend"            => string.Format(GGModL10n.Get(GGModL10n.TaskTypeSpend),       t.TaskValue),
-            "buy"              => !string.IsNullOrWhiteSpace(t.TaskName) ? t.TaskName : GGModL10n.Get(GGModL10n.TaskTypeBuy),
+            "buy"              => !string.IsNullOrWhiteSpace(t.TaskName)
+                               ? $"{GGModL10n.Get(GGModL10n.TaskTypeBuy)}: {t.TaskName}"
+                               : GGModL10n.Get(GGModL10n.TaskTypeBuy),
             "points"           => string.Format(GGModL10n.Get(GGModL10n.TaskTypePoints),      t.TaskValue),
             "fixedtimespent"   => string.Format(GGModL10n.Get(GGModL10n.TaskTypeFixedTime),   t.TaskValue),
             "producttimespent" => string.Format(GGModL10n.Get(GGModL10n.TaskTypeProductTime), t.TaskValue),

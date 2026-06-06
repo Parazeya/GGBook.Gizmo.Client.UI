@@ -1,4 +1,6 @@
 @using Gizmo.Client.UI.Services
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
 @implements IDisposable
 
 @if (GGModConfig.Debug && GGModDebugLog.PanelVisible)
@@ -46,6 +48,7 @@
 @code {
     private List<GGModLogEntry> _entries = new();
     private ElementReference _scrollRef;
+    private DotNetObjectReference<GGModDebugPanel>? _dotNetRef;
 
     protected override void OnInitialized()
     {
@@ -53,9 +56,22 @@
         Refresh();
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && GGModConfig.Debug)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("ggModDebugInit", _dotNetRef);
+        }
+    }
+
+    [JSInvokable]
+    public void ToggleFromKey() => GGModDebugLog.TogglePanel();
+
     public void Dispose()
     {
         GGModDebugLog.Updated -= OnUpdated;
+        _dotNetRef?.Dispose();
     }
 
     private void Hide() => GGModDebugLog.TogglePanel();
