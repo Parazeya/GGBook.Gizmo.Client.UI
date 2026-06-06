@@ -62,8 +62,9 @@ namespace Gizmo.Client.UI.Pages
         [JsonPropertyName("stockAmount")] public double? StockAmount { get; init; }
         [JsonPropertyName("picture")]     public string? Picture     { get; init; }
         [JsonPropertyName("color")]       public string? Color       { get; init; }
-        [JsonPropertyName("description")] public string? Description { get; init; }
-        [JsonPropertyName("position")]    public int     Position    { get; init; }
+        [JsonPropertyName("description")]  public string? Description  { get; init; }
+        [JsonPropertyName("customValue")]  public string? CustomValue  { get; init; }
+        [JsonPropertyName("position")]     public int     Position     { get; init; }
     }
 
     internal sealed class BuyKeyResponse
@@ -140,6 +141,7 @@ namespace Gizmo.Client.UI.Pages
         public string? PictureUrl  { get; init; }
         public string  RewardType  { get; init; } = "gift";
         public string? Description { get; init; }
+        public string? CustomValue { get; init; }
         public bool?   EnableStock { get; init; }
         public double? StockAmount { get; set;  }
     }
@@ -287,6 +289,7 @@ namespace Gizmo.Client.UI.Pages
             Color       = ColorFromType(dto.RewardType, dto.Color),
             PictureUrl  = GGBook.RewardPicUrl(dto.Id, dto.Picture),
             Description = dto.Description,
+            CustomValue = dto.CustomValue,
             EnableStock = dto.EnableStock,
             StockAmount = dto.StockAmount,
         };
@@ -697,6 +700,7 @@ namespace Gizmo.Client.UI.Pages
             "usergroup"   => GGModL10n.Get(GGModL10n.RwdTypeUserGroup),
             "drink"       => GGModL10n.Get(GGModL10n.RwdTypeDrink),
             "points"      => GGModL10n.Get(GGModL10n.RwdTypePoints),
+            "custom"      => GGModL10n.Get(GGModL10n.RwdTypeGift),
             _             => GGModL10n.Get(GGModL10n.RwdTypeGift),
         };
 
@@ -708,6 +712,7 @@ namespace Gizmo.Client.UI.Pages
             "deposit"     => Icons.Deposit_Client,   // fa-money-check-alt
             "usergroup"   => Icons.User_Client,      // fa-user-crown
             "drink"       => Icons.Drink,
+            "custom"      => Icons.Star_Client,
             _             => Icons.Star_Client,      // fa-gift (case/product/default)
         };
 

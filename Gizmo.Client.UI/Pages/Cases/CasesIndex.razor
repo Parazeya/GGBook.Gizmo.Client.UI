@@ -597,6 +597,13 @@ else if (GGModConfig.Cases)
                             <span style="font-size:1.3rem;font-weight:700;color:@_rewardInfo.Color;">@GetRewardTypeName(_rewardInfo.RewardType)</span>
                         </div>
                     </div>
+                    @if (_rewardInfo.RewardType == "custom" && !string.IsNullOrEmpty(_rewardInfo.CustomValue))
+                    {
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:1.1rem 1.4rem;border-bottom:1px solid rgba(255,255,255,0.06);">
+                            <span style="font-size:1.3rem;color:rgba(255,255,255,0.4);">@GGModL10n.Get(GGModL10n.RewardCustomValueLabel)</span>
+                            <span style="font-size:1.3rem;font-weight:700;color:@_rewardInfo.Color;">@_rewardInfo.CustomValue</span>
+                        </div>
+                    }
                     @if (_selectedCase is not null && _selectedCase.ShowRewardChance)
                     {
                         <div style="display:flex;justify-content:space-between;align-items:center;padding:1.1rem 1.4rem;border-bottom:1px solid rgba(255,255,255,0.06);">

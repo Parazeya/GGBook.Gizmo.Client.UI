@@ -1,54 +1,184 @@
 @using Gizmo.Client.UI.Services
 @using Microsoft.JSInterop
+@using Microsoft.Extensions.Configuration
+@using System.Text.Json
 @inject IJSRuntime JS
+@inject IConfiguration Configuration
 @implements IDisposable
 
 @if (GGModConfig.Debug && GGModDebugLog.PanelVisible)
 {
-    <div style="
-        position:fixed; bottom:0; left:0; right:0; height:28rem; z-index:99999;
-        background:rgba(8,11,18,0.97); border-top:1px solid rgba(78,205,196,0.4);
-        display:flex; flex-direction:column; font-family:monospace; font-size:1.2rem;">
+    <div style="@PanelCss">
 
-        <div style="display:flex; align-items:center; gap:1rem; padding:0.6rem 1.2rem;
-                    border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0;">
-            <span style="color:#4ecdc4; font-weight:700; font-size:1.3rem;">GGBook Debug</span>
-            <span style="color:rgba(255,255,255,0.35); font-size:1.1rem;">(@_entries.Count записей)</span>
+        @* ── Header ───────────────────────────────────────────────────── *@
+        <div style="display:flex; align-items:center; gap:0.6rem; padding:0.45rem 0.9rem;
+                    border-bottom:1px solid rgba(255,255,255,0.07); flex-shrink:0; background:rgba(3,5,10,0.98);">
+
+            <span style="color:#4ecdc4; font-weight:700; font-size:1.7rem; letter-spacing:0.04em; margin-right:0.2rem;">GGBook</span>
+            <span style="color:rgba(255,255,255,0.35); font-size:1.3rem;">@_entries.Count</span>
+
+            <div style="display:flex; gap:0.25rem; margin-left:0.5rem;">
+                @foreach (var f in _filterDefs)
+                {
+                    var fkey = f.Key;
+                    var active = _filter == fkey;
+                    <button @onclick="@(() => SetFilter(fkey))"
+                            style="background:@(active ? "rgba(78,205,196,0.15)" : "transparent");
+                                   border:1px solid @(active ? "rgba(78,205,196,0.4)" : "rgba(255,255,255,0.09)");
+                                   color:@(active ? "#4ecdc4" : "rgba(255,255,255,0.4)");
+                                   padding:0.15rem 0.55rem; border-radius:0.2rem; cursor:pointer;
+                                   font-size:1.3rem; font-family:monospace; line-height:1.4;">@f.Label</button>
+                }
+            </div>
+
+            <button @onclick="TogglePosition" title="Позиция панели"
+                    style="margin-left:auto; background:transparent; border:1px solid rgba(255,255,255,0.08);
+                           color:rgba(255,255,255,0.45); padding:0.15rem 0.55rem; border-radius:0.2rem;
+                           cursor:pointer; font-size:1.4rem; line-height:1.4;">
+                @(_position == PanelPos.Bottom ? "▶" : "▼")
+            </button>
             <button @onclick="Clear"
-                    style="margin-left:auto; background:rgba(255,68,67,0.15); border:1px solid rgba(255,68,67,0.4);
-                           color:#ff4443; padding:0.2rem 1rem; border-radius:0.3rem; cursor:pointer; font-size:1.1rem;">
-                Очистить
-            </button>
+                    style="background:transparent; border:1px solid rgba(255,68,67,0.3);
+                           color:rgba(255,68,67,0.7); padding:0.15rem 0.65rem; border-radius:0.2rem;
+                           cursor:pointer; font-size:1.3rem; font-family:monospace; line-height:1.4;">CLR</button>
             <button @onclick="Hide"
-                    style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
-                           color:rgba(255,255,255,0.6); padding:0.2rem 1rem; border-radius:0.3rem; cursor:pointer; font-size:1.1rem;">
-                ✕
-            </button>
+                    style="background:transparent; border:1px solid rgba(255,255,255,0.08);
+                           color:rgba(255,255,255,0.45); padding:0.15rem 0.55rem; border-radius:0.2rem;
+                           cursor:pointer; font-size:1.4rem; line-height:1.4;">✕</button>
         </div>
 
-        <div @ref="_scrollRef" style="overflow-y:auto; flex:1; padding:0.6rem 1.2rem;">
-            @foreach (var entry in _entries)
+        @* ── Log list ─────────────────────────────────────────────────── *@
+        <div @ref="_scrollRef" style="overflow-y:auto; flex:1; min-height:0;">
+            @foreach (var (entry, idx) in FilteredEntries)
             {
-                <div style="display:flex; gap:1rem; padding:0.15rem 0; border-bottom:1px solid rgba(255,255,255,0.04);">
-                    <span style="color:rgba(255,255,255,0.25); flex-shrink:0; width:8rem;">
-                        @entry.Time.ToString("HH:mm:ss.fff")
+                var expanded = _expandedIdx == idx;
+
+                @* Row *@
+                <div @onclick="@(() => ToggleExpand(idx))"
+                     style="display:flex; align-items:center; gap:0.5rem; padding:0.25rem 0.9rem;
+                            border-bottom:1px solid rgba(255,255,255,0.04);
+                            background:@(expanded ? "rgba(78,205,196,0.05)" : "transparent");
+                            cursor:pointer;">
+
+                    <span style="color:rgba(255,255,255,0.3); flex-shrink:0; width:5.5rem; font-size:1.25rem;">
+                        @entry.Time.ToString("HH:mm:ss")
                     </span>
-                    <span style="color:@entry.LevelColor; flex-shrink:0; width:3.5rem;">
-                        @entry.LevelLabel
-                    </span>
-                    <span style="color:rgba(255,255,255,0.8); word-break:break-all;">
-                        @entry.Message
-                    </span>
+
+                    @if (entry.IsHttpEntry)
+                    {
+                        <span style="@MethodBadge(entry.RequestMethod) border-radius:0.2rem; padding:0.05rem 0.4rem;
+                                     font-size:1.2rem; font-weight:700; flex-shrink:0; min-width:4rem;
+                                     text-align:center; letter-spacing:0.02em;">
+                            @entry.RequestMethod
+                        </span>
+                        <span style="color:rgba(220,230,245,0.85); flex:1; overflow:hidden; text-overflow:ellipsis;
+                                     white-space:nowrap; font-size:1.35rem;">
+                            @StripQuery(entry.RequestPath)
+                        </span>
+                        <span style="@StatusBadge(entry.ResponseStatus) border-radius:0.2rem; padding:0.05rem 0.45rem;
+                                     font-size:1.2rem; font-weight:700; flex-shrink:0;">
+                            @entry.ResponseStatus
+                        </span>
+                        <span style="color:rgba(255,255,255,0.3); flex-shrink:0; font-size:1.25rem; width:1rem; text-align:right;">
+                            @(expanded ? "▾" : "▸")
+                        </span>
+                    }
+                    else
+                    {
+                        <span style="color:@entry.LevelColor; flex-shrink:0; width:4rem; font-size:1.2rem; font-weight:700;">
+                            @entry.LevelLabel
+                        </span>
+                        <span style="color:rgba(210,220,235,0.75); flex:1; overflow:hidden; text-overflow:ellipsis;
+                                     white-space:nowrap; font-size:1.35rem;">
+                            @entry.Message
+                        </span>
+                    }
                 </div>
+
+                @* Detail (expanded) *@
+                @if (expanded)
+                {
+                    <div style="background:rgba(0,0,0,0.4); border-bottom:2px solid rgba(78,205,196,0.12);
+                                padding:0.8rem 0.9rem; display:flex; gap:0.8rem;
+                                flex-direction:@(_position == PanelPos.Right ? "column" : "row");">
+
+                        @if (entry.IsHttpEntry)
+                        {
+                            @* Request pane *@
+                            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:0.3rem;">
+                                <div style="color:rgba(255,255,255,0.55); font-size:1.15rem; text-transform:uppercase;
+                                            letter-spacing:0.07em; font-weight:600; margin-bottom:0.1rem;">Request</div>
+                                <div style="color:rgba(130,180,255,0.85); font-size:1.25rem; margin-bottom:0.2rem;
+                                            word-break:break-all;">
+                                    @(entry.RequestMethod) @(entry.RequestPath)
+                                </div>
+                                @if (!string.IsNullOrEmpty(entry.RequestBody))
+                                {
+                                    <pre style="margin:0; white-space:pre-wrap; word-break:break-all; color:#d0e0f4;
+                                                font-size:1.2rem; overflow:auto; height:12rem; max-height:32rem; resize:vertical;
+                                                background:rgba(0,0,0,0.35); padding:0.4rem 0.55rem;
+                                                border-radius:0.2rem; border:1px solid rgba(255,255,255,0.07);">@TryPrettyJson(entry.RequestBody)</pre>
+                                }
+                                else
+                                {
+                                    <span style="color:rgba(255,255,255,0.5); font-size:1.2rem; font-style:italic;">— нет тела —</span>
+                                }
+                            </div>
+
+                            @* Response pane *@
+                            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:0.3rem;">
+                                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.1rem;">
+                                    <span style="color:rgba(255,255,255,0.55); font-size:1.15rem; text-transform:uppercase;
+                                                 letter-spacing:0.07em; font-weight:600;">Response</span>
+                                    <span style="@StatusBadge(entry.ResponseStatus) border-radius:0.15rem;
+                                                 padding:0.05rem 0.45rem; font-size:1.1rem; font-weight:700;">@entry.ResponseStatus</span>
+                                </div>
+                                @if (!string.IsNullOrEmpty(entry.ResponseBody))
+                                {
+                                    <pre style="margin:0; white-space:pre-wrap; word-break:break-all; color:#d0e0f4;
+                                                font-size:1.2rem; overflow:auto; height:12rem; max-height:32rem; resize:vertical;
+                                                background:rgba(0,0,0,0.35); padding:0.4rem 0.55rem;
+                                                border-radius:0.2rem; border:1px solid rgba(255,255,255,0.07);">@TryPrettyJson(entry.ResponseBody)</pre>
+                                }
+                                else
+                                {
+                                    <span style="color:rgba(255,255,255,0.5); font-size:1.2rem; font-style:italic;">— пустой ответ —</span>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <pre style="margin:0; white-space:pre-wrap; word-break:break-all;
+                                        color:rgba(210,220,235,0.8); font-size:1.2rem; flex:1;">@entry.Message</pre>
+                        }
+                    </div>
+                }
             }
         </div>
     </div>
 }
 
 @code {
-    private List<GGModLogEntry> _entries = new();
-    private ElementReference _scrollRef;
+    private enum PanelPos { Bottom, Right }
+
+    private record FilterDef(string Key, string Label);
+
+    private static readonly FilterDef[] _filterDefs =
+    {
+        new("all",  "ALL"),
+        new("http", "HTTP"),
+        new("err",  "ERR"),
+    };
+
+    private List<GGModLogEntry> _entries     = new();
+    private ElementReference    _scrollRef;
     private DotNetObjectReference<GGModDebugPanel>? _dotNetRef;
+    private PanelPos            _position    = PanelPos.Bottom;
+    private string              _filter      = "all";
+    private int?                _expandedIdx;
+
+    private bool IsDebugEnabled =>
+        Configuration["GGMod:debug"]?.Equals("true", System.StringComparison.OrdinalIgnoreCase) ?? false;
 
     protected override void OnInitialized()
     {
@@ -58,7 +188,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && GGModConfig.Debug)
+        if (firstRender && IsDebugEnabled)
         {
             _dotNetRef = DotNetObjectReference.Create(this);
             await JS.InvokeVoidAsync("ggModDebugInit", _dotNetRef);
@@ -74,17 +204,67 @@
         _dotNetRef?.Dispose();
     }
 
-    private void Hide() => GGModDebugLog.TogglePanel();
-
-    private void Clear() { GGModDebugLog.Clear(); }
+    private void Hide()               => GGModDebugLog.TogglePanel();
+    private void Clear()              { GGModDebugLog.Clear(); _expandedIdx = null; }
+    private void SetFilter(string f)  { _filter = f; _expandedIdx = null; }
+    private void TogglePosition()     => _position = _position == PanelPos.Bottom ? PanelPos.Right : PanelPos.Bottom;
+    private void ToggleExpand(int idx) => _expandedIdx = _expandedIdx == idx ? null : idx;
 
     private void OnUpdated(object? sender, EventArgs e)
+        => _ = InvokeAsync(() => { Refresh(); StateHasChanged(); });
+
+    private void Refresh() => _entries = new List<GGModLogEntry>(GGModDebugLog.Entries);
+
+    private IEnumerable<(GGModLogEntry Entry, int Idx)> FilteredEntries =>
+        _entries
+            .Select((e, i) => (e, i))
+            .Where(x => _filter switch
+            {
+                "http" => x.e.IsHttpEntry,
+                "err"  => x.e.Level == GGModLogLevel.Error,
+                _      => true,
+            });
+
+    private string PanelCss => _position == PanelPos.Bottom
+        ? "position:fixed; bottom:0; left:0; right:0; height:32rem; z-index:99999; " +
+          "background:rgba(6,9,16,0.98); border-top:2px solid rgba(78,205,196,0.3); " +
+          "display:flex; flex-direction:column; font-family:monospace;"
+        : "position:fixed; top:0; right:0; bottom:0; width:56rem; z-index:99999; " +
+          "background:rgba(6,9,16,0.98); border-left:2px solid rgba(78,205,196,0.3); " +
+          "display:flex; flex-direction:column; font-family:monospace;";
+
+    private static string MethodBadge(string? method) => method switch
     {
-        _ = InvokeAsync(() => { Refresh(); StateHasChanged(); });
+        "GET"  => "background:rgba(52,152,219,0.2); color:#6ab4e8;",
+        "POST" => "background:rgba(39,174,96,0.2); color:#6dd89a;",
+        _      => "background:rgba(255,255,255,0.08); color:#c0c8d4;",
+    };
+
+    private static string StatusBadge(int? status) => status switch
+    {
+        >= 200 and < 300 => "background:rgba(39,174,96,0.22); color:#6dd89a;",
+        >= 300 and < 400 => "background:rgba(247,183,49,0.2); color:#f7c231;",
+        >= 400           => "background:rgba(255,68,67,0.22); color:#ff6b6b;",
+        _                => "background:rgba(255,255,255,0.06); color:#c0c8d4;",
+    };
+
+    private static string StripQuery(string? path)
+    {
+        if (string.IsNullOrEmpty(path)) return path ?? "";
+        var q = path.IndexOf('?');
+        return q >= 0 ? path[..q] : path;
     }
 
-    private void Refresh()
+    private static string TryPrettyJson(string input)
     {
-        _entries = new List<GGModLogEntry>(GGModDebugLog.Entries);
+        if (string.IsNullOrWhiteSpace(input)) return input;
+        var t = input.TrimStart();
+        if (t.Length == 0 || (t[0] != '{' && t[0] != '[')) return input;
+        try
+        {
+            using var doc = JsonDocument.Parse(input);
+            return JsonSerializer.Serialize(doc.RootElement, new JsonSerializerOptions { WriteIndented = true });
+        }
+        catch { return input; }
     }
 }

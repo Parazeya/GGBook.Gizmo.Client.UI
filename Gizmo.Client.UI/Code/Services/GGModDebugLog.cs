@@ -5,7 +5,7 @@ namespace Gizmo.Client.UI.Services
 {
     public static class GGModDebugLog
     {
-        private const int MaxEntries = 200;
+        private const int MaxEntries = 300;
 
         public static readonly List<GGModLogEntry> Entries = new();
 
@@ -15,8 +15,15 @@ namespace Gizmo.Client.UI.Services
         {
             if (!GGModConfig.Debug) return;
             Entries.Add(new GGModLogEntry(DateTime.Now, level, message));
-            if (Entries.Count > MaxEntries)
-                Entries.RemoveAt(0);
+            if (Entries.Count > MaxEntries) Entries.RemoveAt(0);
+            Updated?.Invoke(null, EventArgs.Empty);
+        }
+
+        public static void LogHttp(string method, string path, string? requestBody, int responseStatus, string? responseBody)
+        {
+            if (!GGModConfig.Debug) return;
+            Entries.Add(new GGModLogEntry(DateTime.Now, method, path, requestBody, responseStatus, responseBody));
+            if (Entries.Count > MaxEntries) Entries.RemoveAt(0);
             Updated?.Invoke(null, EventArgs.Empty);
         }
 
@@ -50,9 +57,29 @@ namespace Gizmo.Client.UI.Services
             Message = message;
         }
 
-        public DateTime     Time    { get; }
-        public GGModLogLevel Level   { get; }
-        public string        Message { get; }
+        public GGModLogEntry(DateTime time, string method, string path, string? requestBody, int responseStatus, string? responseBody)
+        {
+            Time           = time;
+            Level          = responseStatus >= 400 ? GGModLogLevel.Error : GGModLogLevel.Ok;
+            Message        = $"{method} {path}";
+            RequestMethod  = method;
+            RequestPath    = path;
+            RequestBody    = requestBody;
+            ResponseStatus = responseStatus;
+            ResponseBody   = responseBody;
+        }
+
+        public DateTime      Time           { get; }
+        public GGModLogLevel Level          { get; }
+        public string        Message        { get; }
+
+        public string? RequestMethod  { get; }
+        public string? RequestPath    { get; }
+        public string? RequestBody    { get; }
+        public int?    ResponseStatus { get; }
+        public string? ResponseBody   { get; }
+
+        public bool IsHttpEntry => RequestPath != null;
 
         public string LevelLabel => Level switch
         {

@@ -9,9 +9,6 @@ using Microsoft.Extensions.Configuration;
 
 namespace Gizmo.Client.UI.Services
 {
-    /// <summary>
-    /// Helper for GGBook API calls. Construct directly — not registered in DI.
-    /// </summary>
     public sealed class GGBookClient
     {
         private readonly IHttpClientFactory _factory;
@@ -43,44 +40,46 @@ namespace Gizmo.Client.UI.Services
             return client;
         }
 
-        private static async System.Threading.Tasks.Task LogResponseAsync(HttpResponseMessage response, string path)
-        {
-            if (!GGModConfig.Debug) return;
-            await response.Content.LoadIntoBufferAsync();
-            var body = await response.Content.ReadAsStringAsync();
-            var snippet = body.Length > 300 ? body[..300] + "…" : body;
-            var level = response.IsSuccessStatusCode ? GGModLogLevel.Ok : GGModLogLevel.Error;
-            GGModDebugLog.Log($"  ← {(int)response.StatusCode} {path} | {snippet}", level);
-        }
-
         public async Task<HttpResponseMessage> GetAsync(string path, CancellationToken ct = default)
         {
-            var client = CreateClient();
-            GGModDebugLog.Info($"  GET {_baseUrl}{path}");
+            var client   = CreateClient();
             var response = await client.GetAsync(_baseUrl + path, ct);
-            await LogResponseAsync(response, path);
+            if (GGModConfig.Debug)
+            {
+                await response.Content.LoadIntoBufferAsync();
+                var body = await response.Content.ReadAsStringAsync();
+                GGModDebugLog.LogHttp("GET", path, null, (int)response.StatusCode, body);
+            }
             return response;
         }
 
         public async Task<HttpResponseMessage> PostJsonAsync(string path, object payload, CancellationToken ct = default)
         {
-            var client  = CreateClient();
-            var body    = JsonSerializer.Serialize(payload);
-            GGModDebugLog.Info($"  POST {_baseUrl}{path} ← {body}");
-            var content  = new StringContent(body, Encoding.UTF8, "application/json");
+            var client   = CreateClient();
+            var reqBody  = JsonSerializer.Serialize(payload);
+            var content  = new StringContent(reqBody, Encoding.UTF8, "application/json");
             var response = await client.PostAsync(_baseUrl + path, content, ct);
-            await LogResponseAsync(response, path);
+            if (GGModConfig.Debug)
+            {
+                await response.Content.LoadIntoBufferAsync();
+                var respBody = await response.Content.ReadAsStringAsync();
+                GGModDebugLog.LogHttp("POST", path, reqBody, (int)response.StatusCode, respBody);
+            }
             return response;
         }
 
         public async Task<HttpResponseMessage> PostFormAsync(string path, Dictionary<string, string> fields, CancellationToken ct = default)
         {
-            var client  = CreateClient();
-            var bodyStr = string.Join("&", fields.Keys.Select(k => $"{k}={fields[k]}"));
-            GGModDebugLog.Info($"  POST (form) {_baseUrl}{path} ← {bodyStr}");
+            var client   = CreateClient();
+            var reqBody  = string.Join("&", fields.Keys.Select(k => $"{k}={fields[k]}"));
             var content  = new FormUrlEncodedContent(fields);
             var response = await client.PostAsync(_baseUrl + path, content, ct);
-            await LogResponseAsync(response, path);
+            if (GGModConfig.Debug)
+            {
+                await response.Content.LoadIntoBufferAsync();
+                var respBody = await response.Content.ReadAsStringAsync();
+                GGModDebugLog.LogHttp("POST", path, reqBody, (int)response.StatusCode, respBody);
+            }
             return response;
         }
 
