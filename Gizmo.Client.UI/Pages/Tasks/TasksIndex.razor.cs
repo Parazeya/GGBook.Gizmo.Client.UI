@@ -99,6 +99,7 @@ namespace Gizmo.Client.UI.Pages
     {
         public string  Id             { get; init; } = "";
         public string  GroupId        { get; init; } = "";
+        public string  TaskName       { get; init; } = "";
         public string  TaskType       { get; init; } = "";
         public int     TaskValue      { get; init; }
         public int     TaskQuantity   { get; init; } = 1;
@@ -275,6 +276,7 @@ namespace Gizmo.Client.UI.Pages
         {
             Id             = dto.Id,
             GroupId        = groupId,
+            TaskName       = dto.Task,
             TaskType       = dto.TaskType,
             TaskValue      = dto.TaskValue,
             TaskQuantity   = dto.TaskQuantity,
@@ -315,12 +317,12 @@ namespace Gizmo.Client.UI.Pages
             "play"             => string.Format(GGModL10n.Get(GGModL10n.TaskTypePlay),        t.TaskValue),
             "deposit"          => string.Format(GGModL10n.Get(GGModL10n.TaskTypeDeposit),     t.TaskValue),
             "spend"            => string.Format(GGModL10n.Get(GGModL10n.TaskTypeSpend),       t.TaskValue),
-            "buy"              => GGModL10n.Get(GGModL10n.TaskTypeBuy),
+            "buy"              => !string.IsNullOrWhiteSpace(t.TaskName) ? t.TaskName : GGModL10n.Get(GGModL10n.TaskTypeBuy),
             "points"           => string.Format(GGModL10n.Get(GGModL10n.TaskTypePoints),      t.TaskValue),
             "fixedtimespent"   => string.Format(GGModL10n.Get(GGModL10n.TaskTypeFixedTime),   t.TaskValue),
             "producttimespent" => string.Format(GGModL10n.Get(GGModL10n.TaskTypeProductTime), t.TaskValue),
             "totaltimespent"   => string.Format(GGModL10n.Get(GGModL10n.TaskTypeTotalTime),   t.TaskValue),
-            _                  => GGModL10n.Get(GGModL10n.TaskTypeDefault),
+            _                  => !string.IsNullOrWhiteSpace(t.TaskName) ? t.TaskName : GGModL10n.Get(GGModL10n.TaskTypeDefault),
         };
 
         private string RewardTitle(TaskItemModel t) => t.RewardType switch
