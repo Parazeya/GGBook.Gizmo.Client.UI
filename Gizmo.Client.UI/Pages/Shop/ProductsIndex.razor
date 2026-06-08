@@ -1,32 +1,34 @@
-﻿@namespace Gizmo.Client.UI.Pages
+@namespace Gizmo.Client.UI.Pages
 @inherits CustomDOMComponentBase
 
 <div class="giz-shop-wrapper">
     <div class="giz-shop">
+
+        @* ── Left: category sidebar ──────────────────────────────── *@
+        <nav class="giz-shop__sidebar giz-scrollbar--v">
+
+            <button class="giz-shop__cat-btn @(!ViewState.SelectedUserProductGroupId.HasValue ? "active" : "")"
+                    @onclick="@(() => ShopService.UpdateUserGroupedProductsAsync(null))">
+                @LocalizationService.GetString("GIZ_GEN_ALL")
+            </button>
+
+            @if (ViewState.UserProductGroups != null)
+            {
+                @foreach (var productGroup in ViewState.UserProductGroups)
+                {
+                    <button class="giz-shop__cat-btn @(productGroup.ProductGroupId == ViewState.SelectedUserProductGroupId ? "active" : "")"
+                            @onclick="@(() => ShopService.UpdateUserGroupedProductsAsync(productGroup.ProductGroupId))">
+                        @productGroup.Name
+                    </button>
+                }
+            }
+
+        </nav>
+
+        @* ── Center: product grid ────────────────────────────────── *@
         <div class="giz-shop__products">
-            <div class="giz-shop__products__header">
-                <div class="giz-shop__products__header__tab">
-                    <ClientTab>
-                        <ClientTabItem Class="@(!ViewState.SelectedUserProductGroupId.HasValue ? "active" : "")">
-                            <div @onclick=@(() => ShopService.UpdateUserGroupedProductsAsync(null))>
-                                @LocalizationService.GetString("GIZ_GEN_ALL")
-                            </div>
-                        </ClientTabItem>
-                        @if (ViewState.UserProductGroups != null)
-                        {
-                            @foreach (var productGroup in ViewState.UserProductGroups)
-                            {
-                                <ClientTabItem Class="@(productGroup.ProductGroupId == ViewState.SelectedUserProductGroupId ? "active" : "")" OnClick=@(() => ShopService.UpdateUserGroupedProductsAsync(productGroup.ProductGroupId))>
-                                    <div>
-                                        @productGroup.Name
-                                    </div>
-                                </ClientTabItem>
-                            }
-                        }
-                    </ClientTab>
-                </div>
-            </div>
             <div class="giz-shop__products__body giz-ads-container giz-scrollbar--v">
+
                 @if (AdvertisementsViewState.Advertisements.Count() > 0)
                 {
                     <div class="giz-shop__products__body__ads">
@@ -40,6 +42,7 @@
                         </ExpansionPanel>
                     </div>
                 }
+
                 @if (!string.IsNullOrEmpty(ViewState.SearchPattern))
                 {
                     <div class="giz-section">
@@ -47,7 +50,7 @@
                             <div>
                                 <div class="giz-section__header__filters__title">@LocalizationService.GetString("GIZ_GEN_RESULTS_FOR")</div>
                                 <div>
-                                    <Chip CanClose="true" OnClose="@(() => ShopService.ClearSearchPattern() )">@ViewState.SearchPattern</Chip>
+                                    <Chip CanClose="true" OnClose="@(() => ShopService.ClearSearchPattern())">@ViewState.SearchPattern</Chip>
                                 </div>
                             </div>
                         </div>
@@ -63,6 +66,7 @@
                         </div>
                     }
                 }
+
                 @foreach (var productGroup in ViewState.UserGroupedProducts)
                 {
                     <div class="giz-section">
@@ -72,11 +76,14 @@
                         </div>
                     </div>
                 }
-            </div>
 
+            </div>
         </div>
+
+        @* ── Right: cart ─────────────────────────────────────────── *@
         <div class="giz-shop__order">
             <GizOrder />
         </div>
+
     </div>
 </div>
