@@ -47,24 +47,56 @@
         &__header {
             width: 100%;
             overflow: auto;
-            padding: 1.6rem;
+            padding: 1.4rem 1.6rem;
 
             &__tab {
-                background-color: rgba(255, 255, 255, 0.01);
-                box-shadow: inset 0 0 10.1rem rgba(255, 255, 255, 0.06);
-                backdrop-filter: blur(6.0rem);
-                border-radius: 1.6rem;
-                height: 6.6rem;
-                padding: 1.6rem;
+                // Pill-style tab container
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.07);
+                border-radius: 5rem;
+                height: 5.4rem;
+                padding: 0.7rem 0.8rem;
                 display: flex;
-                gap: 1.0rem;
+                gap: 0.4rem;
                 width: 100%;
                 overflow: hidden;
+
+                // Override active tab — pill highlight instead of underline
+                .giz-client-tab-item {
+                    border-radius: 4rem;
+                    padding: 0 1.4rem;
+                    display: flex;
+                    align-items: center;
+                    transition: background 0.18s ease, color 0.18s ease;
+                    white-space: nowrap;
+                    color: rgba(255, 255, 255, 0.5);
+                    @include font-m-theme-client($font-weight-regular-theme-client);
+
+                    &::before {
+                        display: none !important;
+                    }
+
+                    &.active {
+                        background: rgba(0, 212, 255, 0.12);
+                        border: 1px solid rgba(0, 212, 255, 0.28);
+                        color: #00d4ff;
+                        font-weight: 500;
+
+                        svg {
+                            color: #00d4ff;
+                        }
+                    }
+
+                    &:not(.active):hover {
+                        background: rgba(255, 255, 255, 0.05);
+                        color: rgba(255, 255, 255, 0.75);
+                    }
+                }
             }
         }
 
         &__body {
-            padding: 1.6rem;
+            padding: 0 1.6rem 1.6rem;
             height: 100%;
             overflow: auto;
 
@@ -72,7 +104,13 @@
             }
 
             .giz-section {
-                margin-top: 1.6rem;
+                margin-top: 2rem;
+
+                &__header {
+                    color: rgba(255, 255, 255, 0.9);
+                    margin-bottom: 1.2rem;
+                    padding-left: 0.2rem;
+                }
             }
         }
 

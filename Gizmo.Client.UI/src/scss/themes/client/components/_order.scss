@@ -10,8 +10,9 @@
     &__items {
         display: grid;
         grid-template-rows: min-content 1fr;
-        background-color: #22272B;
-        border-radius: 1.6rem;
+        background: #141820;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 1.4rem;
         height: 100%;
         overflow: hidden;
 
@@ -131,8 +132,9 @@
     }
 
     &__notes {
-        background-color: #22272B;
-        border-radius: 1.6rem;
+        background: #141820;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 1.4rem;
         padding: 2.4rem;
 
         &__header {
@@ -148,8 +150,9 @@
     }
 
     &__totals {
-        background-color: #22272B;
-        border-radius: 1.6rem;
+        background: #141820;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 1.4rem;
         padding: 3.2rem 2.4rem;
 
         .giz-order-summary {

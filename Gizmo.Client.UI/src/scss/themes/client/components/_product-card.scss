@@ -1,30 +1,49 @@
 //============= Product Card ===============//
 
+$gg-cyan:            #00d4ff;
+$gg-cyan-dim:        rgba(0, 212, 255, 0.18);
+$gg-cyan-border:     rgba(0, 212, 255, 0.38);
+$gg-card-bg:         #141820;
+$gg-card-border:     rgba(255, 255, 255, 0.07);
+$gg-image-bg:        #0c1018;
+
 .giz-product-card {
     position: relative;
-    background-color: #22272B;
-    border-radius: 0.8rem;
-    transition: background-color 0.2s;
+    background: $gg-card-bg;
+    border: 1px solid $gg-card-border;
+    border-radius: 1.4rem;
+    transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
     max-width: 100%;
     overflow: hidden;
 
     .giz-button--fill.accent.giz-product-card-primary-button {
-        background-color: rgba(250, 250, 250, 0.16);
+        background: $gg-cyan-dim;
+        border: 1px solid rgba(0, 212, 255, 0.28);
+        color: $gg-cyan;
+        transition: background 0.18s, box-shadow 0.18s;
     }
 
     &:hover {
-        background-color: #050607;
+        border-color: $gg-cyan-border;
+        transform: translateY(-3px);
+        box-shadow:
+            0 0 0 1px rgba(0, 212, 255, 0.12),
+            0 12px 40px rgba(0, 0, 0, 0.55),
+            0 0 60px rgba(0, 212, 255, 0.04);
 
         .giz-product-card__content__image__hovered {
-            background-color: rgba(0, 0, 0, 0.84);
+            background: linear-gradient(to bottom, rgba(5, 8, 20, 0.9), rgba(8, 12, 28, 0.97));
+        }
 
-            .giz-product-card__content--hovered {
-                visibility: visible;
-            }
+        .giz-product-card__content--hovered {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
         }
 
         .giz-button--fill.accent.giz-product-card-primary-button {
-            background-color: #0078d2;
+            background: rgba(0, 212, 255, 0.26);
+            box-shadow: 0 0 18px rgba(0, 212, 255, 0.22);
         }
     }
 
@@ -39,15 +58,26 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            height: 24.6rem;
-            background-color: #161A1D;
+            height: 22rem;
+            background: $gg-image-bg;
             max-width: 100%;
+            border-radius: 1.3rem 1.3rem 0 0;
+            overflow: hidden;
+
+            &::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 5rem;
+                background: linear-gradient(to top, rgba(20, 24, 32, 0.65), transparent);
+                pointer-events: none;
+                z-index: 1;
+            }
 
             & > img {
-                /*width: 100%;
-                height: 100%;
-                object-fit: cover;*/
-                border-radius: 0.9rem 0.9rem 0 0;
+                border-radius: 1.3rem 1.3rem 0 0;
             }
 
             &__hovered {
@@ -57,8 +87,9 @@
                 width: 100%;
                 height: 100%;
                 z-index: 2;
-                padding: 1.6rem 1.6rem 0 1.6rem;
-                transition: background-color 0.2s;
+                padding: 1.4rem 1.4rem 0 1.4rem;
+                background: transparent;
+                transition: background 0.22s ease;
                 overflow: hidden;
 
                 &__header {
@@ -68,26 +99,20 @@
                 }
 
                 .giz-product-card__content--hovered {
-                    visibility: hidden;
+                    opacity: 0;
+                    transform: translateY(5px);
+                    pointer-events: none;
+                    transition: opacity 0.22s ease, transform 0.22s ease;
                 }
             }
         }
 
         &__image--time {
             position: relative;
-            height: 24.6rem;
-            border-radius: 0.8rem 0.8rem 0 0;
+            height: 22rem;
+            border-radius: 1.3rem 1.3rem 0 0;
             overflow: hidden;
             max-width: 100%;
-            /*&:after {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.84);
-            }*/
 
             & > img {
                 width: 100%;
@@ -107,7 +132,7 @@
         &__details {
             display: flex;
             flex-direction: column;
-            padding: 0 1.6rem;
+            padding: 0 1.4rem;
             margin: 1.2rem 0 0 0;
             width: 100%;
             overflow: hidden;
@@ -118,10 +143,15 @@
                 align-items: center;
                 gap: 0.4rem;
                 white-space: nowrap;
+                color: $gg-cyan;
+                font-weight: 700;
+                font-size: 1.8rem;
+                line-height: 2.4rem;
 
                 .giz-product-card__price__points {
                     overflow: hidden;
                     text-overflow: ellipsis;
+                    color: $gg-cyan;
                 }
 
                 svg {
@@ -129,12 +159,13 @@
                     min-height: 1.6rem;
                     width: 1.6rem;
                     height: 1.6rem;
+                    fill: $gg-cyan;
                 }
             }
         }
 
         &__footer {
-            padding: 1.6rem;
+            padding: 1.4rem;
             max-width: 100%;
 
             .giz-client-tooltip-root {
@@ -143,12 +174,9 @@
             }
 
             .giz-tooltip-root {
-                //display: none;
-                //white-space: nowrap;
                 display: block;
 
                 .giz-tooltip {
-                    //white-space: nowrap;
                     display: block;
                 }
             }
@@ -157,15 +185,15 @@
 
     &__title {
         flex-grow: 1;
-        color: rgba(255, 255, 255, 0.6);
-        @include font-m-theme-client($font-weight-light-theme-client);
+        color: rgba(255, 255, 255, 0.78);
+        @include font-m-theme-client($font-weight-regular-theme-client);
         overflow: hidden;
         text-overflow: ellipsis;
-        //white-space: nowrap;
         max-height: 4.4rem;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
+        margin-top: 0.3rem;
     }
 
     .giz-time-product-host-groups {
@@ -183,39 +211,41 @@
             white-space: nowrap;
             display: flex;
             align-items: center;
-            gap: 0.6rem;
-            padding: 0.1rem 0.4rem;
-            background-color: rgba(250, 250, 250, 0.16);
+            gap: 0.5rem;
+            padding: 0.15rem 0.55rem;
+            background: rgba(0, 212, 255, 0.07);
+            border: 1px solid rgba(0, 212, 255, 0.18);
             border-radius: 0.5rem;
-            color: rgba(255, 255, 255, 0.75);
+            color: rgba(0, 212, 255, 0.75);
             @include font-s-theme-client($font-weight-light-theme-client);
 
-            &--additional { //
+            &--additional {
                 white-space: nowrap;
                 display: flex;
                 align-items: center;
-                gap: 0.6rem;
-                padding: 0.1rem 0.4rem;
-                background-color: rgba(250, 250, 250, 0.16);
+                gap: 0.5rem;
+                padding: 0.15rem 0.55rem;
+                background: rgba(0, 212, 255, 0.07);
+                border: 1px solid rgba(0, 212, 255, 0.18);
                 border-radius: 0.5rem;
-                color: rgba(255, 255, 255, 0.75);
+                color: rgba(0, 212, 255, 0.75);
                 @include font-s-theme-client($font-weight-light-theme-client);
             }
 
             &.active {
-                background-color: rgba(0, 120, 210, 0.32);
+                background: rgba(0, 212, 255, 0.18);
+                border-color: rgba(0, 212, 255, 0.4);
+                color: $gg-cyan;
             }
         }
     }
 
     &__price {
-        @include font-l-theme-client($font-weight-light-theme-client);
+        @include font-l-theme-client($font-weight-bold-theme-client);
+        color: $gg-cyan;
 
         svg {
-            fill: white;
-        }
-
-        .inactive {
+            fill: $gg-cyan;
         }
     }
 }
@@ -224,74 +254,104 @@
     display: none;
 }
 
-.giz-timeline {
-    position: relative;
-    overflow: hidden;
+// ── Hover info panel ────────────────────────────────────────
 
-    &-header {
+.gg-hover-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    &__header {
         display: flex;
         align-items: center;
-        color: rgba(255, 255, 255, 0.6);
-        margin-bottom: 1.6rem;
-        position: relative;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        color: rgba(255, 255, 255, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
         @include font-s-theme-client($font-weight-light-theme-client);
 
         svg {
-            margin-right: 0.4rem;
-        }
-
-        &:after {
-            content: '';
-            border-left: 0.1rem solid rgba(255, 255, 255, 0.6);
-            position: absolute;
-            top: calc(50% + 0.5rem);
-            left: 0.2rem;
-            height: calc(100% + 0.3rem);
+            width: 1.2rem;
+            height: 1.2rem;
+            opacity: 0.45;
+            flex-shrink: 0;
         }
     }
 
-    &-item {
-        //color: #FFAC33;
-        color: #FFC700;
-        margin-bottom: 0.8rem;
-        position: relative;
+    &__time {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.5rem 0.8rem;
+        background: rgba(0, 212, 255, 0.08);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 0.7rem;
+        color: $gg-cyan;
+        font-family: $font-family-header-theme-client;
+        font-weight: 700;
+        font-size: 1.4rem;
+        margin-bottom: 0.2rem;
+
+        .giz-icon {
+            color: $gg-cyan;
+            width: 1.4rem;
+            height: 1.4rem;
+        }
+    }
+
+    &__row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.4rem 0.8rem;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 0.6rem;
+    }
+
+    &__label {
+        color: rgba(255, 255, 255, 0.42);
+        @include font-s-theme-client($font-weight-light-theme-client);
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    &__value {
+        color: rgba(255, 255, 255, 0.85);
         @include font-s-theme-client($font-weight-regular-theme-client);
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        text-align: right;
 
-        & > div {
-            margin-left: 0.9rem;
+        .giz-icon {
+            color: $gg-cyan;
+            width: 1.3rem;
+            height: 1.3rem;
         }
+    }
 
-        &:before {
-            content: '';
-            background-color: rgba(255, 255, 255, 0.6);
-            border: 0.1rem solid rgba(255, 255, 255, 0.6);
-            border-radius: 50%;
-            width: 0.2rem;
-            height: 0.2rem;
-            position: absolute;
-            //top: 50%;
-            top: 0.9rem;
-            left: 0.1rem;
-            transform: translate(0, -50%);
-        }
+    &__expiry-list {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.2rem;
+    }
 
-        &:after {
-            content: '';
-            border-left: 0.1rem solid rgba(255, 255, 255, 0.6);
-            position: absolute;
-            //top: calc(50% + 0.4rem);
-            top: 1.3rem;
-            left: 0.2rem;
-            height: calc(100% + 0.8rem);
-        }
-
-        &:last-child {
-            &:after {
-                height: 102.4rem;
-            }
-        }
+    &__expiry-tag {
+        padding: 0.1rem 0.45rem;
+        background: rgba(255, 199, 0, 0.12);
+        border: 1px solid rgba(255, 199, 0, 0.22);
+        border-radius: 0.4rem;
+        color: #ffc700;
+        @include font-s-theme-client($font-weight-regular-theme-client);
+        white-space: nowrap;
     }
 }
+
+// ── Time product image (default placeholder) ────────────────
 
 .giz-time-product-details {
     display: flex;
@@ -303,13 +363,13 @@
         text-align: right;
 
         .giz-icon {
-            color: #ffc700;
+            color: $gg-cyan;
         }
     }
 
     span {
         margin-left: 0.8rem;
-        color: #FFAC33;
+        color: $gg-cyan;
         @include font-s-theme-client($font-weight-regular-theme-client);
     }
 }
@@ -318,6 +378,7 @@
     display: flex;
     align-items: center;
     gap: 0.4rem;
+    color: $gg-cyan;
 }
 
 .giz-bundle-product-details {
@@ -328,8 +389,7 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: #FFC700;
-    text-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2), 0px 1px 1px rgba(0, 0, 0, 0.2);
+    color: $gg-cyan;
 
     &__product-name {
         max-width: 100%;
@@ -339,7 +399,6 @@
 
     & > span {
         color: #FAFAFA;
-        text-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2), 0px 1px 1px rgba(0, 0, 0, 0.2);
     }
 }
 
@@ -347,7 +406,7 @@
     position: relative;
     display: grid;
     grid-template-rows: min-content min-content;
-    gap: 2rem;
+    gap: 1.6rem;
 
     &-wrapper {
         display: flex;
@@ -368,17 +427,20 @@
 
         &__number {
             text-align: center;
-            //text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 8px rgba(0, 0, 0, 0.2);
-            //Font ?
             font-family: $font-family-header-theme-client;
             font-weight: 700;
-            font-size: 4.2rem;
-            line-height: 5rem;
+            font-size: 5.2rem;
+            line-height: 5.6rem;
+            color: $gg-cyan;
+            text-shadow: 0 0 32px rgba(0, 212, 255, 0.45), 0 0 8px rgba(0, 212, 255, 0.2);
         }
 
         &__text {
             text-align: center;
             @include font-m-theme-client($font-weight-regular-theme-client);
+            color: rgba(255, 255, 255, 0.55);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
         }
     }
 }
@@ -390,11 +452,12 @@
 }
 
 .giz-time-product-expiration {
-    padding: 0.1rem 0.4rem;
-    color: #FFFFFF;
-    background: rgba(255, 199, 0, 0.32);
+    padding: 0.15rem 0.5rem;
+    color: #ffc700;
+    background: rgba(255, 199, 0, 0.12);
+    border: 1px solid rgba(255, 199, 0, 0.2);
     border-radius: 0.4rem;
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.6rem;
     text-align: right;
     @include font-s-theme-client($font-weight-regular-theme-client);
 }

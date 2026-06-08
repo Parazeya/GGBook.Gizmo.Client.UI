@@ -1,79 +1,73 @@
-﻿@namespace Gizmo.Client.UI.Components
+@namespace Gizmo.Client.UI.Components
 @inherits CustomDOMComponentBase
 
-<div class="giz-timeline">
-    <div class="giz-timeline-header">
-        <HexagonIcon />
-        <div>@LocalizationService.GetString("GIZ_SHOP_CARD_TIME_PRODUCT_DESCRIPTION")</div>
-    </div>
-    <div class="giz-timeline-item">
-        <div class="giz-time-product-time">
-            <Icon SVGIcon="Icons.Time_Client" Size="IconSizes.Small" />@GetTimeText()
-        </div>
-    </div>
+@if (Product != null)
+{
+    <div class="gg-hover-info">
 
-    @if (Product != null)
-    {
-        <div class="giz-timeline-item">
-            <div class="giz-time-product-details">
-                <div>@LocalizationService.GetString("GIZ_PRODUCT_TIME_EXPIRATION_BUYING_TIME")</div>
-                <div class="giz-time-product-time-availabile">
-                    @if (Product.PurchaseAvailability != null)
+        <div class="gg-hover-info__header">
+            <HexagonIcon />
+            @LocalizationService.GetString("GIZ_SHOP_CARD_TIME_PRODUCT_DESCRIPTION")
+        </div>
+
+        <div class="gg-hover-info__time">
+            <Icon SVGIcon="Icons.Time_Client" Size="IconSizes.Small" />
+            @GetTimeText()
+        </div>
+
+        <div class="gg-hover-info__row">
+            <span class="gg-hover-info__label">@LocalizationService.GetString("GIZ_PRODUCT_TIME_EXPIRATION_BUYING_TIME")</span>
+            <span class="gg-hover-info__value">
+                @if (Product.PurchaseAvailability != null)
+                {
+                    @ProductHelpers.GetPurchaseAvailabilities(Product, true, LocalizationService).FirstOrDefault()
+                }
+                else
+                {
+                    <Icon SVGIcon="Icons.Infinite" Size="IconSizes.Small" />
+                }
+            </span>
+        </div>
+
+        @if (Product.ProductType == ProductType.ProductTime && Product.TimeProduct != null)
+        {
+            <div class="gg-hover-info__row">
+                <span class="gg-hover-info__label">@LocalizationService.GetString("GIZ_PRODUCT_TIME_EXPIRATION_ACTION_TIME")</span>
+                <span class="gg-hover-info__value">
+                    @if (Product.TimeProduct.UsageAvailability != null)
                     {
-                        @ProductHelpers.GetPurchaseAvailabilities(Product, true, LocalizationService).FirstOrDefault()
+                        @ProductHelpers.GetUsageAvailabilities(Product, true, LocalizationService).FirstOrDefault()
                     }
                     else
                     {
                         <Icon SVGIcon="Icons.Infinite" Size="IconSizes.Small" />
                     }
-                </div>
-            </div>
-        </div>
-
-        @if (Product.ProductType == ProductType.ProductTime && Product.TimeProduct != null)
-        {
-            <div class="giz-timeline-item">
-                <div class="giz-time-product-details">
-                    <div>@LocalizationService.GetString("GIZ_PRODUCT_TIME_EXPIRATION_ACTION_TIME")</div>
-                    <div class="giz-time-product-time-availabile">
-                        @if (Product.TimeProduct.UsageAvailability != null)
-                        {
-                            @ProductHelpers.GetUsageAvailabilities(Product, true, LocalizationService).FirstOrDefault()
-                        }
-                        else
-                        {
-                            <Icon SVGIcon="Icons.Infinite" Size="IconSizes.Small" />
-                        }
-                    </div>
-                </div>
+                </span>
             </div>
 
             @if (Product.TimeProduct.ExpirationOptions != ProductTimeExpirationOptionType.None)
             {
-                <div class="giz-timeline-item">
-                    <div class="giz-time-product-details">
-                        <div>@LocalizationService.GetString("GIZ_PRODUCT_TIME_EXPIRES")</div>
-                        <div class="giz-time-product-expirations">
-
+                <div class="gg-hover-info__row">
+                    <span class="gg-hover-info__label">@LocalizationService.GetString("GIZ_PRODUCT_TIME_EXPIRES")</span>
+                    <span class="gg-hover-info__value">
+                        <span class="gg-hover-info__expiry-list">
                             @if (Product.TimeProduct.ExpirationOptions.HasFlag(ProductTimeExpirationOptionType.ExpireAtDayTime))
                             {
-                                <div class="giz-time-product-expiration">@ProductHelpers.GetDayTimeFromMinute(Product.TimeProduct.ExpireAtDayTimeMinute)</div>
+                                <span class="gg-hover-info__expiry-tag">@ProductHelpers.GetDayTimeFromMinute(Product.TimeProduct.ExpireAtDayTimeMinute)</span>
                             }
-
                             @if (Product.TimeProduct.ExpirationOptions.HasFlag(ProductTimeExpirationOptionType.ExpireAfterTime))
                             {
-                                <div class="giz-time-product-expiration">@($"{ProductHelpers.GetExpiresAfterText(Product.TimeProduct, LocalizationService)}")</div>
+                                <span class="gg-hover-info__expiry-tag">@ProductHelpers.GetExpiresAfterText(Product.TimeProduct, LocalizationService)</span>
                             }
-
                             @if (Product.TimeProduct.ExpirationOptions.HasFlag(ProductTimeExpirationOptionType.ExpiresAtLogout))
                             {
-                                <div class="giz-time-product-expiration">@LocalizationService.GetString("GIZ_PRODUCT_TIME_EXPIRATION_AFTER_LOGOUT")</div>
+                                <span class="gg-hover-info__expiry-tag">@LocalizationService.GetString("GIZ_PRODUCT_TIME_EXPIRATION_AFTER_LOGOUT")</span>
                             }
-
-                        </div>
-                    </div>
+                        </span>
+                    </span>
                 </div>
             }
         }
-    }
-</div>
+
+    </div>
+}
