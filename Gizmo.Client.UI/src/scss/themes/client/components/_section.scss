@@ -1,21 +1,23 @@
 .giz-section {
-  &__header {
-    margin-bottom: 1.6rem;
-    color: #fafafa;
-    @include font-h5-theme-client($font-weight-bold-theme-client);
-    display: flex;
-    align-items: center;
+    &__header {
+        margin-bottom: 1.2rem;
+        padding-left: 1.2rem;
+        border-left: 3px solid rgba(0, 212, 255, 0.6);
+        color: rgba(255, 255, 255, 0.95);
+        @include font-h5-theme-client($font-weight-bold-theme-client);
+        display: flex;
+        align-items: center;
 
-    &__filters {
-      display: flex;
-      gap: 0.8rem;
+        &__filters {
+            display: flex;
+            gap: 0.8rem;
 
-      &__title {
-        margin-bottom: 0.4rem;
-        @include font-m-theme-client($font-weight-light-theme-client);
-      }
+            &__title {
+                margin-bottom: 0.4rem;
+                @include font-m-theme-client($font-weight-light-theme-client);
+            }
+        }
     }
-  }
-  &__body {
-  }
+    &__body {
+    }
 }

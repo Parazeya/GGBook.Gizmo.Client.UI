@@ -1,15 +1,15 @@
 .giz-order {
     display: grid;
     grid-template-rows: 1fr min-content min-content;
-    gap: 1.6rem;
+    gap: 1.2rem;
     height: 100%;
     overflow: hidden;
     min-width: 49.2rem;
-    padding: 1.6rem;
+    padding: 1.4rem;
 
     &__items {
         display: grid;
-        grid-template-rows: min-content 1fr;
+        grid-template-rows: min-content 1fr min-content;
         background: #141820;
         border: 1px solid rgba(255, 255, 255, 0.07);
         border-radius: 1.4rem;
@@ -17,14 +17,16 @@
         overflow: hidden;
 
         &__header {
-            border-bottom: 0.1rem solid rgba(246, 251, 253, 0.06);
-            padding: 2.4rem 2.4rem 0.4rem 2.4rem;
-            @include font-xl-theme-client($font-weight-regular-theme-client);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 2rem 2.4rem 1.6rem;
+            @include font-xl-theme-client($font-weight-bold-theme-client);
+            color: rgba(255, 255, 255, 0.92);
+            letter-spacing: 0.01em;
         }
 
         &__body {
             position: relative;
-            padding: 0 2.4rem 0.4rem 2.4rem;
+            padding: 0 2.4rem 0.4rem;
             height: 100%;
             overflow-y: auto;
 
@@ -36,7 +38,7 @@
                     grid-template-columns: 1fr 12.0rem;
                     gap: 1.2rem;
                     padding: 1.5rem 0;
-                    border-bottom: 0.1rem solid rgba(246, 251, 253, 0.06);
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 
                     &__description {
                         @include font-m-theme-client($font-weight-regular-theme-client);
@@ -70,6 +72,8 @@
                             grid-column-end: 3;
                             grid-row-start: 1;
                             grid-row-end: 2;
+                            color: #00d4ff;
+                            font-weight: 600;
                         }
 
                         &__points {
@@ -115,17 +119,21 @@
         &__footer {
             display: flex;
             align-items: center;
-            padding: 2.0rem 2.4rem;
-            box-shadow: 0px -3px 50px rgba(0, 0, 0, 0.25);
-            /*color: rgba(255, 255, 255, 0.6);
-            @include font-m-theme-client($font-weight-regular-theme-client);*/
+            padding: 1.6rem 2.4rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+
             .giz-button {
-                color: rgb(170, 171, 173);
+                color: rgba(255, 100, 100, 0.55);
+                transition: color 0.18s;
+
+                &:hover:not([disabled]) {
+                    color: rgba(255, 80, 80, 0.85);
+                }
 
                 .giz-icon--small {
-                    width: 2rem;
-                    height: 2rem;
-                    margin-right: 1rem;
+                    width: 1.8rem;
+                    height: 1.8rem;
+                    margin-right: 0.8rem;
                 }
             }
         }
@@ -135,11 +143,15 @@
         background: #141820;
         border: 1px solid rgba(255, 255, 255, 0.07);
         border-radius: 1.4rem;
-        padding: 2.4rem;
+        padding: 2rem 2.4rem;
 
         &__header {
             margin-bottom: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
             @include font-m-theme-client($font-weight-light-theme-client);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-size: 1.1rem;
         }
 
         .giz-order-notes {
@@ -153,30 +165,48 @@
         background: #141820;
         border: 1px solid rgba(255, 255, 255, 0.07);
         border-radius: 1.4rem;
-        padding: 3.2rem 2.4rem;
+        padding: 2.4rem;
+
+        // Override Заказать button to use cyan gradient
+        .giz-button--fill.accent:not(.disabled) {
+            background: linear-gradient(135deg, rgba(0, 180, 220, 1), rgba(0, 120, 210, 1)) !important;
+            border: none;
+            box-shadow: 0 4px 20px rgba(0, 180, 220, 0.28);
+            transition: box-shadow 0.2s, filter 0.2s;
+
+            &:hover {
+                filter: brightness(1.12);
+                box-shadow: 0 4px 28px rgba(0, 180, 220, 0.4);
+                background: linear-gradient(135deg, rgba(0, 200, 240, 1), rgba(0, 140, 230, 1)) !important;
+            }
+        }
 
         .giz-order-summary {
             display: grid;
             grid-template-columns: 1fr min-content;
-            grid-row-gap: 1.8rem;
+            grid-row-gap: 1.4rem;
             grid-column-gap: 0.4rem;
-            margin-bottom: 2.4rem;
+            margin-bottom: 2rem;
             align-items: center;
             white-space: nowrap;
 
             .giz-order-summary-text-bold {
-                @include font-xl-theme-client($font-weight-regular-theme-client);
+                @include font-m-theme-client($font-weight-regular-theme-client);
+                color: rgba(255, 255, 255, 0.55);
             }
 
             .giz-order-summary-total {
                 display: flex;
                 align-items: center;
                 gap: 0.4rem;
+                color: #00d4ff;
+                font-weight: 700;
                 @include font-h5-theme-client($font-weight-bold-theme-client);
 
                 svg {
                     width: 2.4rem;
                     height: 2.4rem;
+                    fill: #00d4ff;
                 }
             }
 
@@ -189,6 +219,7 @@
                 display: flex;
                 align-items: center;
                 text-align: right;
+                color: #00d4ff;
                 @include font-h5-theme-client($font-weight-bold-theme-client);
             }
 
@@ -198,10 +229,12 @@
                 line-height: 2.8rem;
                 letter-spacing: initial;
                 margin: 0 1.5rem;
+                color: rgba(255, 255, 255, 0.3);
             }
 
             &-text {
                 @include font-m-theme-client($font-weight-light-theme-client);
+                color: rgba(255, 255, 255, 0.4);
             }
 
             .giz-order-summary-points-award {
@@ -224,15 +257,15 @@
     flex-grow: 1;
     justify-content: center;
     align-items: center;
+    gap: 0.8rem;
 
     &__title {
-        color: #FAFAFA;
-        @include font-xxl-theme-client($font-weight-bold-theme-client);
+        color: rgba(255, 255, 255, 0.5);
+        @include font-xl-theme-client($font-weight-regular-theme-client);
     }
 
     &__text {
-        margin-top: 2.0rem;
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(255, 255, 255, 0.25);
         @include font-m-theme-client($font-weight-light-theme-client);
     }
 }

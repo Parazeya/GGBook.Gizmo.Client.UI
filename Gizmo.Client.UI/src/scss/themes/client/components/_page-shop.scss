@@ -47,56 +47,64 @@
         &__header {
             width: 100%;
             overflow: auto;
-            padding: 1.4rem 1.6rem;
+            padding: 1.4rem 1.6rem 0;
 
             &__tab {
-                // Pill-style tab container
-                background: rgba(255, 255, 255, 0.03);
+                background: rgba(255, 255, 255, 0.025);
                 border: 1px solid rgba(255, 255, 255, 0.07);
                 border-radius: 5rem;
-                height: 5.4rem;
-                padding: 0.7rem 0.8rem;
+                height: 5.2rem;
+                padding: 0.6rem 0.7rem;
                 display: flex;
                 gap: 0.4rem;
                 width: 100%;
                 overflow: hidden;
 
-                // Override active tab — pill highlight instead of underline
+                // Prev/next scroll buttons inside tab
+                .giz-client-tab {
+                    .giz-button.giz-button--fill.primary:not(.disabled) {
+                        background: transparent !important;
+                        border-radius: 5rem;
+                        color: rgba(255,255,255,0.4);
+
+                        &:hover { background: rgba(255,255,255,0.05) !important; }
+                    }
+                }
+
+                // Individual tab items — pill active state
                 .giz-client-tab-item {
                     border-radius: 4rem;
-                    padding: 0 1.4rem;
+                    padding: 0 1.6rem;
                     display: flex;
                     align-items: center;
-                    transition: background 0.18s ease, color 0.18s ease;
-                    white-space: nowrap;
-                    color: rgba(255, 255, 255, 0.5);
+                    position: relative;
+                    transition: background 0.18s, color 0.18s;
+                    color: rgba(255, 255, 255, 0.45) !important;
                     @include font-m-theme-client($font-weight-regular-theme-client);
+                    white-space: nowrap;
 
+                    // Remove the default underline
                     &::before {
                         display: none !important;
                     }
 
                     &.active {
-                        background: rgba(0, 212, 255, 0.12);
-                        border: 1px solid rgba(0, 212, 255, 0.28);
-                        color: #00d4ff;
+                        background: rgba(0, 212, 255, 0.12) !important;
+                        box-shadow: inset 0 0 0 1px rgba(0, 212, 255, 0.3);
+                        color: #00d4ff !important;
                         font-weight: 500;
-
-                        svg {
-                            color: #00d4ff;
-                        }
                     }
 
                     &:not(.active):hover {
                         background: rgba(255, 255, 255, 0.05);
-                        color: rgba(255, 255, 255, 0.75);
+                        color: rgba(255, 255, 255, 0.75) !important;
                     }
                 }
             }
         }
 
         &__body {
-            padding: 0 1.6rem 1.6rem;
+            padding: 1.6rem;
             height: 100%;
             overflow: auto;
 
@@ -104,12 +112,10 @@
             }
 
             .giz-section {
-                margin-top: 2rem;
+                margin-top: 2.2rem;
 
-                &__header {
-                    color: rgba(255, 255, 255, 0.9);
-                    margin-bottom: 1.2rem;
-                    padding-left: 0.2rem;
+                &:first-child {
+                    margin-top: 0.4rem;
                 }
             }
         }
