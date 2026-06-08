@@ -2,7 +2,7 @@
 
 $gg-cyan:      #00d4ff;
 $gg-sidebar-w: 17rem;
-$gg-cart-w:    46rem;
+$gg-cart-w:    50rem;
 
 .giz-shop {
     display: grid;
@@ -37,7 +37,8 @@ $gg-cart-w:    46rem;
         flex-direction: column;
         gap: 0.25rem;
         padding: 1.4rem 0.8rem;
-        border-right: 1px solid rgba(255, 255, 255, 0.055);
+        background: rgba(8, 10, 16, 0.7);
+        border-right: 1px solid rgba(255, 255, 255, 0.06);
         overflow-y: auto;
         height: 100%;
         flex-shrink: 0;
