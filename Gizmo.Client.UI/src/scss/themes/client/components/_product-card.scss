@@ -55,7 +55,7 @@ $gg-image-bg:        #0c1018;
             align-items: center;
             justify-content: center;
             position: relative;
-            height: 20rem;
+            aspect-ratio: 400 / 444;
             background: $gg-image-bg;
             max-width: 100%;
             border-radius: 1.3rem 1.3rem 0 0;
@@ -109,7 +109,7 @@ $gg-image-bg:        #0c1018;
 
         &__image--time {
             position: relative;
-            height: 20rem;
+            aspect-ratio: 400 / 444;
             border-radius: 1.3rem 1.3rem 0 0;
             overflow: hidden;
             max-width: 100%;
