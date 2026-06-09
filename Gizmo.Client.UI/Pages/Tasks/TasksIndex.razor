@@ -6,7 +6,7 @@
     .tk-spinner {
         width: 3.2rem; height: 3.2rem;
         border: 0.35rem solid rgba(255,255,255,0.1);
-        border-top-color: #4ecdc4;
+        border-top-color: var(--gg-accent);
         border-radius: 50%;
         animation: gg-spin 0.7s linear infinite;
     }
@@ -64,22 +64,22 @@
     }
     .tk-tab:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.06); }
     .tk-tab--active {
-        background: rgba(78,205,196,0.2);
-        color: #4ecdc4;
-        box-shadow: 0 0 0 1px rgba(78,205,196,0.4);
+        background: rgba(var(--gg-accent-rgb),0.2);
+        color: var(--gg-accent);
+        box-shadow: 0 0 0 1px rgba(var(--gg-accent-rgb),0.4);
     }
 
     /* ── Unclaimed banner ── */
     .tk-unclaimed {
         border-radius: 1.2rem;
-        background: linear-gradient(135deg, rgba(78,205,196,0.14) 0%, rgba(20,184,166,0.08) 100%);
-        border: 1px solid rgba(78,205,196,0.3);
+        background: linear-gradient(135deg, rgba(var(--gg-accent-rgb),0.14) 0%, rgba(var(--gg-accent-rgb),0.08) 100%);
+        border: 1px solid rgba(var(--gg-accent-rgb),0.3);
         padding: 1.2rem 1.4rem;
         display: flex; flex-direction: column; gap: 0.8rem;
     }
     .tk-unclaimed-head {
         display: flex; align-items: center; gap: 0.6rem;
-        color: #4ecdc4; font-size: 1.35rem; font-weight: 700;
+        color: var(--gg-accent); font-size: 1.35rem; font-weight: 700;
     }
     .tk-unclaimed-reward {
         color: rgba(255,255,255,0.7); font-size: 1.2rem;
@@ -89,10 +89,10 @@
     .tk-claim-all-btn {
         display: flex; align-items: center; gap: 0.5rem;
         padding: 0.75rem 1.8rem; border-radius: 0.8rem; border: none; cursor: pointer;
-        background: linear-gradient(135deg, #4ecdc4, #20c997);
+        background: var(--gg-accent);
         color: #fff; font-size: 1.25rem; font-weight: 700;
         transition: opacity 0.15s, transform 0.1s;
-        box-shadow: 0 0.3rem 1rem rgba(78,205,196,0.35);
+        box-shadow: 0 0.3rem 1rem rgba(var(--gg-accent-rgb),0.35);
     }
     .tk-claim-all-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
     .tk-claim-all-btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -120,9 +120,9 @@
     }
     .tk-card:hover { background: rgba(16,22,33,0.85); }
     .tk-card--claimable {
-        border-color: rgba(78,205,196,0.5);
+        border-color: rgba(var(--gg-accent-rgb),0.5);
         background: rgba(12,17,26,0.82);
-        box-shadow: 0 0 0 1px rgba(78,205,196,0.12), inset 0 0 2rem rgba(78,205,196,0.04);
+        box-shadow: 0 0 0 1px rgba(var(--gg-accent-rgb),0.12), inset 0 0 2rem rgba(var(--gg-accent-rgb),0.04);
     }
     .tk-card--done { opacity: 0.48; }
     .tk-card--error { border-color: rgba(224,92,92,0.5); background: rgba(20,8,8,0.75); }
@@ -176,12 +176,12 @@
     }
     .tk-claim-btn {
         padding: 0.65rem 1.5rem; border-radius: 0.7rem; border: none; cursor: pointer;
-        background: linear-gradient(135deg, #4ecdc4, #20c997);
+        background: var(--gg-accent);
         color: #fff; font-size: 0.95rem; font-weight: 700;
         white-space: nowrap;
         display: flex; align-items: center; gap: 0.4rem;
         transition: opacity 0.15s, transform 0.1s;
-        box-shadow: 0 0.2rem 0.8rem rgba(78,205,196,0.3);
+        box-shadow: 0 0.2rem 0.8rem rgba(var(--gg-accent-rgb),0.3);
     }
     .tk-claim-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
     .tk-claim-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
@@ -196,12 +196,12 @@
     .tk-retry-btn {
         display: inline-flex; align-items: center; gap: 0.4rem;
         padding: 0.55rem 1.3rem; border-radius: 0.7rem;
-        border: 1px solid rgba(78,205,196,0.3);
-        background: rgba(78,205,196,0.1);
-        color: #4ecdc4; font-size: 1rem; font-weight: 600; cursor: pointer;
+        border: 1px solid rgba(var(--gg-accent-rgb),0.3);
+        background: rgba(var(--gg-accent-rgb),0.1);
+        color: var(--gg-accent); font-size: 1rem; font-weight: 600; cursor: pointer;
         transition: background 0.15s;
     }
-    .tk-retry-btn:hover { background: rgba(78,205,196,0.2); }
+    .tk-retry-btn:hover { background: rgba(var(--gg-accent-rgb),0.2); }
 
     /* ── Empty state ── */
     .tk-empty {
@@ -251,7 +251,7 @@ else if (GGModConfig.Tasks)
                 {
                     <div class="tk-unclaimed">
                         <div class="tk-unclaimed-head">
-                            <Icon SVGIcon="Icons.Star_Client" Size="IconSizes.Small" Style="color:#4ecdc4;" />
+                            <Icon SVGIcon="Icons.Star_Client" Size="IconSizes.Small" Style="color:var(--gg-accent);" />
                             @GGModL10n.Get(GGModL10n.UnclaimedTitle) &nbsp;<span style="opacity:0.6;font-weight:400;">(@_unclaimed.Count)</span>
                         </div>
                         <div style="display:flex;flex-direction:column;gap:0.2rem;">
@@ -411,3 +411,4 @@ else if (GGModConfig.Tasks)
     </div>
 </div>
 }
+

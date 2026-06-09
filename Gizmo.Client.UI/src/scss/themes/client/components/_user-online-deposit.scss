@@ -6,9 +6,14 @@
     &-menu {
         width: 45.6rem;
         padding: 2rem;
-        background-color: #22272B;
-        border-radius: 0 0 0.8rem 0.8rem;
-        box-shadow: 0px 32px 64px rgba(0, 0, 0, 0.37), 0px 2px 21px rgba(0, 0, 0, 0.37);
+        background: rgba(8, 11, 20, 0.97);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-top: none;
+        border-radius: 0 0 1rem 1rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
+                    0 0 0 1px rgba(var(--gg-accent-rgb), 0.06);
     }
 
     .giz-button-group {
@@ -21,16 +26,25 @@
         .giz-button {
             flex: 1;
             border-radius: 0.8rem;
-            background-color: #F4F4F4;
-            color: #2B2D33;
-            //Font ?
-            font-weight: 500;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
             font-size: 1.6rem;
             line-height: 2.0rem;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+
+            &:hover:not(.selected) {
+                background: rgba(var(--gg-accent-rgb), 0.10);
+                border-color: rgba(var(--gg-accent-rgb), 0.25);
+                color: rgba(255, 255, 255, 0.9);
+            }
 
             &.selected {
-                background-color: #0078D2;
-                color: #FFFFFF;
+                background: rgba(var(--gg-accent-rgb), 0.20);
+                border-color: rgba(var(--gg-accent-rgb), 0.45);
+                color: var(--gg-accent);
+                box-shadow: 0 0 14px rgba(var(--gg-accent-rgb), 0.2);
             }
         }
     }
@@ -94,7 +108,7 @@
 
             &__label {
                 color: rgba(255, 255, 255, 0.6);
-                background-color: #22272B;
+                background: rgba(8, 11, 20, 0.95);
                 padding: 0 1.4rem;
                 position: absolute;
                 top: 0;
@@ -117,7 +131,7 @@
 
             &__label {
                 color: rgba(255, 255, 255, 0.6);
-                background-color: #22272B;
+                background: rgba(8, 11, 20, 0.95);
                 padding: 0 1.4rem;
                 position: absolute;
                 top: 0;
@@ -143,16 +157,25 @@
         .giz-button {
             flex: 1;
             border-radius: 0.8rem;
-            background-color: #F4F4F4;
-            color: #2B2D33;
-            //Font ?
-            font-weight: 500;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
             font-size: 1.6rem;
             line-height: 2.0rem;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+
+            &:hover:not(.selected) {
+                background: rgba(var(--gg-accent-rgb), 0.10);
+                border-color: rgba(var(--gg-accent-rgb), 0.25);
+                color: rgba(255, 255, 255, 0.9);
+            }
 
             &.selected {
-                background-color: #0078D2;
-                color: #FFFFFF;
+                background: rgba(var(--gg-accent-rgb), 0.20);
+                border-color: rgba(var(--gg-accent-rgb), 0.45);
+                color: var(--gg-accent);
+                box-shadow: 0 0 14px rgba(var(--gg-accent-rgb), 0.2);
             }
         }
     }
@@ -191,7 +214,7 @@
 
             &__label {
                 color: rgba(255, 255, 255, 0.6);
-                background-color: #22272B;
+                background: rgba(8, 11, 20, 0.95);
                 padding: 0 1.4rem;
                 position: absolute;
                 top: 0;
@@ -213,7 +236,7 @@
 
             &__label {
                 color: rgba(255, 255, 255, 0.6);
-                background-color: #22272B;
+                background: rgba(8, 11, 20, 0.95);
                 padding: 0 1.4rem;
                 position: absolute;
                 top: 0;

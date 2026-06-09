@@ -1,7 +1,19 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 @using Microsoft.Extensions.Options
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+@implements IDisposable
 
 <style>
+    /* ── Page transition ── */
+    @@keyframes gg-page-in {
+        from { opacity: 0; transform: translateY(7px); }
+        to   { opacity: 1; transform: none; }
+    }
+    .giz-app__body > * {
+        animation: gg-page-in 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    }
+
     /* ── Root wrapper: top bar + main row ── */
     .giz-root {
         display: flex;
@@ -195,8 +207,8 @@
         color: rgba(255,255,255,0.9) !important;
     }
     .giz-sidebar .giz-header__modules-menu-item > a.active {
-        background: rgba(78,205,196,0.13) !important;
-        color: #4ecdc4 !important;
+        background: rgba(var(--gg-accent-rgb),0.13) !important;
+        color: var(--gg-accent) !important;
     }
     .giz-sidebar .giz-header__modules-menu-item > a.active::before {
         display: none !important;
@@ -340,8 +352,8 @@
         width: 4.8rem !important;
         height: 4.8rem !important;
         border-radius: 50% !important;
-        background: rgba(78,205,196,0.12) !important;
-        color: #4ecdc4 !important;
+        background: rgba(var(--gg-accent-rgb),0.12) !important;
+        color: var(--gg-accent) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -379,8 +391,12 @@
         height: 4.4rem !important;
         border-radius: 3rem !important;
         background-color: rgba(255,255,255,0.07) !important;
-        border: 1px solid rgba(255,255,255,0.12) !important;
-        transition: border-color 0.2s, background-color 0.2s !important;
+        border: 1px solid rgba(255,255,255,0.14) !important;
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.12),
+            inset 0 -1px 0 rgba(0,0,0,0.12),
+            0 4px 16px rgba(0,0,0,0.3) !important;
+        transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s !important;
     }
     .giz-top-bar .giz-global-search:hover,
     .giz-top-bar .giz-global-search.nonemtpy,
@@ -388,8 +404,12 @@
         width: 100% !important;
     }
     .giz-top-bar .giz-global-search:focus-within {
-        border-color: rgba(78,205,196,0.5) !important;
-        background-color: rgba(255,255,255,0.1) !important;
+        border-color: rgba(var(--gg-accent-rgb),0.4) !important;
+        background-color: rgba(255,255,255,0.09) !important;
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.14),
+            0 0 0 1px rgba(var(--gg-accent-rgb),0.12),
+            0 4px 20px rgba(0,0,0,0.35) !important;
     }
     .giz-top-bar .giz-global-search input {
         display: block !important;
@@ -421,10 +441,10 @@
 
     /* ── Right panel: time product (tariff) card ── */
     .giz-user-panel .giz-header-user-balance {
-        background-color: rgba(78,205,196,0.1) !important;
-        color: #4ecdc4 !important;
+        background-color: rgba(var(--gg-accent-rgb),0.1) !important;
+        color: var(--gg-accent) !important;
         border-radius: 0.8rem !important;
-        border: 1px solid rgba(78,205,196,0.25) !important;
+        border: 1px solid rgba(var(--gg-accent-rgb),0.25) !important;
         width: 100% !important;
         box-sizing: border-box !important;
         gap: 0.8rem !important;
@@ -433,8 +453,8 @@
     }
     .giz-user-panel .giz-header-user-balance > .giz-icon,
     .giz-user-panel .giz-header-user-balance svg {
-        color: #4ecdc4 !important;
-        fill: #4ecdc4 !important;
+        color: var(--gg-accent) !important;
+        fill: var(--gg-accent) !important;
     }
     .giz-user-panel .giz-header__user-menu-item__icon {
         color: rgba(255,255,255,0.38) !important;
@@ -462,8 +482,8 @@
         color: rgba(255,255,255,0.9) !important;
     }
     .giz-user-panel .giz-user-balance-tooltip__header__link {
-        border-bottom-color: #4ecdc4 !important;
-        color: #4ecdc4 !important;
+        border-bottom-color: var(--gg-accent) !important;
+        color: var(--gg-accent) !important;
     }
 
     /* ── Top bar: ghost icon buttons ── */
@@ -492,8 +512,8 @@
         color: rgba(255,255,255,0.92) !important;
     }
     .giz-top-bar .open > .user-menu-item-button--box {
-        background: rgba(78,205,196,0.15) !important;
-        color: #4ecdc4 !important;
+        background: rgba(var(--gg-accent-rgb),0.15) !important;
+        color: var(--gg-accent) !important;
     }
     .giz-top-bar .user-menu-item-button--box .giz-icon {
         width: 2.6rem !important;
@@ -551,29 +571,35 @@
     /* PC 46 user button: compact pill */
     .giz-top-bar .giz-user-menu-button {
         background: rgba(255,255,255,0.07) !important;
-        border: 1px solid rgba(255,255,255,0.1) !important;
+        border: 1px solid rgba(255,255,255,0.14) !important;
         border-radius: 2.4rem !important;
         height: auto !important;
         padding: 0.65rem 1.1rem 0.65rem 0.7rem !important;
         gap: 0.6rem !important;
-        color: rgba(255,255,255,0.75) !important;
+        color: rgba(255,255,255,0.78) !important;
         font-size: 1.3rem !important;
         font-weight: 500 !important;
         display: flex !important;
         align-items: center !important;
-        box-shadow: none !important;
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.13),
+            inset 0 -1px 0 rgba(0,0,0,0.12),
+            0 4px 16px rgba(0,0,0,0.3) !important;
         transition: background 0.15s, border-color 0.15s, color 0.15s !important;
         margin-left: 0.6rem !important;
     }
     .giz-top-bar .giz-user-menu-button:hover {
-        background: rgba(255,255,255,0.12) !important;
-        border-color: rgba(255,255,255,0.16) !important;
+        background: rgba(255,255,255,0.11) !important;
+        border-color: rgba(255,255,255,0.2) !important;
         color: rgba(255,255,255,0.95) !important;
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.16),
+            0 4px 20px rgba(0,0,0,0.35) !important;
     }
     .giz-top-bar .giz-user-dropdown.open > .giz-user-menu-button {
-        background: rgba(78,205,196,0.12) !important;
-        border-color: rgba(78,205,196,0.3) !important;
-        color: #4ecdc4 !important;
+        background: rgba(var(--gg-accent-rgb),0.12) !important;
+        border-color: rgba(var(--gg-accent-rgb),0.3) !important;
+        color: var(--gg-accent) !important;
     }
     /* Avatar inside PC pill */
     .giz-top-bar .giz-user-menu-button .giz-user-avatar,
@@ -597,11 +623,16 @@
         display: flex;
         align-items: center;
         height: 5.2rem;
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.09);
+        background: rgba(255,255,255,0.07);
+        border: 1px solid rgba(255,255,255,0.14);
         border-radius: 1.2rem;
         overflow: visible;
         white-space: nowrap;
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.12),
+            inset 0 -1px 0 rgba(0,0,0,0.15),
+            0 4px 20px rgba(0,0,0,0.35),
+            0 1px 0 rgba(255,255,255,0.04);
     }
     .giz-topbar-info__pc {
         padding: 0 1.6rem;
@@ -687,7 +718,7 @@
         background-color: transparent !important;
         border: none !important;
         border-radius: 0 !important;
-        color: #4ecdc4 !important;
+        color: var(--gg-accent) !important;
         padding: 0 !important;
         height: auto !important;
         font-size: 1.5rem !important;
@@ -696,7 +727,7 @@
     }
     .giz-topbar-info .giz-header-user-balance > .giz-icon,
     .giz-topbar-info .giz-header-user-balance svg {
-        color: #4ecdc4 !important;
+        color: var(--gg-accent) !important;
         width: 2rem !important;
         height: 2rem !important;
     }
@@ -751,7 +782,7 @@
 
     /* Notifications footer — teal accent instead of blue */
     .giz-top-bar .giz-menu-notifications__footer {
-        color: #4ecdc4 !important;
+        color: var(--gg-accent) !important;
         border-top: 1px solid rgba(255,255,255,0.07) !important;
         font-size: 1.4rem !important;
     }
@@ -777,10 +808,10 @@
         -webkit-backdrop-filter: none !important;
     }
     .giz-top-bar .giz-user-links-item:hover .giz-user-links-item__icon {
-        background-color: rgba(78,205,196,0.15) !important;
+        background-color: rgba(var(--gg-accent-rgb),0.15) !important;
     }
     .giz-top-bar .giz-user-links-item:hover .giz-user-links-item__icon svg {
-        color: #4ecdc4 !important;
+        color: var(--gg-accent) !important;
     }
 
     /* Open-state teal for all icon buttons */
@@ -788,8 +819,8 @@
     .giz-top-bar .giz-notifications-dropdown.open .user-menu-item-button--box,
     .giz-top-bar .giz-assistance-dropdown.open .user-menu-item-button--box,
     .giz-top-bar .giz-user-online-deposit-dropdown.open .user-menu-item-button--box {
-        background: rgba(78,205,196,0.15) !important;
-        color: #4ecdc4 !important;
+        background: rgba(var(--gg-accent-rgb),0.15) !important;
+        color: var(--gg-accent) !important;
     }
 
     /* ══════════════════════════════════════════════
@@ -905,3 +936,40 @@
     <UserBan />
 
 </main>
+
+@code {
+    private bool _playTransition;
+
+    protected override void OnInitialized()
+    {
+        Nav.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        _playTransition = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender || _playTransition)
+        {
+            _playTransition = false;
+            await JS.InvokeVoidAsync("eval", @"
+                (function() {
+                    var el = document.querySelector('.giz-app__body > *');
+                    if (!el) return;
+                    el.style.animation = 'none';
+                    el.offsetWidth;
+                    el.style.animation = '';
+                })();
+            ");
+        }
+    }
+
+    public void Dispose()
+    {
+        Nav.LocationChanged -= OnLocationChanged;
+    }
+}

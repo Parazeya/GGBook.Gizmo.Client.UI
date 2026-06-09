@@ -1,23 +1,44 @@
 //=============== Application Card ================//
+// --gg-card-bg and --gg-card-image-bg are CSS custom properties
+// that can be overridden per-club via the theme API.
 
 .giz-app-card {
     position: relative;
-    background-color: #22272B;
-    border-radius: 0.8rem;
+    background: var(--gg-card-bg, #0c0818);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 1.4rem;
     overflow: hidden;
+    transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+    max-width: 100%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
 
     &:hover {
-        background-color: #020203;
+        border-color: rgba(var(--gg-accent-rgb), 0.45);
+        transform: translateY(-4px) scale(1.012);
+        box-shadow:
+            0 0 0 1px rgba(var(--gg-accent-rgb), 0.15),
+            0 16px 48px rgba(0, 0, 0, 0.65),
+            0 0 40px rgba(var(--gg-accent-rgb), 0.08);
+
+        .giz-app-card__content__image::after {
+            height: 10rem;
+            background: linear-gradient(to top,
+                rgba(10, 4, 22, 0.98) 0%,
+                rgba(10, 4, 22, 0.7) 45%,
+                transparent 100%);
+        }
 
         .giz-app-card__action {
             display: flex;
         }
 
         .giz-app-card__content__image__hovered {
-            background-color: rgba(0, 0, 0, 0.94);
+            background: linear-gradient(to bottom, rgba(5, 8, 20, 0.9), rgba(8, 12, 28, 0.97));
 
             .giz-app-card__content--hovered {
-                visibility: visible;
+                opacity: 1;
+                transform: translateY(0);
+                pointer-events: auto;
             }
         }
     }
@@ -25,7 +46,6 @@
     &__content {
         display: grid;
         grid-template-rows: min-content 1fr min-content;
-        gap: 1.6rem;
         height: 100%;
 
         &__image {
@@ -34,13 +54,38 @@
             justify-content: center;
             position: relative;
             height: 33.3rem;
-            background-color: #161A1D;
+            background: var(--gg-card-image-bg, linear-gradient(160deg, #1e0a3c 0%, #0f0424 55%, #06030e 100%));
+            border-radius: 1.3rem 1.3rem 0 0;
+            overflow: hidden;
+
+            &::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: rgba(8, 2, 22, 0.14);
+                z-index: 1;
+                pointer-events: none;
+                border-radius: 1.3rem 1.3rem 0 0;
+            }
+
+            &::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 8rem;
+                background: linear-gradient(to top,
+                    rgba(10, 4, 22, 0.95) 0%,
+                    rgba(10, 4, 22, 0.6) 50%,
+                    transparent 100%);
+                pointer-events: none;
+                z-index: 2;
+                transition: height 0.22s ease, background 0.22s ease;
+            }
 
             & > img {
-                /*width: 100%;
-                height: 100%;
-                object-fit: cover;*/
-                border-radius: 0.9rem 0.9rem 0 0;
+                border-radius: 1.3rem 1.3rem 0 0;
             }
 
             &__hovered {
@@ -50,8 +95,13 @@
                 width: 100%;
                 height: 100%;
                 z-index: 2;
-                padding: 1.6rem 0 0 0;
-                transition: background-color 0.2s;
+                padding: 1.2rem 1.2rem 0.8rem 1.2rem;
+                background: transparent;
+                transition: background 0.22s ease;
+                overflow-x: hidden;
+                overflow-y: auto;
+                scrollbar-width: none;
+                &::-webkit-scrollbar { display: none; }
 
                 &__header {
                     display: flex;
@@ -62,14 +112,18 @@
                 }
 
                 .giz-app-card__content--hovered {
+                    opacity: 0;
+                    transform: translateY(5px);
+                    pointer-events: none;
+                    transition: opacity 0.22s ease, transform 0.22s ease;
                     padding: 0 0.4rem 0 0.4rem;
-                    visibility: hidden;
                 }
             }
         }
 
         &__details {
-            padding: 0 1.6rem;
+            padding: 0 1.4rem;
+            margin: 1.2rem 0 0 0;
             width: 100%;
             overflow: hidden;
         }
@@ -77,15 +131,16 @@
         &__footer {
             display: flex;
             justify-content: space-between;
-            padding: 0.0rem 1.6rem 1.6rem 1.6rem;
+            padding: 1rem 1.4rem 1.4rem 1.4rem;
             width: 100%;
             overflow: hidden;
 
             &-category {
-                background-color: rgba(255, 255, 255, 0.1);
+                background: rgba(var(--gg-accent-rgb), 0.08);
+                border: 1px solid rgba(var(--gg-accent-rgb), 0.2);
                 border-radius: 1.6rem;
-                color: rgba(255, 255, 255, 0.6);
-                padding: 0.6rem 1.2rem;
+                color: var(--gg-accent);
+                padding: 0.4rem 1.0rem;
                 white-space: nowrap;
                 max-width: 100%;
                 overflow: hidden;
@@ -126,33 +181,22 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        @include font-l-theme-client($font-weight-light-theme-client);
+        color: rgba(255, 255, 255, 0.92);
+        @include font-l-theme-client($font-weight-regular-theme-client);
+        letter-spacing: 0.01em;
     }
 }
 
-.giz-app-card-b1 {
-    display: flex;
-    align-items: center;
-    background-color: #1B1D21;
-    opacity: 0.9;
-    border-radius: 1.2rem;
-    padding: 0.4rem 0.8rem;
-    color: #FAFAFA;
-    @include font-s-theme-client($font-weight-light-theme-client);
-
-    & > svg {
-        margin-right: 0.4rem;
-    }
-}
-
+.giz-app-card-b1,
 .giz-app-card-b2 {
     display: flex;
     align-items: center;
-    background-color: #1B1D21;
+    background: rgba(var(--gg-accent-rgb), 0.08);
+    border: 1px solid rgba(var(--gg-accent-rgb), 0.2);
     opacity: 0.9;
     border-radius: 1.2rem;
     padding: 0.4rem 0.8rem;
-    color: #FAFAFA;
+    color: var(--gg-accent);
     @include font-s-theme-client($font-weight-light-theme-client);
 
     & > svg {

@@ -1,8 +1,5 @@
 //============= Product Card ===============//
 
-$gg-cyan:            #00d4ff;
-$gg-cyan-dim:        rgba(0, 212, 255, 0.18);
-$gg-cyan-border:     rgba(0, 212, 255, 0.38);
 $gg-card-bg:         #141820;
 $gg-card-border:     rgba(255, 255, 255, 0.07);
 $gg-image-bg:        #0c1018;
@@ -17,19 +14,19 @@ $gg-image-bg:        #0c1018;
     overflow: hidden;
 
     .giz-button--fill.accent.giz-product-card-primary-button {
-        background: $gg-cyan-dim;
-        border: 1px solid rgba(0, 212, 255, 0.28);
-        color: $gg-cyan;
+        background: rgba(var(--gg-accent-rgb), 0.18);
+        border: 1px solid rgba(var(--gg-accent-rgb), 0.28);
+        color: var(--gg-accent);
         transition: background 0.18s, box-shadow 0.18s;
     }
 
     &:hover {
-        border-color: $gg-cyan-border;
+        border-color: rgba(var(--gg-accent-rgb), 0.38);
         transform: translateY(-3px);
         box-shadow:
-            0 0 0 1px rgba(0, 212, 255, 0.12),
+            0 0 0 1px rgba(var(--gg-accent-rgb), 0.12),
             0 12px 40px rgba(0, 0, 0, 0.55),
-            0 0 60px rgba(0, 212, 255, 0.04);
+            0 0 60px rgba(var(--gg-accent-rgb), 0.04);
 
         .giz-product-card__content__image__hovered {
             background: linear-gradient(to bottom, rgba(5, 8, 20, 0.9), rgba(8, 12, 28, 0.97));
@@ -42,8 +39,8 @@ $gg-image-bg:        #0c1018;
         }
 
         .giz-button--fill.accent.giz-product-card-primary-button {
-            background: rgba(0, 212, 255, 0.26);
-            box-shadow: 0 0 18px rgba(0, 212, 255, 0.22);
+            background: rgba(var(--gg-accent-rgb), 0.26);
+            box-shadow: 0 0 18px rgba(var(--gg-accent-rgb), 0.22);
         }
     }
 
@@ -87,10 +84,13 @@ $gg-image-bg:        #0c1018;
                 width: 100%;
                 height: 100%;
                 z-index: 2;
-                padding: 1.4rem 1.4rem 0 1.4rem;
+                padding: 1.2rem 1.2rem 0.8rem 1.2rem;
                 background: transparent;
                 transition: background 0.22s ease;
-                overflow: hidden;
+                overflow-x: hidden;
+                overflow-y: auto;
+                scrollbar-width: none;
+                &::-webkit-scrollbar { display: none; }
 
                 &__header {
                     position: relative;
@@ -121,10 +121,10 @@ $gg-image-bg:        #0c1018;
 
             & > svg {
                 position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
+                top: 11%;
+                left: 11%;
+                width: 78%;
+                height: 78%;
                 z-index: 1;
             }
         }
@@ -143,7 +143,7 @@ $gg-image-bg:        #0c1018;
                 align-items: center;
                 gap: 0.4rem;
                 white-space: nowrap;
-                color: $gg-cyan;
+                color: var(--gg-accent);
                 font-weight: 700;
                 font-size: 1.8rem;
                 line-height: 2.4rem;
@@ -151,7 +151,7 @@ $gg-image-bg:        #0c1018;
                 .giz-product-card__price__points {
                     overflow: hidden;
                     text-overflow: ellipsis;
-                    color: $gg-cyan;
+                    color: var(--gg-accent);
                 }
 
                 svg {
@@ -159,7 +159,7 @@ $gg-image-bg:        #0c1018;
                     min-height: 1.6rem;
                     width: 1.6rem;
                     height: 1.6rem;
-                    fill: $gg-cyan;
+                    fill: var(--gg-accent);
                 }
             }
         }
@@ -213,10 +213,10 @@ $gg-image-bg:        #0c1018;
             align-items: center;
             gap: 0.5rem;
             padding: 0.15rem 0.55rem;
-            background: rgba(0, 212, 255, 0.07);
-            border: 1px solid rgba(0, 212, 255, 0.18);
+            background: rgba(var(--gg-accent-rgb), 0.07);
+            border: 1px solid rgba(var(--gg-accent-rgb), 0.18);
             border-radius: 0.5rem;
-            color: rgba(0, 212, 255, 0.75);
+            color: rgba(var(--gg-accent-rgb), 0.75);
             @include font-s-theme-client($font-weight-light-theme-client);
 
             &--additional {
@@ -225,27 +225,27 @@ $gg-image-bg:        #0c1018;
                 align-items: center;
                 gap: 0.5rem;
                 padding: 0.15rem 0.55rem;
-                background: rgba(0, 212, 255, 0.07);
-                border: 1px solid rgba(0, 212, 255, 0.18);
+                background: rgba(var(--gg-accent-rgb), 0.07);
+                border: 1px solid rgba(var(--gg-accent-rgb), 0.18);
                 border-radius: 0.5rem;
-                color: rgba(0, 212, 255, 0.75);
+                color: rgba(var(--gg-accent-rgb), 0.75);
                 @include font-s-theme-client($font-weight-light-theme-client);
             }
 
             &.active {
-                background: rgba(0, 212, 255, 0.18);
-                border-color: rgba(0, 212, 255, 0.4);
-                color: $gg-cyan;
+                background: rgba(var(--gg-accent-rgb), 0.18);
+                border-color: rgba(var(--gg-accent-rgb), 0.4);
+                color: var(--gg-accent);
             }
         }
     }
 
     &__price {
         @include font-l-theme-client($font-weight-bold-theme-client);
-        color: $gg-cyan;
+        color: var(--gg-accent);
 
         svg {
-            fill: $gg-cyan;
+            fill: var(--gg-accent);
         }
     }
 }
@@ -259,13 +259,13 @@ $gg-image-bg:        #0c1018;
 .gg-hover-info {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.3rem;
 
     &__header {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
+        gap: 0.4rem;
+        margin-bottom: 0.2rem;
         color: rgba(255, 255, 255, 0.4);
         text-transform: uppercase;
         letter-spacing: 0.07em;
@@ -282,19 +282,19 @@ $gg-image-bg:        #0c1018;
     &__time {
         display: flex;
         align-items: center;
-        gap: 0.45rem;
-        padding: 0.5rem 0.8rem;
-        background: rgba(0, 212, 255, 0.08);
-        border: 1px solid rgba(0, 212, 255, 0.2);
+        gap: 0.4rem;
+        padding: 0.35rem 0.7rem;
+        background: rgba(var(--gg-accent-rgb), 0.08);
+        border: 1px solid rgba(var(--gg-accent-rgb), 0.2);
         border-radius: 0.7rem;
-        color: $gg-cyan;
+        color: var(--gg-accent);
         font-family: $font-family-header-theme-client;
         font-weight: 700;
         font-size: 1.4rem;
-        margin-bottom: 0.2rem;
+        margin-bottom: 0;
 
         .giz-icon {
-            color: $gg-cyan;
+            color: var(--gg-accent);
             width: 1.4rem;
             height: 1.4rem;
         }
@@ -304,8 +304,8 @@ $gg-image-bg:        #0c1018;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 0.6rem;
-        padding: 0.4rem 0.8rem;
+        gap: 0.5rem;
+        padding: 0.28rem 0.7rem;
         background: rgba(255, 255, 255, 0.04);
         border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 0.6rem;
@@ -327,7 +327,7 @@ $gg-image-bg:        #0c1018;
         text-align: right;
 
         .giz-icon {
-            color: $gg-cyan;
+            color: var(--gg-accent);
             width: 1.3rem;
             height: 1.3rem;
         }
@@ -363,13 +363,13 @@ $gg-image-bg:        #0c1018;
         text-align: right;
 
         .giz-icon {
-            color: $gg-cyan;
+            color: var(--gg-accent);
         }
     }
 
     span {
         margin-left: 0.8rem;
-        color: $gg-cyan;
+        color: var(--gg-accent);
         @include font-s-theme-client($font-weight-regular-theme-client);
     }
 }
@@ -378,7 +378,7 @@ $gg-image-bg:        #0c1018;
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    color: $gg-cyan;
+    color: var(--gg-accent);
 }
 
 .giz-bundle-product-details {
@@ -389,7 +389,7 @@ $gg-image-bg:        #0c1018;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: $gg-cyan;
+    color: var(--gg-accent);
 
     &__product-name {
         max-width: 100%;
@@ -431,8 +431,8 @@ $gg-image-bg:        #0c1018;
             font-weight: 700;
             font-size: 5.2rem;
             line-height: 5.6rem;
-            color: $gg-cyan;
-            text-shadow: 0 0 32px rgba(0, 212, 255, 0.45), 0 0 8px rgba(0, 212, 255, 0.2);
+            color: var(--gg-accent);
+            text-shadow: 0 0 32px rgba(var(--gg-accent-rgb), 0.45), 0 0 8px rgba(var(--gg-accent-rgb), 0.2);
         }
 
         &__text {

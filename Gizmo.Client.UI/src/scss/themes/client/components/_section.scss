@@ -10,11 +10,14 @@
     &__header {
         margin-bottom: 1.2rem;
         padding-left: 1.2rem;
-        border-left: 3px solid rgba(0, 212, 255, 0.6);
-        color: rgba(255, 255, 255, 0.95);
+        border-left: 3px solid var(--gg-accent);
+        box-shadow: -4px 0 0 0 rgba(var(--gg-accent-rgb), 0);
+        color: rgba(255, 255, 255, 0.97);
+        text-shadow: 0 0 20px rgba(var(--gg-accent-rgb), 0.15);
         @include font-h5-theme-client($font-weight-bold-theme-client);
         display: flex;
         align-items: center;
+        letter-spacing: 0.02em;
 
         &__filters {
             display: flex;

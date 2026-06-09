@@ -36,11 +36,15 @@
             }
 
             &.primary:not(.disabled) {
-                //background-color: rgba(250, 250, 250, 0.16);
-                background-color: #323536;
+                background: rgba(255, 255, 255, 0.07);
+                border: 1px solid rgba(255, 255, 255, 0.10);
+                transition: background 0.18s, border-color 0.18s, color 0.18s, box-shadow 0.18s;
 
                 &:hover {
-                    background-color: #0091FF;
+                    background: rgba(var(--gg-accent-rgb), 0.16);
+                    border-color: rgba(var(--gg-accent-rgb), 0.35);
+                    color: var(--gg-accent);
+                    box-shadow: 0 0 14px rgba(var(--gg-accent-rgb), 0.18);
                 }
 
                 &.giz-button-shadow {
@@ -57,10 +61,12 @@
             }
 
             &.danger {
-                background-color: #B81423;
+                background-color: rgba(184, 20, 35, 0.75);
+                border: 1px solid rgba(184, 20, 35, 0.5);
 
                 &:hover {
                     background-color: #E01325;
+                    box-shadow: 0 0 14px rgba(224, 19, 37, 0.35);
                 }
 
                 &.disabled, &[disabled] {
@@ -68,18 +74,23 @@
             }
 
             &.accent:not(.disabled) {
-                background-color: #0078D2;
+                background: rgba(var(--gg-accent-rgb), 0.16);
+                border: 1px solid rgba(var(--gg-accent-rgb), 0.35);
+                color: var(--gg-accent);
+                transition: background 0.18s, box-shadow 0.18s;
 
                 &:hover {
-                    background-color: #0091FF;
+                    background: rgba(var(--gg-accent-rgb), 0.26);
+                    box-shadow: 0 0 18px rgba(var(--gg-accent-rgb), 0.28);
                 }
             }
         }
 
         &--outline {
             background-color: unset;
-            border: 0.2rem solid rgba(246, 251, 253, 0.28);
-            color: #FFFFFF;
+            border: 1px solid rgba(246, 251, 253, 0.18);
+            color: rgba(255, 255, 255, 0.75);
+            transition: border-color 0.18s, color 0.18s, box-shadow 0.18s;
 
             &.info {
                 border: 2px solid #D5D5D6;
@@ -87,8 +98,9 @@
             }
 
             &:hover {
-                border: 0.2rem solid #0091E6;
-                color: #0091E6;
+                border-color: rgba(var(--gg-accent-rgb), 0.6);
+                color: var(--gg-accent);
+                box-shadow: 0 0 10px rgba(var(--gg-accent-rgb), 0.12);
             }
 
             &:active {
@@ -96,16 +108,17 @@
 
             &.disabled, &[disabled] {
                 opacity: 0.3;
-                border: 0.2rem solid rgba(213, 213, 214, 0.5);
+                border: 1px solid rgba(213, 213, 214, 0.3);
             }
         }
 
         &--text {
             background-color: unset;
-            color: #FFFFFF;
+            color: rgba(255, 255, 255, 0.75);
+            transition: color 0.15s;
 
             &:hover {
-                color: #0091FF;
+                color: var(--gg-accent);
             }
 
             &:active {
@@ -129,24 +142,21 @@
             }
 
             &.primary:not(.disabled) {
-                //background-color: rgba(50, 53, 54, 0.5);
-                background-color: #2a2e30;
+                background: rgba(255, 255, 255, 0.06);
 
                 .giz-button__progress {
-                    background-color: #323536;
+                    background: rgba(var(--gg-accent-rgb), 0.35);
                 }
 
                 &:hover {
-                    background-color: rgba(0, 145, 255, 0.5);
-                    background-color: #115c95;
+                    background: rgba(var(--gg-accent-rgb), 0.12);
 
                     .giz-button__progress {
-                        background-color: #0091FF;
+                        background: rgba(var(--gg-accent-rgb), 0.55);
                     }
                 }
 
                 &.giz-button-shadow {
-                    //box-shadow: $elevation-1-theme-client;
                 }
             }
 
@@ -159,34 +169,30 @@
             }
 
             &.accent:not(.disabled) {
-                //background-color: rgba(0, 120, 210, 0.5);
-                background-color: #114f7e;
+                background: rgba(var(--gg-accent-rgb), 0.12);
 
                 .giz-button__progress {
-                    background-color: #0078D2;
+                    background: rgba(var(--gg-accent-rgb), 0.55);
                 }
 
                 &:hover {
-                    //background-color: rgba(0, 145, 255, 0.5);
-                    background-color: #115c95;
+                    background: rgba(var(--gg-accent-rgb), 0.20);
 
                     .giz-button__progress {
-                        background-color: #0091FF;
+                        background: var(--gg-accent);
                     }
                 }
             }
 
             &.danger:not(.disabled) {
-                //background-color: rgba(184, 20, 35, 0.5);
-                background-color: #6d1d27;
+                background: rgba(184, 20, 35, 0.35);
 
                 .giz-button__progress {
                     background-color: #B81423;
                 }
 
                 &:hover {
-                    //background-color: rgba(224, 19, 37, 0.5);
-                    background-color: #811d28;
+                    background: rgba(224, 19, 37, 0.5);
 
                     .giz-button__progress {
                         background-color: #E01325;

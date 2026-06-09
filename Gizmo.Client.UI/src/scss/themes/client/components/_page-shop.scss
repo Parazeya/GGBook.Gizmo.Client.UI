@@ -1,6 +1,5 @@
 //=============== Page Shop ================//
 
-$gg-cyan:      #00d4ff;
 $gg-sidebar-w: 17rem;
 $gg-cart-w:    50rem;
 
@@ -66,9 +65,9 @@ $gg-cart-w:    50rem;
         }
 
         &.active {
-            background: rgba(0, 212, 255, 0.09);
-            border-left-color: $gg-cyan;
-            color: $gg-cyan;
+            background: rgba(var(--gg-accent-rgb), 0.09);
+            border-left-color: var(--gg-accent);
+            color: var(--gg-accent);
             font-weight: 500;
         }
     }
@@ -92,6 +91,40 @@ $gg-cart-w:    50rem;
                     margin-top: 0;
                 }
             }
+
+            // ── Ads banner: always-visible, full-size ──────────────────
+            &__ads {
+                margin-bottom: 1.6rem;
+                border-radius: 1.4rem;
+                overflow: hidden;
+                border: 1px solid rgba(255, 255, 255, 0.07);
+
+                // Always show ads regardless of collapse state
+                .giz-expansion-panel__header {
+                    display: none !important;
+                }
+
+                .giz-expansion-panel__body {
+                    display: block !important;
+                }
+
+                .giz-ads-carousel {
+                    padding-top: 0;
+                    background: #0c1018;
+
+                    &__header {
+                        display: none;
+                    }
+
+                    &__navigation {
+                        margin-bottom: 0.8rem;
+                    }
+
+                    &-item {
+                        background-color: #141820;
+                    }
+                }
+            }
         }
 
         &__list {
@@ -112,5 +145,51 @@ $gg-cart-w:    50rem;
 
     .giz-ads-carousel-item__content__text {
         max-width: 28.8rem;
+    }
+}
+
+// ── Responsive: sidebar horizontal on Full HD (≤1920px) and below ──
+@media (max-width: 1920px) {
+    .giz-shop {
+        grid-template-columns: 1fr $gg-cart-w;
+        grid-template-rows: auto 1fr;
+    }
+
+    .giz-shop__sidebar {
+        grid-column: 1;
+        grid-row: 1;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        height: auto;
+        max-height: none;
+        padding: 0.55rem 1rem;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        gap: 0.25rem;
+
+        &::-webkit-scrollbar { height: 0; }
+    }
+
+    .giz-shop__cat-btn {
+        flex-shrink: 0;
+        width: auto;
+        border-bottom: 2px solid transparent;
+
+        &.active {
+            border-left-color: transparent;
+            border-bottom-color: var(--gg-accent);
+        }
+    }
+
+    .giz-shop__products {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .giz-shop__order {
+        grid-column: 2;
+        grid-row: 1 / 3;
     }
 }

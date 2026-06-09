@@ -48,8 +48,9 @@
                 justify-content: center;
                 width: 4.4rem;
                 height: 4.4rem;
-                color: #FAFAFA;
-                background: rgba(255, 255, 255, 0.1);
+                color: var(--gg-accent);
+                background: rgba(var(--gg-accent-rgb), 0.1);
+                border: 1px solid rgba(var(--gg-accent-rgb), 0.18);
                 border-radius: 1.2rem;
             }
 
@@ -132,16 +133,16 @@
                 }
 
                 &.active {
-                    color: #FAFAFA;
-                    background: rgba(255, 255, 255, 0.12);
+                    color: var(--gg-accent);
+                    background: rgba(var(--gg-accent-rgb), 0.1);
                     position: relative;
 
                     .giz-icon {
-                        color: #FAFAFA;
+                        color: var(--gg-accent);
                     }
 
                     svg {
-                        color: #FAFAFA;
+                        color: var(--gg-accent);
                     }
 
                     &::before {
@@ -151,7 +152,7 @@
                         left: 0;
                         width: 100%;
                         height: 0.2rem;
-                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+                        background: linear-gradient(90deg, transparent, rgba(var(--gg-accent-rgb), 0.8), transparent);
                         border-radius: 0.2rem;
                     }
                 }
@@ -306,7 +307,7 @@
     @include font-s-theme-client($font-weight-light-theme-client);
 
     a.order-line-details-product-name {
-        color: #57BCFF;
+        color: var(--gg-accent);
     }
 
     &-product-name {
@@ -346,28 +347,28 @@
     &__body {
         height: 100%;
         overflow: hidden;
-        background-color: #191c1d;
-        border: 0.1rem solid #27292a;
+        background: #0e1118;
+        border: 0.1rem solid rgba(255, 255, 255, 0.07);
         border-radius: 0.8rem;
         white-space: nowrap;
 
         .giz-data-grid {
             [#{$client-theme-comp-attr}] & {
-                background-color: #191c1d;
+                background: #0e1118;
 
                 & > thead td, & > thead th {
-                    background-color: #191c1d;
+                    background: #0e1118;
                 }
 
                 & > tbody > tr:not(.giz-data-grid-row-detail) {
-                    border-top: 0.1rem solid #191c1d;
+                    border-top: 0.1rem solid rgba(255, 255, 255, 0.05);
 
                     &:hover {
-                        background-color: #191c1d;
+                        background: rgba(var(--gg-accent-rgb), 0.04);
                     }
 
                     &:last-child {
-                        border-bottom: 0.1rem solid #191c1d;
+                        border-bottom: 0.1rem solid rgba(255, 255, 255, 0.05);
                     }
                 }
             }
@@ -384,8 +385,8 @@
             height: 4.4rem;
 
             &:hover {
-                background-color: rgba(250, 250, 250, 0.23);
-                color: #fff;
+                background: rgba(var(--gg-accent-rgb), 0.12);
+                color: var(--gg-accent);
             }
         }
     }

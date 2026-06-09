@@ -1,26 +1,25 @@
 .giz-order {
     display: grid;
     grid-template-rows: 1fr min-content min-content;
-    gap: 1.2rem;
     height: 100%;
     overflow: hidden;
     min-width: 50rem;
-    padding: 1.4rem;
+    background: rgba(10, 14, 22, 0.9);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
 
     &__items {
         display: grid;
         grid-template-rows: min-content 1fr min-content;
-        background: #141820;
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        border-radius: 1.4rem;
         height: 100%;
         overflow: hidden;
 
         &__header {
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            padding: 2rem 2.4rem 1.6rem;
+            border-left: 3px solid rgba(var(--gg-accent-rgb), 0.65);
+            padding: 2rem 2.4rem 1.6rem calc(2.4rem - 3px);
             @include font-xl-theme-client($font-weight-bold-theme-client);
-            color: rgba(255, 255, 255, 0.92);
+            color: rgba(255, 255, 255, 0.97);
             letter-spacing: 0.01em;
         }
 
@@ -72,7 +71,7 @@
                             grid-column-end: 3;
                             grid-row-start: 1;
                             grid-row-end: 2;
-                            color: #00d4ff;
+                            color: var(--gg-accent);
                             font-weight: 600;
                         }
 
@@ -123,11 +122,11 @@
             border-top: 1px solid rgba(255, 255, 255, 0.05);
 
             .giz-button {
-                color: rgba(255, 100, 100, 0.55);
+                color: rgba(255, 100, 100, 0.75);
                 transition: color 0.18s;
 
                 &:hover:not([disabled]) {
-                    color: rgba(255, 80, 80, 0.85);
+                    color: rgba(255, 80, 80, 0.95);
                 }
 
                 .giz-icon--small {
@@ -140,44 +139,47 @@
     }
 
     &__notes {
-        background: #141820;
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        border-radius: 1.4rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
         padding: 2rem 2.4rem;
 
         &__header {
             margin-bottom: 0.8rem;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(var(--gg-accent-rgb), 0.72);
             @include font-m-theme-client($font-weight-light-theme-client);
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            font-size: 1.1rem;
+            letter-spacing: 0.07em;
+            font-size: 1.0rem;
         }
 
         .giz-order-notes {
             .giz-input-root {
                 min-height: 9.8rem;
+                background: rgba(255, 255, 255, 0.03) !important;
+                border-color: rgba(255, 255, 255, 0.07) !important;
+                border-radius: 0.8rem;
+            }
+
+            textarea, input {
+                color: rgba(255, 255, 255, 0.72) !important;
+                background: transparent !important;
+                &::placeholder { color: rgba(255, 255, 255, 0.25) !important; }
             }
         }
     }
 
     &__totals {
-        background: #141820;
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        border-radius: 1.4rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
         padding: 2.4rem;
 
-        // Override Заказать button to use cyan gradient
         .giz-button--fill.accent:not(.disabled) {
-            background: linear-gradient(135deg, rgba(0, 180, 220, 1), rgba(0, 120, 210, 1)) !important;
+            background: linear-gradient(135deg, var(--gg-accent), color-mix(in srgb, var(--gg-accent) 65%, black)) !important;
             border: none;
-            box-shadow: 0 4px 20px rgba(0, 180, 220, 0.28);
+            box-shadow: 0 4px 20px rgba(var(--gg-accent-rgb), 0.28);
             transition: box-shadow 0.2s, filter 0.2s;
 
             &:hover {
-                filter: brightness(1.12);
-                box-shadow: 0 4px 28px rgba(0, 180, 220, 0.4);
-                background: linear-gradient(135deg, rgba(0, 200, 240, 1), rgba(0, 140, 230, 1)) !important;
+                filter: brightness(1.1);
+                box-shadow: 0 4px 28px rgba(var(--gg-accent-rgb), 0.4);
             }
         }
 
@@ -192,21 +194,21 @@
 
             .giz-order-summary-text-bold {
                 @include font-m-theme-client($font-weight-regular-theme-client);
-                color: rgba(255, 255, 255, 0.55);
+                color: rgba(255, 255, 255, 0.82);
             }
 
             .giz-order-summary-total {
                 display: flex;
                 align-items: center;
                 gap: 0.4rem;
-                color: #00d4ff;
+                color: var(--gg-accent);
                 font-weight: 700;
                 @include font-h5-theme-client($font-weight-bold-theme-client);
 
                 svg {
                     width: 2.4rem;
                     height: 2.4rem;
-                    fill: #00d4ff;
+                    fill: var(--gg-accent);
                 }
             }
 
@@ -219,7 +221,7 @@
                 display: flex;
                 align-items: center;
                 text-align: right;
-                color: #00d4ff;
+                color: var(--gg-accent);
                 @include font-h5-theme-client($font-weight-bold-theme-client);
             }
 
@@ -234,7 +236,7 @@
 
             &-text {
                 @include font-m-theme-client($font-weight-light-theme-client);
-                color: rgba(255, 255, 255, 0.4);
+                color: rgba(255, 255, 255, 0.68);
             }
 
             .giz-order-summary-points-award {
@@ -260,12 +262,12 @@
     gap: 0.8rem;
 
     &__title {
-        color: rgba(255, 255, 255, 0.5);
+        color: rgba(255, 255, 255, 0.78);
         @include font-xl-theme-client($font-weight-regular-theme-client);
     }
 
     &__text {
-        color: rgba(255, 255, 255, 0.25);
+        color: rgba(255, 255, 255, 0.5);
         @include font-m-theme-client($font-weight-light-theme-client);
     }
 }

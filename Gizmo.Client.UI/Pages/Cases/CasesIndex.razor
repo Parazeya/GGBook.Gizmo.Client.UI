@@ -3,12 +3,27 @@
 
 <style>
     @@keyframes gg-spin { to { transform: rotate(360deg); } }
+    @@keyframes gg-shimmer {
+        0%   { background-position: -40rem 0; }
+        100% { background-position: 40rem 0; }
+    }
     .gg-spinner {
         width: 3.2rem; height: 3.2rem;
         border: 0.35rem solid rgba(255,255,255,0.1);
-        border-top-color: #4ecdc4;
+        border-top-color: var(--gg-accent);
         border-radius: 50%;
         animation: gg-spin 0.7s linear infinite;
+    }
+    /* Skeleton shimmer — glass-reflection style, no color tints */
+    .gg-img-wrap {
+        background: linear-gradient(110deg,
+            #0a0a0a 25%,
+            rgba(255,255,255,0.07) 48%,
+            rgba(255,255,255,0.12) 50%,
+            rgba(255,255,255,0.07) 52%,
+            #0a0a0a 75%);
+        background-size: 80rem 100%;
+        animation: gg-shimmer 1.8s infinite linear;
     }
 
     /* ── Case list card ── */
@@ -72,7 +87,7 @@
 
     /* ── Case alert panel ── */
     .gg-case-alert { display:flex;flex-direction:column;gap:0.8rem;padding:1.2rem 1.4rem;border-radius:1rem;background:rgba(224,92,92,0.1);border:1px solid rgba(224,92,92,0.25); }
-    .gg-case-alert--info { background:rgba(78,205,196,0.08);border-color:rgba(78,205,196,0.2); }
+    .gg-case-alert--info { background:rgba(var(--gg-accent-rgb),0.08);border-color:rgba(var(--gg-accent-rgb),0.2); }
 
     /* ── Misc ── */
     .gg-key-bar { display:flex;align-items:center;justify-content:space-between;padding:1rem 1.4rem;border-radius:1rem;background:rgba(6,9,14,0.75);border:1px solid rgba(255,255,255,0.09); }
@@ -83,19 +98,19 @@
     @@keyframes gg-pulse { 0%,100% { opacity:0.7; } 50% { opacity:1; } }
     .gg-win-line { animation: gg-pulse 1.8s ease-in-out infinite; }
     @@keyframes gg-spin { to { transform: rotate(360deg); } }
-    .gg-spinner { width:3.2rem;height:3.2rem;border:0.35rem solid rgba(255,255,255,0.1);border-top-color:#4ecdc4;border-radius:50%;animation:gg-spin 0.7s linear infinite; }
+    .gg-spinner { width:3.2rem;height:3.2rem;border:0.35rem solid rgba(255,255,255,0.1);border-top-color:var(--gg-accent);border-radius:50%;animation:gg-spin 0.7s linear infinite; }
 
     /* ── Case action row buttons ── */
     .gg-open-btn {
         display: flex; align-items: center; justify-content: center; gap: 0.6rem;
         width: auto; min-width: 19rem; padding: 1.1rem 2.4rem;
-        background: linear-gradient(135deg, #4ecdc4 0%, #2ab7ae 100%);
+        background: var(--gg-accent);
         color: #0a0e16; font-size: 1.55rem; font-weight: 700;
         border: none; border-radius: 1rem; cursor: pointer;
-        box-shadow: 0 0.4rem 1.6rem rgba(78,205,196,0.35);
+        box-shadow: 0 0.4rem 1.6rem rgba(var(--gg-accent-rgb),0.35);
         transition: filter 0.15s, transform 0.12s, box-shadow 0.15s;
     }
-    .gg-open-btn:hover:not(:disabled) { filter: brightness(1.1); box-shadow: 0 0.6rem 2rem rgba(78,205,196,0.5); transform: translateY(-1px); }
+    .gg-open-btn:hover:not(:disabled) { filter: brightness(1.1); box-shadow: 0 0.6rem 2rem rgba(var(--gg-accent-rgb),0.5); transform: translateY(-1px); }
     .gg-open-btn:active:not(:disabled) { transform: translateY(0) scale(0.97); }
     .gg-open-btn--loading { opacity: 0.75; cursor: not-allowed; }
     .gg-open-btn--disabled {
@@ -104,12 +119,12 @@
         box-shadow: none !important; cursor: not-allowed;
     }
     .gg-open-btn--buy {
-        background: rgba(78,205,196,0.12) !important;
-        color: #4ecdc4 !important;
-        border: 1px solid rgba(78,205,196,0.3) !important;
+        background: rgba(var(--gg-accent-rgb),0.12) !important;
+        color: var(--gg-accent) !important;
+        border: 1px solid rgba(var(--gg-accent-rgb),0.3) !important;
         box-shadow: none !important;
     }
-    .gg-open-btn--buy:hover { background: rgba(78,205,196,0.2) !important; box-shadow: 0 0.3rem 1rem rgba(78,205,196,0.2) !important; }
+    .gg-open-btn--buy:hover { background: rgba(var(--gg-accent-rgb),0.2) !important; box-shadow: 0 0.3rem 1rem rgba(var(--gg-accent-rgb),0.2) !important; }
 
     .gg-add-key-btn {
         display: flex; align-items: center; justify-content: center; gap: 0.5rem;
@@ -120,7 +135,7 @@
         transition: background 0.15s, color 0.15s, border-color 0.15s;
         white-space: nowrap;
     }
-    .gg-add-key-btn:hover { background: rgba(78,205,196,0.15); color: #4ecdc4; border-color: rgba(78,205,196,0.4); }
+    .gg-add-key-btn:hover { background: rgba(var(--gg-accent-rgb),0.15); color: var(--gg-accent); border-color: rgba(var(--gg-accent-rgb),0.4); }
     .gg-add-key-btn .giz-icon { width: 1.8rem !important; height: 1.8rem !important; color: inherit !important; }
 
     /* ── 2K roulette scale (1.5× vs Full HD) ── */
@@ -174,19 +189,20 @@ else if (GGModConfig.Cases)
                     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(24rem,1fr));gap:1.8rem;">
                         @foreach (var c in _cases)
                         {
-                            <div class="gg-case-card"
+                            <div class="gg-case-card @(!string.IsNullOrEmpty(c.PictureUrl) ? "gg-img-wrap" : "")"
                                  @onclick="() => SelectCaseAsync(c)"
-                                 style="position:relative;border-radius:1.4rem;overflow:hidden;aspect-ratio:1;background:rgba(10,14,20,0.85);border:1px solid rgba(255,255,255,0.12);">
+                                 style="position:relative;border-radius:1.4rem;overflow:hidden;aspect-ratio:1;border:1px solid rgba(255,255,255,0.12);@(string.IsNullOrEmpty(c.PictureUrl) ? "background:linear-gradient(145deg,#1a1f2e,#0d1018);" : "")">
 
                                 @if (!string.IsNullOrEmpty(c.PictureUrl))
                                 {
-                                    <img src="@c.PictureUrl" alt="@c.Name"
-                                         style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;"
+                                    <img src="@c.PictureUrl" alt="@c.Name" loading="lazy"
+                                         style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;filter:blur(14px);transform:scale(1.06);transition:opacity 0.5s ease,filter 0.5s ease,transform 0.5s ease;"
+                                         onload="this.style.opacity='1';this.style.filter='blur(0)';this.style.transform='scale(1)';var p=this.parentElement;p.style.animation='none';p.style.background='transparent';"
                                          onerror="this.style.display='none'" />
                                 }
                                 else
                                 {
-                                    <div style="position:absolute;inset:0;background:linear-gradient(145deg,#1a1f2e,#0d1018);display:flex;align-items:center;justify-content:center;">
+                                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
                                         <Icon SVGIcon="Icons.Star_Client" Size="IconSizes.Large" Style="color:rgba(255,255,255,0.15);width:6rem;height:6rem;" />
                                     </div>
                                 }
@@ -203,9 +219,9 @@ else if (GGModConfig.Cases)
                                     </div>
                                 }
 
-                                <div style="position:absolute;top:0.8rem;right:0.8rem;display:flex;align-items:center;gap:0.5rem;padding:0.45rem 1rem;border-radius:2rem;background:rgba(0,0,0,0.85);border:1px solid @(c.AvailableKeys > 0 ? "rgba(78,205,196,0.4)" : "rgba(255,255,255,0.1)");">
-                                    <Icon SVGIcon="Icons.Key" Size="IconSizes.Small" Style="@($"color:{(c.AvailableKeys > 0 ? "#4ecdc4" : "#555")};")" />
-                                    <span style="font-size:1.2rem;font-weight:700;color:@(c.AvailableKeys > 0 ? "#4ecdc4" : "#555");">@c.AvailableKeys</span>
+                                <div style="position:absolute;top:0.8rem;right:0.8rem;display:flex;align-items:center;gap:0.5rem;padding:0.45rem 1rem;border-radius:2rem;background:rgba(0,0,0,0.85);border:1px solid @(c.AvailableKeys > 0 ? "rgba(var(--gg-accent-rgb),0.4)" : "rgba(255,255,255,0.1)");">
+                                    <Icon SVGIcon="Icons.Key" Size="IconSizes.Small" Style="@($"color:{(c.AvailableKeys > 0 ? "var(--gg-accent)" : "#555")};")" />
+                                    <span style="font-size:1.2rem;font-weight:700;color:@(c.AvailableKeys > 0 ? "var(--gg-accent)" : "#555");">@c.AvailableKeys</span>
                                 </div>
                             </div>
                         }
@@ -244,8 +260,8 @@ else if (GGModConfig.Cases)
                         <!-- Vertical vignette darkens top/bottom edges -->
                         <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(8,11,18,0.4) 0%,transparent 20%,transparent 80%,rgba(8,11,18,0.4) 100%);z-index:1;pointer-events:none;"></div>
                         <!-- Win arrows -->
-                        <div class="gg-win-line" style="position:absolute;left:50%;top:0;transform:translateX(-50%);width:0;height:0;border-left:1.1rem solid transparent;border-right:1.1rem solid transparent;border-top:1.4rem solid #4ecdc4;z-index:5;filter:drop-shadow(0 0 6px #4ecdc4);pointer-events:none;"></div>
-                        <div class="gg-win-line" style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:1.1rem solid transparent;border-right:1.1rem solid transparent;border-bottom:1.4rem solid #4ecdc4;z-index:5;filter:drop-shadow(0 0 6px #4ecdc4);pointer-events:none;"></div>
+                        <div class="gg-win-line" style="position:absolute;left:50%;top:0;transform:translateX(-50%);width:0;height:0;border-left:1.1rem solid transparent;border-right:1.1rem solid transparent;border-top:1.4rem solid var(--gg-accent);z-index:5;filter:drop-shadow(0 0 6px rgba(var(--gg-accent-rgb),0.8));pointer-events:none;"></div>
+                        <div class="gg-win-line" style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:1.1rem solid transparent;border-right:1.1rem solid transparent;border-bottom:1.4rem solid var(--gg-accent);z-index:5;filter:drop-shadow(0 0 6px rgba(var(--gg-accent-rgb),0.8));pointer-events:none;"></div>
                         <!-- Scrolling strip -->
                         <div id="giz-roulette-vp" style="height:11rem;overflow:hidden;width:100%;-webkit-mask-image:linear-gradient(to right,transparent 0%,black 12%,black 88%,transparent 100%);mask-image:linear-gradient(to right,transparent 0%,black 12%,black 88%,transparent 100%);">
                             <div style="display:flex;align-items:center;gap:0.3rem;padding:0 1rem;will-change:transform;backface-visibility:hidden;transform:@_rouletteTransform;transition:@_rouletteTransition;">
@@ -292,8 +308,8 @@ else if (GGModConfig.Cases)
                     {
                         <div class="gg-case-alert gg-case-alert--info">
                             <div style="display:flex;align-items:center;gap:0.8rem;">
-                                <Icon SVGIcon="Icons.Key" Size="IconSizes.Small" Style="color:#4ecdc4;flex-shrink:0;" />
-                                <span style="font-size:1.25rem;font-weight:700;color:#4ecdc4;">@GGModL10n.Get(GGModL10n.NoKeysTitle)</span>
+                                <Icon SVGIcon="Icons.Key" Size="IconSizes.Small" Style="color:var(--gg-accent);flex-shrink:0;" />
+                                <span style="font-size:1.25rem;font-weight:700;color:var(--gg-accent);">@GGModL10n.Get(GGModL10n.NoKeysTitle)</span>
                             </div>
                             @if (_selectedCase.CanGetViaTask)
                             {
@@ -321,9 +337,9 @@ else if (GGModConfig.Cases)
 
                         <!-- LEFT: key count pill (same height as open btn, right-aligned) -->
                         <div style="display:flex;justify-content:flex-end;">
-                            <div style="display:flex;align-items:center;gap:0.8rem;background:@(_availableKeys > 0 ? "rgba(78,205,196,0.1)" : "rgba(255,255,255,0.07)");border:1px solid @(_availableKeys > 0 ? "rgba(78,205,196,0.3)" : "rgba(255,255,255,0.14)");border-radius:1rem;padding:1.1rem 1.8rem;flex-shrink:0;">
-                                <Icon SVGIcon="Icons.Key" Size="IconSizes.Small" Style="@($"color:{(_availableKeys > 0 ? "#4ecdc4" : "rgba(255,255,255,0.38)")};")" />
-                                <span style="font-size:1.55rem;font-weight:700;color:@(_availableKeys > 0 ? "#4ecdc4" : "rgba(255,255,255,0.52)");">@_availableKeys @KeysText(_availableKeys)</span>
+                            <div style="display:flex;align-items:center;gap:0.8rem;background:@(_availableKeys > 0 ? "rgba(var(--gg-accent-rgb),0.1)" : "rgba(255,255,255,0.07)");border:1px solid @(_availableKeys > 0 ? "rgba(var(--gg-accent-rgb),0.3)" : "rgba(255,255,255,0.14)");border-radius:1rem;padding:1.1rem 1.8rem;flex-shrink:0;">
+                                <Icon SVGIcon="Icons.Key" Size="IconSizes.Small" Style="@($"color:{(_availableKeys > 0 ? "var(--gg-accent)" : "rgba(255,255,255,0.38)")};")" />
+                                <span style="font-size:1.55rem;font-weight:700;color:@(_availableKeys > 0 ? "var(--gg-accent)" : "rgba(255,255,255,0.52)");">@_availableKeys @KeysText(_availableKeys)</span>
                             </div>
                         </div>
 
@@ -426,7 +442,10 @@ else if (GGModConfig.Cases)
                                     }
                                     @if (!string.IsNullOrEmpty(r.PictureUrl))
                                     {
-                                        <img src="@r.PictureUrl" alt="@r.Name" class="gg-rcard-img" onerror="this.style.display='none'" />
+                                        <img src="@r.PictureUrl" alt="@r.Name" class="gg-rcard-img" loading="lazy"
+                                             style="opacity:0;filter:blur(10px);transform:scale(1.05);transition:opacity 0.4s ease,filter 0.4s ease,transform 0.4s ease;"
+                                             onload="this.style.opacity='1';this.style.filter='blur(0)';this.style.transform='scale(1)'"
+                                             onerror="this.style.display='none'" />
                                     }
                                     else
                                     {
@@ -486,8 +505,9 @@ else if (GGModConfig.Cases)
                             <div style="width:6rem;height:6rem;border-radius:0.8rem;overflow:hidden;flex-shrink:0;background:rgba(10,14,20,0.9);position:relative;border:1px solid rgba(255,255,255,0.1);">
                                 @if (!string.IsNullOrEmpty(h.CasePictureUrl))
                                 {
-                                    <img src="@h.CasePictureUrl" alt="@h.CaseName"
-                                         style="width:100%;height:100%;object-fit:cover;"
+                                    <img src="@h.CasePictureUrl" alt="@h.CaseName" loading="lazy"
+                                         style="width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.35s ease;"
+                                         onload="this.style.opacity='1'"
                                          onerror="this.style.display='none'" />
                                 }
                                 else
@@ -504,8 +524,9 @@ else if (GGModConfig.Cases)
                                     <div style="width:3.6rem;height:3.6rem;border-radius:0.6rem;overflow:hidden;flex-shrink:0;background:rgba(10,14,20,0.9);border:1px solid @(h.RewardColor)55;display:flex;align-items:center;justify-content:center;">
                                         @if (!string.IsNullOrEmpty(h.RewardPictureUrl))
                                         {
-                                            <img src="@h.RewardPictureUrl" alt="@h.RewardName"
-                                                 style="width:100%;height:100%;object-fit:cover;"
+                                            <img src="@h.RewardPictureUrl" alt="@h.RewardName" loading="lazy"
+                                                 style="width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.35s ease;"
+                                                 onload="this.style.opacity='1'"
                                                  onerror="this.style.display='none'" />
                                         }
                                         else
@@ -568,7 +589,8 @@ else if (GGModConfig.Cases)
                     @if (!string.IsNullOrEmpty(_rewardInfo.PictureUrl))
                     {
                         <img src="@_rewardInfo.PictureUrl" alt="@_rewardInfo.Name"
-                             style="width:100%;height:100%;object-fit:cover;"
+                             style="width:100%;height:100%;object-fit:cover;opacity:0;filter:blur(10px);transform:scale(1.05);transition:opacity 0.4s ease,filter 0.4s ease,transform 0.4s ease;"
+                             onload="this.style.opacity='1';this.style.filter='blur(0)';this.style.transform='scale(1)'"
                              onerror="this.style.display='none'" />
                     }
                     else
@@ -608,7 +630,7 @@ else if (GGModConfig.Cases)
                     {
                         <div style="display:flex;justify-content:space-between;align-items:center;padding:1.1rem 1.4rem;border-bottom:1px solid rgba(255,255,255,0.06);">
                             <span style="font-size:1.3rem;color:rgba(255,255,255,0.4);">@GGModL10n.Get(GGModL10n.ChanceLabel)</span>
-                            <span style="font-size:1.3rem;font-weight:700;color:#4ecdc4;">@_rewardInfo.Chance%</span>
+                            <span style="font-size:1.3rem;font-weight:700;color:var(--gg-accent);">@_rewardInfo.Chance%</span>
                         </div>
                     }
                 </div>
@@ -658,3 +680,4 @@ else if (GGModConfig.Cases)
     </div>
 }
 }
+

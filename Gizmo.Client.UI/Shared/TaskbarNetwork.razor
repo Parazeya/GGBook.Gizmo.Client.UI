@@ -15,7 +15,7 @@
             <div style="display:flex;align-items:center;gap:1rem;">
                 <span style="font-size:2.4rem;">@TypeEmoji()</span>
                 <div>
-                    <div style="font-size:1.3rem;font-weight:700;color:@(NetworkService.IsConnected ? "#4ecdc4" : "#e05c5c");">
+                    <div style="font-size:1.3rem;font-weight:700;color:@(NetworkService.IsConnected ? "var(--gg-accent)" : "#e05c5c");">
                         @(NetworkService.IsConnected ? TypeLabel() : "Нет подключения")
                     </div>
                     @if (NetworkService.IpAddress is not null)
