@@ -195,7 +195,7 @@ else if (GGModConfig.Cases)
 
                                 @if (!string.IsNullOrEmpty(c.PictureUrl))
                                 {
-                                    <img src="@c.PictureUrl" alt="@c.Name" loading="lazy"
+                                    <img src="@c.PictureUrl" alt="@c.Name" loading="eager"
                                          style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;filter:blur(14px);transform:scale(1.06);transition:opacity 0.5s ease,filter 0.5s ease,transform 0.5s ease;"
                                          onload="this.style.opacity='1';this.style.filter='blur(0)';this.style.transform='scale(1)';var p=this.parentElement;p.style.animation='none';p.style.background='transparent';"
                                          onerror="this.style.display='none'" />
@@ -442,7 +442,7 @@ else if (GGModConfig.Cases)
                                     }
                                     @if (!string.IsNullOrEmpty(r.PictureUrl))
                                     {
-                                        <img src="@r.PictureUrl" alt="@r.Name" class="gg-rcard-img" loading="lazy"
+                                        <img src="@r.PictureUrl" alt="@r.Name" class="gg-rcard-img" loading="eager"
                                              style="opacity:0;filter:blur(10px);transform:scale(1.05);transition:opacity 0.4s ease,filter 0.4s ease,transform 0.4s ease;"
                                              onload="this.style.opacity='1';this.style.filter='blur(0)';this.style.transform='scale(1)'"
                                              onerror="this.style.display='none'" />
@@ -505,7 +505,7 @@ else if (GGModConfig.Cases)
                             <div style="width:6rem;height:6rem;border-radius:0.8rem;overflow:hidden;flex-shrink:0;background:rgba(10,14,20,0.9);position:relative;border:1px solid rgba(255,255,255,0.1);">
                                 @if (!string.IsNullOrEmpty(h.CasePictureUrl))
                                 {
-                                    <img src="@h.CasePictureUrl" alt="@h.CaseName" loading="lazy"
+                                    <img src="@h.CasePictureUrl" alt="@h.CaseName" loading="eager"
                                          style="width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.35s ease;"
                                          onload="this.style.opacity='1'"
                                          onerror="this.style.display='none'" />
@@ -524,7 +524,7 @@ else if (GGModConfig.Cases)
                                     <div style="width:3.6rem;height:3.6rem;border-radius:0.6rem;overflow:hidden;flex-shrink:0;background:rgba(10,14,20,0.9);border:1px solid @(h.RewardColor)55;display:flex;align-items:center;justify-content:center;">
                                         @if (!string.IsNullOrEmpty(h.RewardPictureUrl))
                                         {
-                                            <img src="@h.RewardPictureUrl" alt="@h.RewardName" loading="lazy"
+                                            <img src="@h.RewardPictureUrl" alt="@h.RewardName" loading="eager"
                                                  style="width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.35s ease;"
                                                  onload="this.style.opacity='1'"
                                                  onerror="this.style.display='none'" />

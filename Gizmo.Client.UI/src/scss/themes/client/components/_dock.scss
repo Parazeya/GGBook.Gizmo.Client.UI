@@ -37,6 +37,7 @@
                 left: 0;
                 padding-top: 0.8rem;
                 visibility: hidden;
+                z-index: 50;
 
                 &--visible {
                     visibility: visible;

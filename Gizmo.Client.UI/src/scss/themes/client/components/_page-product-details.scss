@@ -25,19 +25,32 @@
         &__navigation {
             flex-shrink: 0;
             display: flex;
-            padding: 1.8rem 0 1.4rem;
+            padding: 1.6rem 0 1.2rem;
 
             & > div {
                 display: inline-flex;
                 align-items: center;
-                gap: 0.7rem;
+                gap: 0.6rem;
                 cursor: pointer;
-                color: rgba(255, 255, 255, 0.42);
-                transition: color 0.18s;
+                background: rgba(255, 255, 255, 0.06);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 2rem;
+                padding: 0.55rem 1.2rem 0.55rem 0.8rem;
+                color: rgba(255, 255, 255, 0.55);
+                transition: background 0.18s, border-color 0.18s, color 0.18s;
                 @include font-m-theme-client($font-weight-regular-theme-client);
+                font-size: 1.3rem;
+
+                .giz-icon {
+                    width: 1.6rem !important;
+                    height: 1.6rem !important;
+                    color: inherit;
+                }
 
                 &:hover {
-                    color: rgba(255, 255, 255, 0.78);
+                    background: rgba(255, 255, 255, 0.1);
+                    border-color: rgba(255, 255, 255, 0.18);
+                    color: rgba(255, 255, 255, 0.88);
                 }
             }
 

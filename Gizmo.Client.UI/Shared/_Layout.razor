@@ -296,9 +296,9 @@
         align-items: stretch;
         flex-shrink: 0;
         border-bottom: 1px solid rgba(255,255,255,0.07);
-        overflow: hidden;
+        overflow: visible;
     }
-    .gg-home__quick-launch { flex: 1; min-width: 0; overflow: hidden; }
+    .gg-home__quick-launch { flex: 1; min-width: 0; overflow: visible; }
     .gg-home__news-rotator {
         width: 36rem;
         flex-shrink: 0;
@@ -764,6 +764,14 @@
         border-radius: 1.2rem !important;
         box-shadow: 0 2rem 5rem rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.04) !important;
         color: rgba(255,255,255,0.85) !important;
+    }
+
+    /* .giz-active-apps hosts position:fixed Popup components — backdrop-filter would make it
+       a containing block for fixed descendants, trapping and clipping popups inside it.
+       Same trick used for .giz-top-bar itself: blur lives on ::before, not the element. */
+    .giz-top-bar .giz-active-apps {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
     }
 
     /* Dropdown headers */

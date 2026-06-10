@@ -14,9 +14,9 @@
     min-width: 52.2rem;
     width: max-content;
 
-    // backdrop-filter removed above to stop trapping position:fixed; push popup above dropdown (z:100)
+    // backdrop-filter removed to stop trapping position:fixed; z must be > top-bar z-index (500)
     .giz-popup-wrapper {
-        z-index: 200 !important;
+        z-index: 600 !important;
     }
 
     .giz-combo-button {

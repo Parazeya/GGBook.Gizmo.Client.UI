@@ -2,6 +2,7 @@
 
 .giz-container {
     .giz-app__header {
+        z-index: 1; // lift header stacking context above page body so popups/tooltips paint on top
         background: rgba(6, 8, 16, 0.82);
         backdrop-filter: blur(24px);
         -webkit-backdrop-filter: blur(24px);
