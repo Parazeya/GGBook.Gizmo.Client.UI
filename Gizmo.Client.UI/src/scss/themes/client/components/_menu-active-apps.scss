@@ -4,8 +4,6 @@
     display: grid;
     grid-template-rows: min-content 1fr;
     background: rgba(8, 11, 20, 0.97);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-top: none;
     border-radius: 0 0 1rem 1rem;
@@ -15,6 +13,11 @@
     overflow: hidden;
     min-width: 52.2rem;
     width: max-content;
+
+    // backdrop-filter removed above to stop trapping position:fixed; push popup above dropdown (z:100)
+    .giz-popup-wrapper {
+        z-index: 200 !important;
+    }
 
     .giz-combo-button {
         width: 15rem;
