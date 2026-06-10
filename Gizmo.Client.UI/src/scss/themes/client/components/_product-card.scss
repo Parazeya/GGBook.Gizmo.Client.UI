@@ -12,6 +12,7 @@ $gg-image-bg:        #0c1018;
     transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
     max-width: 100%;
     overflow: hidden;
+    cursor: pointer;
 
     .giz-button--fill.accent.giz-product-card-primary-button {
         background: rgba(var(--gg-accent-rgb), 0.18);

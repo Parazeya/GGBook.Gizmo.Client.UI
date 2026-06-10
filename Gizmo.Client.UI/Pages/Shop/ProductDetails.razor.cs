@@ -69,6 +69,12 @@ namespace Gizmo.Client.UI.Pages
 
         #region OVERRIDES
 
+        protected override async Task OnInitializedAsync()
+        {
+            this.SubscribeChange(ViewState);
+            await base.OnInitializedAsync();
+        }
+
         protected override async Task OnParametersSetAsync()
         {
             var productChanged = _previousProductId != ProductId;
@@ -85,11 +91,14 @@ namespace Gizmo.Client.UI.Pages
                 _previousProductId = ProductId;
 
                 _productItemViewState = await UserCartProductItemViewStateLookupService.GetStateAsync(ProductId);
-                _userProductGroupViewState = await UserProductGroupViewStateLookupService.GetStateAsync(ViewState.Product.ProductGroupId); //TODO: A CHECK
+
+                if (ViewState.Product?.ProductGroupId > 0)
+                    _userProductGroupViewState = await UserProductGroupViewStateLookupService.GetStateAsync(ViewState.Product.ProductGroupId);
 
                 //We have to bind to the new product.
                 this.SubscribeChange(_productItemViewState);
-                this.SubscribeChange(_userProductGroupViewState);
+                if (_userProductGroupViewState != null)
+                    this.SubscribeChange(_userProductGroupViewState);
             }
 
             await base.OnParametersSetAsync();
@@ -97,6 +106,8 @@ namespace Gizmo.Client.UI.Pages
 
         public override void Dispose()
         {
+            this.UnsubscribeChange(ViewState);
+
             if (_userProductGroupViewState != null)
             {
                 this.UnsubscribeChange(_userProductGroupViewState);
