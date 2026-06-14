@@ -211,6 +211,7 @@ namespace Gizmo.Client.UI.Pages
 
         private readonly List<CaseHistoryEntry> _history = new();
         private bool _historyLoading;
+        private bool _caseImagesDiagnosed;
         private int  _historyPage;
         private int  _historyTotalPages;
         private bool HistoryHasMore => _historyPage < _historyTotalPages;
@@ -226,6 +227,100 @@ namespace Gizmo.Client.UI.Pages
         {
             if (_wheelItems.Count > 0)
                 await FreezeRouletteGifsAsync();
+
+            await DebugScanImagesAsync(firstRender);
+        }
+
+        // Queries the DOM for all [data-gg-img] images, logs their state via GGModDebugLog
+        // (visible in the GGBook debug panel), and auto-fixes any that are loaded but still opacity:0.
+        private async Task DebugScanImagesAsync(bool firstRender)
+        {
+            if (!GGModConfig.Debug) return;
+            try
+            {
+                var json = await JSRuntime.InvokeAsync<string>("eval", @"JSON.stringify((function() {
+                    var r = [];
+                    document.querySelectorAll('img[data-gg-img]').forEach(function(img) {
+                        r.push({
+                            t: img.getAttribute('data-gg-img'),
+                            a: img.alt,
+                            s: img.src,
+                            c: img.complete,
+                            w: img.naturalWidth,
+                            o: img.style.opacity,
+                            d: img.style.display
+                        });
+                    });
+                    return r;
+                })())");
+
+                if (string.IsNullOrEmpty(json) || json == "[]") return;
+
+                // logVerbose = true on the first scan that actually finds img elements in the DOM.
+                // firstRender fires before data loads, so the DOM is still empty then.
+                bool logVerbose      = !_caseImagesDiagnosed;
+                bool needAutoFix     = false;
+                bool anyStillLoading = false;
+
+                using var doc = JsonDocument.Parse(json);
+                foreach (var el in doc.RootElement.EnumerateArray())
+                {
+                    var tag      = el.GetProperty("t").GetString() ?? "";
+                    var alt      = el.GetProperty("a").GetString() ?? "";
+                    var src      = el.GetProperty("s").GetString() ?? "";
+                    var complete = el.GetProperty("c").GetBoolean();
+                    var natW     = el.GetProperty("w").GetInt32();
+                    var opacity  = el.GetProperty("o").GetString() ?? "";
+                    var display  = el.GetProperty("d").GetString() ?? "";
+
+                    if (!complete)
+                    {
+                        if (logVerbose)
+                            GGModDebugLog.Info($"Cases [{tag}] loading: {alt}");
+                        anyStillLoading = true;
+                    }
+                    else if (natW == 0)
+                    {
+                        GGModDebugLog.Error($"Cases [{tag}] FAILED: {alt} — {src}");
+                    }
+                    else if ((opacity == "0" || opacity == "") && display != "none")
+                    {
+                        GGModDebugLog.Warn($"Cases [{tag}] opacity:0 on loaded img → auto-fix: {alt}");
+                        needAutoFix = true;
+                    }
+                    else if (logVerbose)
+                    {
+                        GGModDebugLog.Ok($"Cases [{tag}] ok: {alt}");
+                    }
+                }
+
+                if (anyStillLoading)
+                {
+                    // Some images are still loading — re-scan after they finish.
+                    _ = Task.Delay(2500).ContinueWith(_ => InvokeAsync(StateHasChanged));
+                }
+                else
+                {
+                    _caseImagesDiagnosed = true;
+                }
+
+                if (needAutoFix)
+                {
+                    await JSRuntime.InvokeVoidAsync("eval", @"
+                        document.querySelectorAll('img[data-gg-img]').forEach(function(img) {
+                            if (img.complete && img.naturalWidth > 0 &&
+                                (img.style.opacity === '0' || img.style.opacity === '') &&
+                                img.style.display !== 'none') {
+                                img.style.opacity = '1';
+                                img.style.filter  = 'blur(0)';
+                                img.style.transform = 'scale(1)';
+                                var p = img.parentElement;
+                                if (p) { p.style.animation = 'none'; p.style.background = 'transparent'; }
+                            }
+                        })");
+                }
+            }
+            catch { }
         }
 
         private async Task FreezeRouletteGifsAsync()
@@ -269,30 +364,42 @@ namespace Gizmo.Client.UI.Pages
 
         // ── DTO mapping ──────────────────────────────────────────────────────────
 
-        private CaseModel CaseFromDto(CaseApiDto dto) => new()
+        private CaseModel CaseFromDto(CaseApiDto dto)
         {
-            Id            = dto.Id,
-            Name          = dto.Name,
-            PointsPrice   = dto.PointsPrice,
-            PaymentType   = dto.PaymentType,
-            AvailableKeys = dto.AvailableKeys,
-            PictureUrl    = GGBook.CasePicUrl(dto.Id, dto.Picture),
-        };
+            var url = GGBook.CasePicUrl(dto.Id, dto.Picture);
+            if (GGModConfig.Debug && string.IsNullOrEmpty(url))
+                GGModDebugLog.Warn($"Cases: no picture for case '{dto.Name}' (id={dto.Id}, picture='{dto.Picture}')");
+            return new()
+            {
+                Id            = dto.Id,
+                Name          = dto.Name,
+                PointsPrice   = dto.PointsPrice,
+                PaymentType   = dto.PaymentType,
+                AvailableKeys = dto.AvailableKeys,
+                PictureUrl    = url,
+            };
+        }
 
-        private CaseReward RewardFromDto(RewardApiDto dto) => new()
+        private CaseReward RewardFromDto(RewardApiDto dto)
         {
-            Id          = dto.Id,
-            Name        = dto.Name,
-            Chance      = dto.Chance,
-            Position    = dto.Position,
-            RewardType  = dto.RewardType,
-            Color       = ColorFromType(dto.RewardType, dto.Color),
-            PictureUrl  = GGBook.RewardPicUrl(dto.Id, dto.Picture),
-            Description = dto.Description,
-            CustomValue = dto.CustomValue,
-            EnableStock = dto.EnableStock,
-            StockAmount = dto.StockAmount,
-        };
+            var url = GGBook.RewardPicUrl(dto.Id, dto.Picture);
+            if (GGModConfig.Debug && string.IsNullOrEmpty(url))
+                GGModDebugLog.Warn($"Cases: no picture for reward '{dto.Name}' (id={dto.Id}, picture='{dto.Picture}')");
+            return new()
+            {
+                Id          = dto.Id,
+                Name        = dto.Name,
+                Chance      = dto.Chance,
+                Position    = dto.Position,
+                RewardType  = dto.RewardType,
+                Color       = ColorFromType(dto.RewardType, dto.Color),
+                PictureUrl  = url,
+                Description = dto.Description,
+                CustomValue = dto.CustomValue,
+                EnableStock = dto.EnableStock,
+                StockAmount = dto.StockAmount,
+            };
+        }
 
         // ── Cases list ───────────────────────────────────────────────────────────
 
