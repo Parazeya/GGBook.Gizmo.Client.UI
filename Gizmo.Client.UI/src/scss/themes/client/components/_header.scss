@@ -253,6 +253,37 @@
 
     &__list {
         white-space: nowrap;
+
+        .giz-data-grid {
+            background-color: transparent;
+            color: rgba(255, 255, 255, 0.7);
+
+            thead th, thead td {
+                background-color: transparent;
+                color: rgba(255, 255, 255, 0.5);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                font-size: 1.1rem;
+                @include font-s-theme-client($font-weight-regular-theme-client);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            }
+
+            & > tbody > tr:not(.giz-data-grid-row-detail) {
+                border-top: unset;
+
+                &:hover {
+                    background-color: rgba(255, 255, 255, 0.03);
+                }
+
+                td {
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                }
+
+                &:last-child td {
+                    border-bottom: unset;
+                }
+            }
+        }
     }
 
     &-wrapper {

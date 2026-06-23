@@ -63,6 +63,7 @@
         transition: transform 0.15s;
     }
     .gg-rcard:active { transform: scale(0.93); }
+    .gg-rcard.gg-img-wrap { background: linear-gradient(110deg, #0a0a0a 25%, rgba(255,255,255,0.07) 48%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.07) 52%, #0a0a0a 75%); background-size: 80rem 100%; animation: gg-shimmer 1.8s infinite linear; }
     .gg-rcard-img { width:100%;height:100%;object-fit:cover;display:block; }
     .gg-rcard-icon { width:100%;height:100%;display:flex;align-items:center;justify-content:center; }
     .gg-rcard-chance {
@@ -162,7 +163,8 @@ else if (GGModConfig.Cases)
         {
             <!-- LIST VIEW -->
             <div style="height:100%;overflow-y:auto;padding:2rem 2.4rem;" class="giz-scrollbar--v">
-                <span style="display:block;font-size:2.6rem;font-weight:700;color:#FAFAFA;font-family:Rubik,sans-serif;letter-spacing:0.04em;margin-bottom:2rem;text-shadow:0 2px 12px rgba(0,0,0,0.8);">@GGModL10n.Get(GGModL10n.CasesTitle)</span>
+                <span style="display:block;font-size:2.6rem;font-weight:700;color:#FAFAFA;font-family:Rubik,sans-serif;letter-spacing:0.04em;margin-bottom:1rem;text-shadow:0 2px 12px rgba(0,0,0,0.8);">@GGModL10n.Get(GGModL10n.CasesTitle)</span>
+
 
                 @if (_casesLoading)
                 {
@@ -195,10 +197,10 @@ else if (GGModConfig.Cases)
 
                                 @if (!string.IsNullOrEmpty(c.PictureUrl))
                                 {
-                                    <img src="@c.PictureUrl" alt="@c.Name" loading="eager" data-gg-img="case"
-                                         style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;filter:blur(14px);transform:scale(1.06);transition:opacity 0.5s ease,filter 0.5s ease,transform 0.5s ease;"
-                                         onload="console.log('[Cases] ✅ case img loaded:', this.alt, this.src); this.style.opacity='1';this.style.filter='blur(0)';this.style.transform='scale(1)';var p=this.parentElement;p.style.animation='none';p.style.background='transparent';"
-                                         onerror="console.error('[Cases] ❌ case img FAILED:', this.alt, this.src); this.style.display='none'" />
+                                    <img src="@c.PictureUrl" alt="@c.Name" data-gg-img="case"
+                                         style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;"
+                                         onload="this.closest('.gg-img-wrap')?.classList.remove('gg-img-wrap')"
+                                         onerror="this.closest('.gg-img-wrap')?.classList.remove('gg-img-wrap'); console.error('[Cases] ❌ case img FAILED:', this.alt, this.src); this.style.display='none'" />
                                 }
                                 else
                                 {
@@ -434,7 +436,7 @@ else if (GGModConfig.Cases)
                             @foreach (var r in _selectedCase.Rewards)
                             {
                                 var oos = IsRewardOutOfStock(r);
-                                <div class="gg-rcard @(oos ? "gg-rcard--oos" : "")" style="border-bottom:4px solid @r.Color;" @onclick="() => OpenRewardInfo(r)">
+                                <div class="gg-rcard @(oos ? "gg-rcard--oos" : "") @(!string.IsNullOrEmpty(r.PictureUrl) ? "gg-img-wrap" : "")" style="border-bottom:4px solid @r.Color;" @onclick="() => OpenRewardInfo(r)">
                                     @if (oos)
                                     {
                                         <div class="gg-rcard-oos">
@@ -443,10 +445,9 @@ else if (GGModConfig.Cases)
                                     }
                                     @if (!string.IsNullOrEmpty(r.PictureUrl))
                                     {
-                                        <img src="@r.PictureUrl" alt="@r.Name" class="gg-rcard-img" loading="eager" data-gg-img="reward"
-                                             style="opacity:0;filter:blur(10px);transform:scale(1.05);transition:opacity 0.4s ease,filter 0.4s ease,transform 0.4s ease;"
-                                             onload="console.log('[Cases] ✅ reward loaded:', this.alt, this.src); this.style.opacity='1';this.style.filter='blur(0)';this.style.transform='scale(1)'"
-                                             onerror="console.error('[Cases] ❌ reward FAILED:', this.alt, this.src); this.style.display='none'" />
+                                        <img src="@r.PictureUrl" alt="@r.Name" class="gg-rcard-img" data-gg-img="reward"
+                                             onload="this.closest('.gg-img-wrap')?.classList.remove('gg-img-wrap')"
+                                             onerror="this.closest('.gg-img-wrap')?.classList.remove('gg-img-wrap'); console.error('[Cases] ❌ reward FAILED:', this.alt, this.src); this.style.display='none'" />
                                     }
                                     else
                                     {
@@ -506,9 +507,8 @@ else if (GGModConfig.Cases)
                             <div style="width:6rem;height:6rem;border-radius:0.8rem;overflow:hidden;flex-shrink:0;background:rgba(10,14,20,0.9);position:relative;border:1px solid rgba(255,255,255,0.1);">
                                 @if (!string.IsNullOrEmpty(h.CasePictureUrl))
                                 {
-                                    <img src="@h.CasePictureUrl" alt="@h.CaseName" loading="lazy" data-gg-img="hist-case"
-                                         style="width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.35s ease;"
-                                         onload="this.style.opacity='1'"
+                                    <img src="@h.CasePictureUrl" alt="@h.CaseName" data-gg-img="hist-case"
+                                         style="width:100%;height:100%;object-fit:cover;"
                                          onerror="console.error('[Cases] ❌ history-case FAILED:', this.alt, this.src); this.style.display='none'" />
                                 }
                                 else
@@ -525,9 +525,8 @@ else if (GGModConfig.Cases)
                                     <div style="width:3.6rem;height:3.6rem;border-radius:0.6rem;overflow:hidden;flex-shrink:0;background:rgba(10,14,20,0.9);border:1px solid @(h.RewardColor)55;display:flex;align-items:center;justify-content:center;">
                                         @if (!string.IsNullOrEmpty(h.RewardPictureUrl))
                                         {
-                                            <img src="@h.RewardPictureUrl" alt="@h.RewardName" loading="lazy" data-gg-img="hist-reward"
-                                                 style="width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.35s ease;"
-                                                 onload="this.style.opacity='1'"
+                                            <img src="@h.RewardPictureUrl" alt="@h.RewardName" data-gg-img="hist-reward"
+                                                 style="width:100%;height:100%;object-fit:cover;"
                                                  onerror="console.error('[Cases] ❌ history-reward FAILED:', this.alt, this.src); this.style.display='none'" />
                                         }
                                         else
@@ -590,8 +589,7 @@ else if (GGModConfig.Cases)
                     @if (!string.IsNullOrEmpty(_rewardInfo.PictureUrl))
                     {
                         <img src="@_rewardInfo.PictureUrl" alt="@_rewardInfo.Name"
-                             style="width:100%;height:100%;object-fit:cover;opacity:0;filter:blur(10px);transform:scale(1.05);transition:opacity 0.4s ease,filter 0.4s ease,transform 0.4s ease;"
-                             onload="this.style.opacity='1';this.style.filter='blur(0)';this.style.transform='scale(1)'"
+                             style="width:100%;height:100%;object-fit:cover;"
                              onerror="this.style.display='none'" />
                     }
                     else

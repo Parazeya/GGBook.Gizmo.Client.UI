@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -85,12 +85,12 @@ namespace Gizmo.Client.UI.Services
 
         public string CasePicUrl(string? caseId, string? picture) =>
             !string.IsNullOrEmpty(picture) && !string.IsNullOrEmpty(_storageUrl) && !string.IsNullOrEmpty(caseId)
-                ? $"{_storageUrl}/storage/pictures/clubCaseRoulette/{caseId}/{picture}"
+                ? $"{_storageUrl}/storage/pictures/clubCaseRoulette/{caseId}/{picture}?v=4"
                 : "";
 
         public string RewardPicUrl(string? rewardId, string? picture, string? thumb = null) =>
             !string.IsNullOrEmpty(picture) && !string.IsNullOrEmpty(_storageUrl) && !string.IsNullOrEmpty(rewardId)
-                ? $"{_storageUrl}/storage/pictures/clubCaseRewards/{rewardId}/{picture}{(thumb is not null ? "?thumb=" + thumb : "")}"
+                ? $"{_storageUrl}/storage/pictures/clubCaseRewards/{rewardId}/{picture}?v=4{(thumb is not null ? "&thumb=" + thumb : "")}"
                 : "";
     }
 }

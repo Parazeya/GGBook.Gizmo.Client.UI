@@ -14,7 +14,7 @@
 
             &.collapsed {
                 .giz-host-number {
-                    margin-right: 74rem;
+                    margin-right: var(--gg-host-number-shift);
                     //Font ?
                     font-family: 'Rubik';
                     font-style: normal;
@@ -157,8 +157,12 @@
 
             .giz-host-number {
                 position: absolute;
-                top: 2.4rem;
-                right: 3.2rem;
+                top: var(--gg-host-number-top);
+                right: var(--gg-host-number-right);
+                bottom: var(--gg-host-number-bottom);
+                left: var(--gg-host-number-left);
+                transform: var(--gg-host-number-transform);
+                text-align: var(--gg-host-number-align);
                 padding: 2.4rem 3.2rem;
                 z-index: 2;
                 //Font ?
@@ -282,7 +286,8 @@
 
 .giz-login-card {
     //right: -74.0rem;
-    background-color: #0C0F11;
+    background: linear-gradient(180deg, rgba(11, 15, 23, 0.98) 0%, rgba(6, 8, 13, 0.99) 100%);
+    box-shadow: -6.4rem 0 12rem rgba(0, 0, 0, 0.55), inset 1px 0 0 rgba(255, 255, 255, 0.04);
     display: grid;
     grid-template-rows: 1fr min-content 1fr;
     align-items: center;
@@ -292,6 +297,20 @@
     position: relative;
     /*overflow: hidden;*/
     padding: 1.0rem;
+
+    &:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1px;
+        height: 100%;
+        background: linear-gradient(180deg,
+            transparent 0%,
+            rgba(var(--gg-accent-rgb), 0.5) 35%,
+            rgba(var(--gg-accent-rgb), 0.5) 65%,
+            transparent 100%);
+    }
 
     &.hidden {
         right: -74rem;
@@ -323,11 +342,18 @@
             margin-left: auto;
             margin-top: 1.0rem;
             text-align: right;
+            color: rgba(255, 255, 255, 0.5);
             @include font-m-theme-client($font-weight-light-theme-client);
 
             & > a {
-                color: #3F8CFF;
+                color: var(--gg-accent);
                 cursor: pointer;
+                font-weight: 600;
+                transition: filter 0.18s;
+
+                &:hover {
+                    filter: brightness(1.2);
+                }
             }
         }
 
@@ -368,7 +394,11 @@
 }
 
 .giz-login-title {
-    margin-bottom: 2.0rem;
+    margin-bottom: 2.4rem;
+    padding-left: 1.2rem;
+    border-left: 3px solid rgba(var(--gg-accent-rgb), 0.65);
+    color: rgba(255, 255, 255, 0.97);
+    letter-spacing: 0.01em;
     @include font-h5-theme-client($font-weight-bold-theme-client);
 }
 
@@ -393,8 +423,13 @@
     & > a {
         position: absolute;
         right: 0;
-        color: #57BCFF;
+        color: var(--gg-accent);
+        transition: filter 0.18s;
         @include font-m-theme-client($font-weight-light-theme-client);
+
+        &:hover {
+            filter: brightness(1.2);
+        }
     }
 }
 
@@ -404,28 +439,25 @@
     margin-top: 2.4rem;
 
     &__separator {
-        color: white;
-        position: relative;
-        text-align: center;
-        background-color: #0C0F11;
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
         margin-bottom: 2.4rem;
-        @include font-l-theme-client($font-weight-light-theme-client);
+        color: rgba(255, 255, 255, 0.4);
+        @include font-m-theme-client($font-weight-light-theme-client);
 
         span {
-            position: relative;
-            background-color: #0C0F11;
-            padding: 0 0.8rem;
-            color: rgba(255, 255, 255, 0.6);
-            @include font-m-theme-client($font-weight-light-theme-client);
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-size: 1.1rem;
         }
 
-        &:before {
+        &:before, &:after {
             content: '';
-            border-bottom: 0.1rem solid rgba(246, 251, 253, 0.06);
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
         }
     }
 
@@ -434,6 +466,10 @@
         grid-template-columns: 1fr min-content;
         gap: 2.4rem;
         align-items: center;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 1.6rem;
+        padding: 2rem 2.4rem;
 
         &__description {
             display: grid;
@@ -441,21 +477,25 @@
             gap: 1.6rem;
 
             &__title {
+                color: rgba(255, 255, 255, 0.95);
                 @include font-h5-theme-client($font-weight-bold-theme-client);
             }
 
             &__subtitle {
+                color: rgba(255, 255, 255, 0.55);
                 @include font-l-theme-client($font-weight-light-theme-client);
             }
         }
 
         &__image {
             background-color: white;
-            padding: 1.6rem;
+            border-radius: 1rem;
+            padding: 1.2rem;
+            box-shadow: 0 0 0 1px rgba(var(--gg-accent-rgb), 0.25), 0 8px 24px rgba(0, 0, 0, 0.35);
 
             svg {
-                width: 15rem;
-                height: 15rem;
+                width: 13rem;
+                height: 13rem;
                 shape-rendering: crispedges;
             }
         }
@@ -586,23 +626,46 @@
 
 .giz-login-method.giz-button-group, .giz-recovery-method.giz-button-group {
     display: flex;
-    padding: 0.5rem;
+    padding: 0.4rem;
     margin-bottom: 2.4rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 1.2rem;
 
     .giz-button {
         flex: 1;
         border-radius: 0.8rem;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.55);
         height: initial;
         min-height: 3.6rem;
+        transition: background 0.18s, color 0.18s, box-shadow 0.18s;
         //Font ?
         font-weight: 500;
         font-size: 1.6rem;
         line-height: 2.0rem;
 
         &.selected {
-            background-color: #22272B;
+            background: rgba(var(--gg-accent-rgb), 0.16);
+            color: var(--gg-accent);
+            box-shadow: 0 0 14px rgba(var(--gg-accent-rgb), 0.18);
         }
+    }
+}
+
+.giz-login-card .giz-button--fill.accent:not(.disabled) {
+    background: linear-gradient(135deg, var(--gg-accent), color-mix(in srgb, var(--gg-accent) 65%, black)) !important;
+    color: #0a0e16 !important;
+    border: none;
+    box-shadow: 0 4px 22px rgba(var(--gg-accent-rgb), 0.3);
+    transition: box-shadow 0.2s, filter 0.2s;
+
+    .giz-icon {
+        color: #0a0e16;
+    }
+
+    &:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 4px 30px rgba(var(--gg-accent-rgb), 0.42);
     }
 }
 
@@ -851,7 +914,7 @@
     }
 
     100% {
-        margin-right: 74rem;
+        margin-right: var(--gg-host-number-shift);
         font-size: 3.6rem;
         line-height: 4.4rem;
         font-weight: 700;
@@ -860,7 +923,7 @@
 
 @keyframes login-host-number-grow-anim {
     0% {
-        margin-right: 74rem;
+        margin-right: var(--gg-host-number-shift);
         font-size: 3.6rem;
         line-height: 4.4rem;
         font-weight: 700;

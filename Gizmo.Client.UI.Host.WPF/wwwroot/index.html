@@ -19,26 +19,5 @@
     <script src="_content/Gizmo.Client.UI/client_internal_code.js"></script>
     <script src="_content/Gizmo.Client.UI/client_external_code.js"></script>
     <script src="_content/Gizmo.Client.UI/client_api_code.js"></script>
-
-    <script>
-      // Route browser console to GGModDebugLog (visible in the GGBook debug panel).
-      // Only active in WebView2 where window.chrome.webview is available.
-      (function () {
-        if (typeof window.chrome === 'undefined' || !window.chrome.webview) return;
-        var send = function (level, args) {
-          try {
-            var msg = Array.prototype.map.call(args, function (a) {
-              return typeof a === 'object' ? JSON.stringify(a) : String(a);
-            }).join(' ');
-            window.chrome.webview.postMessage(JSON.stringify({ __gglog: 1, level: level, msg: msg }));
-          } catch (_) {}
-        };
-        var orig = { log: console.log, info: console.info, warn: console.warn, error: console.error };
-        console.log   = function () { orig.log.apply(console, arguments);   send('info',  arguments); };
-        console.info  = function () { orig.info.apply(console, arguments);  send('info',  arguments); };
-        console.warn  = function () { orig.warn.apply(console, arguments);  send('warn',  arguments); };
-        console.error = function () { orig.error.apply(console, arguments); send('error', arguments); };
-      })();
-    </script>
   </body>
 </html>

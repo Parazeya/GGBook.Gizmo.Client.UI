@@ -1,4 +1,4 @@
-﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.Services;
 using Gizmo.UI;
 using Microsoft.AspNetCore.Components.WebView;
 using Microsoft.AspNetCore.Components.WebView.Wpf;
@@ -45,34 +45,10 @@ namespace Gizmo.Client.UI.Host.WPF
 
         private void BlazorWebViewInit(object sender, BlazorWebViewInitializedEventArgs e)
         {
-            var wv2 = _BLAZOR_WEB_VIEW.WebView.CoreWebView2;
-
             var staticFiles = Path.Combine(Environment.CurrentDirectory, "static");
             if (Directory.Exists(staticFiles))
-                wv2.SetVirtualHostNameToFolderMapping("static", staticFiles, CoreWebView2HostResourceAccessKind.Allow);
-
-            wv2.WebMessageReceived += OnWebMessage;
-        }
-
-        private static void OnWebMessage(object sender, CoreWebView2WebMessageReceivedEventArgs e)
-        {
-            try
-            {
-                using var doc  = System.Text.Json.JsonDocument.Parse(e.WebMessageAsJson);
-                var root = doc.RootElement;
-                if (!root.TryGetProperty("__gglog", out _)) return;
-
-                var level = root.GetProperty("level").GetString() ?? "info";
-                var msg   = root.GetProperty("msg").GetString()   ?? "";
-
-                switch (level)
-                {
-                    case "error": GGModDebugLog.Error(msg); break;
-                    case "warn":  GGModDebugLog.Warn(msg);  break;
-                    default:      GGModDebugLog.Info(msg);  break;
-                }
-            }
-            catch { }
+                _BLAZOR_WEB_VIEW.WebView.CoreWebView2.SetVirtualHostNameToFolderMapping(
+                    "static", staticFiles, CoreWebView2HostResourceAccessKind.Allow);
         }
 
         /// <summary>

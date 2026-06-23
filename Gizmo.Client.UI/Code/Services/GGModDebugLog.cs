@@ -60,7 +60,7 @@ namespace Gizmo.Client.UI.Services
         public GGModLogEntry(DateTime time, string method, string path, string? requestBody, int responseStatus, string? responseBody)
         {
             Time           = time;
-            Level          = responseStatus >= 400 ? GGModLogLevel.Error : GGModLogLevel.Ok;
+            Level          = responseStatus >= 400 || responseStatus <= 0 ? GGModLogLevel.Error : GGModLogLevel.Ok;
             Message        = $"{method} {path}";
             RequestMethod  = method;
             RequestPath    = path;
