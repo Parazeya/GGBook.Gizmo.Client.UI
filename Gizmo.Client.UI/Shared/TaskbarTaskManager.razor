@@ -56,14 +56,18 @@
 
     private async Task PollAsync()
     {
-        while (_timer is not null && await _timer.WaitForNextTickAsync())
+        try
         {
-            if (_open)
+            while (_timer is not null && await _timer.WaitForNextTickAsync())
             {
-                RefreshList();
-                await InvokeAsync(StateHasChanged);
+                if (_open)
+                {
+                    RefreshList();
+                    await InvokeAsync(StateHasChanged);
+                }
             }
         }
+        catch (ObjectDisposedException) { }
     }
 
     private void Toggle()
@@ -89,5 +93,10 @@
         return $"{bytes / 1024} КБ";
     }
 
-    public void Dispose() => _timer?.Dispose();
+    public void Dispose()
+    {
+        var timer = _timer;
+        _timer = null;
+        timer?.Dispose();
+    }
 }

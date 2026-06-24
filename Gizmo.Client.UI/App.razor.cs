@@ -19,6 +19,7 @@ public partial class App : ComponentBase
     {
         JSRuntimeService.AssociateJSRuntime(JSRuntime);
         NavigationService.AssociateNavigationManager(NavigationManager);
+        GGModSubscribeConfigResolved(); // GGMod
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

@@ -172,7 +172,7 @@ window.registerAdsAutoCollapse = function registerAdsAutoCollapse() {
 };
 
 window.unregisterAdsAutoCollapse = function unregisterAdsAutoCollapse() {
-  var container = document.querySelector(".giz-home__body");
+  var container = document.querySelector(".giz-ads-container");
   if (!container) return;
 
   var expander = container.querySelector(".giz-expansion-panel");
@@ -273,8 +273,8 @@ window.addClosePopupEventListener = function addClosePopupEventListener(
   closePopupEventListenerReferences.push(objRef);
 };
 
-window.removeClosePopupEventEventListener =
-  function removeClosePopupEventEventListener(objRef) {
+window.removeClosePopupEventListener =
+  function removeClosePopupEventListener(objRef) {
     var index = findElementIndexById(closePopupEventListenerReferences, objRef);
     if (index > -1) {
       closePopupEventListenerReferences.splice(index, 1);
@@ -833,8 +833,19 @@ window.registerAnimatedComponent = function registerAnimatedComponent(element) {
 window.unregisterAnimatedComponent = function unregisterAnimatedComponent(
   element
 ) {
-  //console.log('unregisterAnimatedComponent');
-  //console.log(element);
+  if (!element) return;
+
+  element.removeEventListener("animationstart", onAnimationStartEvent);
+  element.removeEventListener("animationiteration", onAnimationIterationEvent);
+  element.removeEventListener("animationend", onAnimationEndEvent);
+  element.removeEventListener("animationcancel", onAnimationCancelEvent);
+
+  var index = registeredAnimatedComponents.findIndex(function (item) {
+    return item.element === element;
+  });
+  if (index > -1) {
+    registeredAnimatedComponents.splice(index, 1);
+  }
 };
 
 window.getFontSize = function getFontSize() {

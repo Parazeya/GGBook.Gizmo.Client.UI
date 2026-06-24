@@ -10,11 +10,23 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI;
 
 // GGMod — isolated from upstream App.razor.cs so upstream merges stay clean.
-public partial class App
+public partial class App : IDisposable
 {
     [Inject] private IHttpClientFactory HttpClientFactory { get; set; }
     [Inject] private IConfiguration Configuration { get; set; }
     [Inject] private ILogger<App> Logger { get; set; }
+
+    // GGModConfig.Debug is only known once FetchGGBookConfigAsync resolves (after the first
+    // render), so App must re-render when it changes for the @if (GGModConfig.Debug) gate
+    // around <GGModDebugPanel /> to pick it up.
+    private void GGModSubscribeConfigResolved()
+        => GGModConfig.ConfigResolved += GGModOnConfigResolved;
+
+    private async void GGModOnConfigResolved(object? sender, EventArgs e)
+        => await InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+        => GGModConfig.ConfigResolved -= GGModOnConfigResolved;
 
     private async Task FetchGGBookConfigAsync()
     {

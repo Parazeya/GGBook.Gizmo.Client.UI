@@ -36,8 +36,8 @@ namespace Gizmo.Client.UI
 
         public void Dispose()
         {
-            _jsRuntime.InvokeAsync<string>("removeClosePopupEventListener", Reference);
-            //Reference?.Dispose();
+            _ = _jsRuntime.InvokeAsync<string>("removeClosePopupEventListener", Reference);
+            Reference?.Dispose();
         }
     }
 }

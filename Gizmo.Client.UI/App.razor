@@ -1,7 +1,10 @@
 ﻿@inherits ComponentBase;
 @using Gizmo.Client.UI.Shared
 
-<GGModDebugPanel />
+@if (GGModConfig.Debug)
+{
+    <GGModDebugPanel />
+}
 
 <Router AppAssembly="@ComponentDiscoveryService.AppAssembly" AdditionalAssemblies="@ComponentDiscoveryService.AdditionalAssemblies">
     <NotFound>
