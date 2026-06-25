@@ -48,6 +48,10 @@ namespace Gizmo.Client.UI
             return _jsRuntime.InvokeAsync<string>("addAnimationEventListener", Reference);
         }
 
-        public async ValueTask DisposeAsync() => await _jsRuntime.InvokeAsync<string>("removeAnimationEventListener", Reference);
+        public async ValueTask DisposeAsync()
+        {
+            await _jsRuntime.InvokeAsync<string>("removeAnimationEventListener", Reference);
+            Reference?.Dispose();
+        }
     }
 }

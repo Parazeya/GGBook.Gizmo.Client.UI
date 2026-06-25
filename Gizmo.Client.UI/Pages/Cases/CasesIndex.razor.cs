@@ -228,6 +228,26 @@ namespace Gizmo.Client.UI.Pages
         {
             if (_wheelItems.Count > 0)
                 await FreezeRouletteGifsAsync();
+
+            await FixStuckImageShimmerAsync();
+        }
+
+        // An <img> that's already cached/complete by the time it's attached to the DOM can miss
+        // its onload event, leaving the .gg-img-wrap shimmer skeleton (an infinite CSS animation
+        // over a large gradient) running forever on that card — burning GPU even while idle.
+        private async Task FixStuckImageShimmerAsync()
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval", @"
+                    document.querySelectorAll('.gg-img-wrap').forEach(function(wrap) {
+                        var img = wrap.querySelector('img');
+                        if (img && img.complete && img.naturalWidth > 0) {
+                            wrap.classList.remove('gg-img-wrap');
+                        }
+                    });");
+            }
+            catch { }
         }
 
         private async Task FreezeRouletteGifsAsync()

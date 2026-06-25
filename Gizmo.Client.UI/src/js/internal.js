@@ -209,7 +209,7 @@ window.unregisterPopup = function unregisterPopup(element) {
     });
 
     if (objRefIndex > -1) {
-        registeredVideoComponents.splice(objRefIndex, 1);
+        registeredPopups.splice(objRefIndex, 1);
 
         //console.log('unregisterPopup');
         //console.log(element);
