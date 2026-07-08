@@ -987,3 +987,116 @@ window.resetVideo = function resetVideo(id) {
         console.error(error);
     }
 };
+
+// === GG Performance Mode ===
+// Freezes GIF animations and pauses videos when the app window loses focus
+// (e.g. user switches to a game). Restores on focus return.
+// Uses blur/focus instead of visibilitychange because WebView2 keeps
+// visibilityState="visible" even when a fullscreen game is on top.
+// Enabled only when GGModConfig.PerformanceMode = true (set via ggPerfModeSetEnabled).
+(function () {
+    var BLANK_GIF = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+    var perfActive = false;
+    var enabled = false;
+    var enterTimer = null;
+
+    // Pause all CSS animations and free GPU composite layers
+    var perfStyle = document.createElement('style');
+    perfStyle.textContent =
+        '.gg-perf-mode *,' +
+        '.gg-perf-mode *::before,' +
+        '.gg-perf-mode *::after{' +
+        'animation-play-state:paused!important;' +
+        'transition-duration:0s!important;' +
+        'will-change:auto!important;}';
+    document.head.appendChild(perfStyle);
+
+    function freezeGifs() {
+        document.querySelectorAll('img').forEach(function (img) {
+            var src = img.src;
+            // Match *.gif or *.gif?query — skip data URIs and already-frozen images
+            if (src && /\.gif(\?[^#]*)?$/i.test(src) && !img.dataset.ggGifSrc) {
+                img.dataset.ggGifSrc = src;
+                img.src = BLANK_GIF;
+            }
+        });
+    }
+
+    function restoreGifs() {
+        document.querySelectorAll('img[data-gg-gif-src]').forEach(function (img) {
+            img.src = img.dataset.ggGifSrc;
+            delete img.dataset.ggGifSrc;
+        });
+    }
+
+    function pauseVideos() {
+        document.querySelectorAll('video').forEach(function (video) {
+            if (!video.paused && !video.ended) {
+                video.dataset.ggPaused = '1';
+                video.pause();
+            }
+        });
+    }
+
+    function resumeVideos() {
+        document.querySelectorAll('video[data-gg-paused]').forEach(function (video) {
+            delete video.dataset.ggPaused;
+            video.play().catch(function () {});
+        });
+    }
+
+    // Called from Blazor (App.razor.GGMod.cs) once GGMod config is fetched.
+    window.ggPerfModeSetEnabled = function (isEnabled) {
+        enabled = !!isEnabled;
+        if (!enabled) {
+            if (enterTimer) { clearTimeout(enterTimer); enterTimer = null; }
+            exitPerfMode();
+        }
+    };
+
+    function enterPerfMode() {
+        if (!enabled || perfActive) return;
+        perfActive = true;
+        document.documentElement.classList.add('gg-perf-mode');
+        freezeGifs();
+        pauseVideos();
+    }
+
+    function exitPerfMode() {
+        if (!perfActive) return;
+        perfActive = false;
+        document.documentElement.classList.remove('gg-perf-mode');
+        restoreGifs();
+        resumeVideos();
+    }
+
+    function scheduleEnter() {
+        if (enterTimer) return;
+        // 800ms debounce: ignore brief focus losses from OS notifications/dialogs
+        enterTimer = setTimeout(function () {
+            enterTimer = null;
+            enterPerfMode();
+        }, 800);
+    }
+
+    function cancelAndExit() {
+        if (enterTimer) {
+            clearTimeout(enterTimer);
+            enterTimer = null;
+        }
+        exitPerfMode();
+    }
+
+    window.addEventListener('blur', scheduleEnter);
+    window.addEventListener('focus', cancelAndExit);
+
+    // Also catch minimize/hide (covers WebView2 window being minimized)
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'hidden') {
+            if (enterTimer) { clearTimeout(enterTimer); enterTimer = null; }
+            enterPerfMode();
+        } else {
+            cancelAndExit();
+        }
+    });
+})();

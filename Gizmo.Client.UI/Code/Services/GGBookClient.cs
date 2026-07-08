@@ -17,17 +17,19 @@ namespace Gizmo.Client.UI.Services
         private readonly string _userToken;
         private readonly string _clubToken;
 
-        public bool IsConfigured => !string.IsNullOrEmpty(_baseUrl);
-        public bool Debug        { get; }
+        public bool IsConfigured    => !string.IsNullOrEmpty(_baseUrl);
+        public bool Debug           { get; }
+        public bool PerformanceMode { get; }
 
         public GGBookClient(IHttpClientFactory factory, IConfiguration config)
         {
-            _factory    = factory;
-            _baseUrl    = (config["GGMod:GGBookBaseUrl"]    ?? "").TrimEnd('/');
-            _storageUrl = (config["GGMod:GGBookStorageUrl"] ?? "").TrimEnd('/');
-            _userToken  = config["GGMod:UserToken"] ?? "";
-            _clubToken  = config["GGMod:ClubToken"] ?? "";
-            Debug       = config["GGMod:Debug"]?.Equals("true", System.StringComparison.OrdinalIgnoreCase) ?? false;
+            _factory        = factory;
+            _baseUrl        = (config["GGMod:GGBookBaseUrl"]    ?? "").TrimEnd('/');
+            _storageUrl     = (config["GGMod:GGBookStorageUrl"] ?? "").TrimEnd('/');
+            _userToken      = config["GGMod:UserToken"] ?? "";
+            _clubToken      = config["GGMod:ClubToken"] ?? "";
+            Debug           = config["GGMod:Debug"]?.Equals("true",           System.StringComparison.OrdinalIgnoreCase) ?? false;
+            PerformanceMode = config["GGMod:PerformanceMode"]?.Equals("true", System.StringComparison.OrdinalIgnoreCase) ?? false;
         }
 
         private HttpClient CreateClient()

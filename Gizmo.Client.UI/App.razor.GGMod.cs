@@ -6,6 +6,7 @@ using Gizmo.Client.UI.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 
 namespace Gizmo.Client.UI;
 
@@ -32,6 +33,8 @@ public partial class App : IDisposable
     {
         var ggBook = new GGBookClient(HttpClientFactory, Configuration);
         GGModConfig.SetDebug(ggBook.Debug);
+        GGModConfig.SetPerformanceMode(ggBook.PerformanceMode);
+        try { await JSRuntime.InvokeVoidAsync("ggPerfModeSetEnabled", ggBook.PerformanceMode); } catch { }
         GGModDebugLog.Info("FetchGGBookConfigAsync: start");
 
         if (!ggBook.IsConfigured)

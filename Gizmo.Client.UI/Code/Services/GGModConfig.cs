@@ -16,8 +16,10 @@ namespace Gizmo.Client.UI.Services
         public static bool Tasks           { get; private set; }
         public static bool SteamTopup      { get; private set; }
         public static bool Promocodes      { get; private set; }
+        public static bool PerformanceMode { get; private set; }
 
-        public static void SetDebug(bool debug) => Debug = debug;
+        public static void SetDebug(bool debug)           => Debug           = debug;
+        public static void SetPerformanceMode(bool value) => PerformanceMode = value;
 
         // Fires once when Apply() or SetUnavailable() completes — subscribers re-render nav/pages.
         public static event EventHandler? ConfigResolved;
