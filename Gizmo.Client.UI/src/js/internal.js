@@ -999,6 +999,7 @@ window.resetVideo = function resetVideo(id) {
     var perfActive = false;
     var enabled = false;
     var enterTimer = null;
+    var exitTimer = null;
 
     // Pause all CSS animations and free GPU composite layers
     var perfStyle = document.createElement('style');
@@ -1050,6 +1051,7 @@ window.resetVideo = function resetVideo(id) {
         enabled = !!isEnabled;
         if (!enabled) {
             if (enterTimer) { clearTimeout(enterTimer); enterTimer = null; }
+            if (exitTimer)  { clearTimeout(exitTimer);  exitTimer  = null; }
             exitPerfMode();
         }
     };
@@ -1071,6 +1073,7 @@ window.resetVideo = function resetVideo(id) {
     }
 
     function scheduleEnter() {
+        if (exitTimer) { clearTimeout(exitTimer); exitTimer = null; }
         if (enterTimer) return;
         // 800ms debounce: ignore brief focus losses from OS notifications/dialogs
         enterTimer = setTimeout(function () {
@@ -1079,24 +1082,29 @@ window.resetVideo = function resetVideo(id) {
         }, 800);
     }
 
-    function cancelAndExit() {
-        if (enterTimer) {
-            clearTimeout(enterTimer);
-            enterTimer = null;
-        }
-        exitPerfMode();
+    function scheduleExit() {
+        if (enterTimer) { clearTimeout(enterTimer); enterTimer = null; }
+        if (exitTimer) return;
+        // 500ms debounce: don't resume GIF decode/video playback in the same instant
+        // Windows/DWM is rebuilding the compositor after a fullscreen game exits —
+        // that moment is already fragile for GPU driver TDR resets.
+        exitTimer = setTimeout(function () {
+            exitTimer = null;
+            exitPerfMode();
+        }, 500);
     }
 
     window.addEventListener('blur', scheduleEnter);
-    window.addEventListener('focus', cancelAndExit);
+    window.addEventListener('focus', scheduleExit);
 
     // Also catch minimize/hide (covers WebView2 window being minimized)
     document.addEventListener('visibilitychange', function () {
         if (document.visibilityState === 'hidden') {
             if (enterTimer) { clearTimeout(enterTimer); enterTimer = null; }
+            if (exitTimer)  { clearTimeout(exitTimer);  exitTimer  = null; }
             enterPerfMode();
         } else {
-            cancelAndExit();
+            scheduleExit();
         }
     });
 })();
