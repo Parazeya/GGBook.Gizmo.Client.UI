@@ -91,6 +91,25 @@ namespace Gizmo.Client.UI.Pages
         [JsonPropertyName("rewardDuration")] public int    RewardDuration { get; init; }
     }
 
+    internal sealed class TaskProgressValuesResponse
+    {
+        [JsonPropertyName("result")] public List<TaskProgressValuesGroupDto> Result { get; init; } = new();
+    }
+
+    internal sealed class TaskProgressValuesGroupDto
+    {
+        [JsonPropertyName("group")] public string                          Group { get; init; } = "";
+        [JsonPropertyName("items")] public List<TaskProgressValueItemDto>  Items { get; init; } = new();
+    }
+
+    internal sealed class TaskProgressValueItemDto
+    {
+        [JsonPropertyName("taskId")]  public string TaskId  { get; init; } = "";
+        [JsonPropertyName("current")] public double Current { get; init; }
+        [JsonPropertyName("target")]  public double Target  { get; init; }
+        [JsonPropertyName("percent")] public int    Percent { get; init; }
+    }
+
     // ── Domain models ────────────────────────────────────────────────────────────
 
     public sealed class TaskGroupModel
@@ -147,7 +166,48 @@ namespace Gizmo.Client.UI.Pages
         private readonly HashSet<string>      _claimingIds  = new();
         private readonly Dictionary<string, string> _claimErrors = new();
 
-        protected override async Task OnInitializedAsync() => await LoadAsync();
+        private List<TaskProgressValuesGroupDto> _progressValues = new();
+        private bool _progressValuesLoading = true;
+
+        protected override async Task OnInitializedAsync()
+        {
+            await LoadAsync();
+            _ = LoadProgressValuesAsync();
+        }
+
+        // /user/tasks/progress/values hits Gizmo's reporting API per task group — slow (can involve
+        // several report/SQL round-trips) — so it's fetched in the background after the task list
+        // renders, never blocking OnInitializedAsync. Not cached: values must stay fresh per visit.
+        private async Task LoadProgressValuesAsync()
+        {
+            if (!GGBook.IsConfigured) { _progressValuesLoading = false; return; }
+            _progressValuesLoading = true;
+            try
+            {
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+                var resp = await GGBook.GetAsync($"/user/tasks/progress/values?userId={UserViewState.Id}", cts.Token);
+                if (resp.IsSuccessStatusCode)
+                {
+                    var body = await resp.Content.ReadAsStringAsync(cts.Token);
+                    var data = JsonSerializer.Deserialize<TaskProgressValuesResponse>(body);
+                    _progressValues = data?.Result ?? new();
+                }
+            }
+            catch { }
+            finally
+            {
+                _progressValuesLoading = false;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        // null → still loading (or unavailable); done/claimable tasks always read as 100%.
+        private int? TaskProgressPercent(TaskGroupModel g, TaskItemModel t)
+        {
+            if (IsDone(g.Id, t.Id) || IsClaimable(g.Id, t.Id)) return 100;
+            var pg = _progressValues.FirstOrDefault(p => p.Group == g.Id);
+            return pg?.Items.FirstOrDefault(i => i.TaskId == t.Id)?.Percent;
+        }
 
         private async Task LoadAsync()
         {
@@ -318,6 +378,20 @@ namespace Gizmo.Client.UI.Pages
             "month" => GGModL10n.Get(GGModL10n.TabMonthly),
             _       => g.Name,
         };
+
+        private static Icons GroupTabIcon(TaskGroupModel g) => g.Type switch
+        {
+            "day"   => Icons.Clock_Client,
+            "week"  => Icons.Calendar,
+            "month" => Icons.Schedule_Client,
+            _       => Icons.Star_Client,
+        };
+
+        private int ClaimableCount(TaskGroupModel g)
+        {
+            if (g.VerificationRequired && !_isVerificated) return 0;
+            return g.Items.Count(t => IsClaimable(g.Id, t.Id) && !IsDone(g.Id, t.Id));
+        }
 
         private string TaskTitle(TaskItemModel t) => t.TaskType switch
         {

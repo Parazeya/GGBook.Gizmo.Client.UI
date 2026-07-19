@@ -16,60 +16,65 @@
         border-width: 0.18rem;
     }
 
-    /* ── Page shell (same overlay as Cases) ── */
+    /* ── Page shell — two columns, matches Cases layout ── */
     .tk-shell {
-        height: 100%; display: flex; flex-direction: column; overflow: hidden;
-        background: rgba(6,9,14,0.6);
-        backdrop-filter: blur(0.5rem);
-        -webkit-backdrop-filter: blur(0.5rem);
+        height: 100%; display: flex; overflow: hidden;
     }
 
-    /* ── Scrollable body ── */
-    .tk-body {
-        flex: 1; overflow-y: auto; overflow-x: hidden;
-        padding: 2.4rem 3rem 3.6rem;
+    /* ── Sidebar (vertical tabs) — matches Cases history panel ── */
+    .tk-sidebar {
+        width: 26rem; flex-shrink: 0;
+        border-right: 1px solid rgba(255,255,255,0.08);
+        display: flex; flex-direction: column; overflow: hidden;
+        background: rgba(4,6,10,0.72);
+        backdrop-filter: blur(1rem);
+        -webkit-backdrop-filter: blur(1rem);
+    }
+    .tk-sidebar-head {
+        padding: 1.8rem 1.8rem 1.4rem; flex-shrink: 0;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .tk-sidebar-body {
+        flex: 1; overflow-y: auto; padding: 1.2rem;
+        display: flex; flex-direction: column; gap: 1.6rem;
     }
 
-    /* ── Centered container ── */
-    .tk-wrap {
-        max-width: 90rem;
-        margin: 0 auto;
-        display: flex; flex-direction: column; gap: 2rem;
-    }
-
-    /* ── Page title ── */
-    .tk-title {
-        font-size: 2.6rem; font-weight: 700; color: #FAFAFA;
-        font-family: Rubik, sans-serif; letter-spacing: 0.04em;
-        text-shadow: 0 2px 12px rgba(0,0,0,0.8);
-    }
-
-    /* ── Tabs ── */
-    .tk-tabs {
-        display: flex; gap: 0.5rem; flex-wrap: wrap;
-        padding: 0.4rem;
-        background: rgba(0,0,0,0.3);
-        border-radius: 1.2rem;
+    /* ── Vertical tabs ── */
+    .tk-vtabs { display: flex; flex-direction: column; gap: 0.6rem; }
+    .tk-vtab {
+        display: flex; align-items: center; gap: 1.1rem;
+        padding: 1.1rem 1.3rem; border-radius: 1rem; border: none;
+        background: rgba(255,255,255,0.04);
         border: 1px solid rgba(255,255,255,0.07);
-        width: fit-content;
+        color: rgba(255,255,255,0.55);
+        cursor: pointer; transition: all 0.15s;
+        text-align: left; width: 100%;
     }
-    .tk-tab {
-        padding: 0.75rem 2rem;
-        border-radius: 0.9rem; border: none;
-        background: transparent;
-        color: rgba(255,255,255,0.45);
-        font-size: 1.3rem; font-weight: 600;
-        cursor: pointer; transition: all 0.18s;
-        letter-spacing: 0.01em;
-    }
-    .tk-tab:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.06); }
-    .tk-tab--active {
-        background: rgba(var(--gg-accent-rgb),0.2);
+    .tk-vtab:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .tk-vtab--active {
+        background: rgba(var(--gg-accent-rgb),0.15);
+        border-color: rgba(var(--gg-accent-rgb),0.4);
         color: var(--gg-accent);
-        box-shadow: 0 0 0 1px rgba(var(--gg-accent-rgb),0.4);
+        box-shadow: inset 0 0 0 1px rgba(var(--gg-accent-rgb),0.15);
+    }
+    .tk-vtab-icon {
+        flex-shrink: 0; width: 3.4rem; height: 3.4rem;
+        border-radius: 0.9rem;
+        background: rgba(255,255,255,0.06);
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.15s;
+    }
+    .tk-vtab--active .tk-vtab-icon { background: rgba(var(--gg-accent-rgb),0.22); }
+    .tk-vtab-label { flex: 1; min-width: 0; font-size: 1.35rem; font-weight: 700; }
+    .tk-vtab-badge {
+        flex-shrink: 0; min-width: 2.2rem; text-align: center;
+        background: var(--gg-accent); color: #0a0e16;
+        border-radius: 999px; padding: 0.25rem 0.75rem;
+        font-size: 1.1rem; font-weight: 800;
+        box-shadow: 0 0.2rem 0.7rem rgba(var(--gg-accent-rgb),0.4);
     }
 
-    /* ── Unclaimed banner ── */
+    /* ── Sidebar unclaimed banner (compact) ── */
     .tk-unclaimed {
         border-radius: 1.2rem;
         background: linear-gradient(135deg, rgba(var(--gg-accent-rgb),0.14) 0%, rgba(var(--gg-accent-rgb),0.08) 100%);
@@ -79,46 +84,68 @@
     }
     .tk-unclaimed-head {
         display: flex; align-items: center; gap: 0.6rem;
-        color: var(--gg-accent); font-size: 1.35rem; font-weight: 700;
+        color: var(--gg-accent); font-size: 1.3rem; font-weight: 700;
     }
     .tk-unclaimed-reward {
-        color: rgba(255,255,255,0.7); font-size: 1.2rem;
+        color: rgba(255,255,255,0.7); font-size: 1.15rem;
         padding-left: 0.2rem;
     }
-    .tk-unclaimed-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.6rem; }
+    .tk-unclaimed-footer { display: flex; flex-direction: column; gap: 0.6rem; }
     .tk-claim-all-btn {
-        display: flex; align-items: center; gap: 0.5rem;
-        padding: 0.75rem 1.8rem; border-radius: 0.8rem; border: none; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        padding: 0.85rem 1.4rem; border-radius: 0.9rem; border: none; cursor: pointer;
         background: var(--gg-accent);
-        color: #fff; font-size: 1.25rem; font-weight: 700;
-        transition: opacity 0.15s, transform 0.1s;
+        color: #0a0e16; font-size: 1.25rem; font-weight: 700;
+        transition: filter 0.15s, transform 0.1s;
         box-shadow: 0 0.3rem 1rem rgba(var(--gg-accent-rgb),0.35);
     }
-    .tk-claim-all-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .tk-claim-all-btn:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
     .tk-claim-all-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Main content pane ── */
+    .tk-main {
+        flex: 1; min-width: 0; overflow-y: auto; overflow-x: hidden;
+        padding: 2.4rem 3rem 3.6rem;
+        background: rgba(6,9,14,0.55);
+        backdrop-filter: blur(0.5rem);
+        -webkit-backdrop-filter: blur(0.5rem);
+    }
+    .tk-wrap {
+        display: flex; flex-direction: column; gap: 2rem;
+    }
+    .tk-title {
+        font-size: 2.6rem; font-weight: 700; color: #FAFAFA;
+        font-family: Rubik, sans-serif; letter-spacing: 0.04em;
+        text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+    }
+    .tk-sidebar-head .tk-title { font-size: 1.9rem; }
 
     /* ── Verify warning ── */
     .tk-verify {
         display: flex; align-items: center; gap: 0.8rem;
         padding: 0.9rem 1.2rem; border-radius: 1rem;
         background: rgba(240,192,64,0.1); border: 1px solid rgba(240,192,64,0.3);
-        color: #f0c040; font-size: 1.05rem;
+        color: #f0c040; font-size: 1.1rem;
     }
 
-    /* ── Task list ── */
-    .tk-list { display: flex; flex-direction: column; gap: 1rem; }
+    /* ── Task grid — fills width, wraps to multiple columns on wide screens ── */
+    .tk-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(38rem, 1fr));
+        gap: 1.2rem;
+    }
 
     /* ── Task card ── */
     .tk-card {
         display: flex; align-items: stretch;
-        border-radius: 1.1rem; overflow: hidden;
+        border-radius: 1.3rem; overflow: hidden;
         background: rgba(12,17,26,0.72);
         border: 1px solid rgba(255,255,255,0.1);
         backdrop-filter: blur(0.4rem);
         -webkit-backdrop-filter: blur(0.4rem);
-        transition: border-color 0.15s, background 0.15s;
+        transition: border-color 0.15s, background 0.15s, transform 0.15s, box-shadow 0.15s;
     }
-    .tk-card:hover { background: rgba(16,22,33,0.85); }
+    .tk-card:hover { background: rgba(16,22,33,0.85); transform: translateY(-2px); box-shadow: 0 0.8rem 2rem rgba(0,0,0,0.35); }
     .tk-card--claimable {
         border-color: rgba(var(--gg-accent-rgb),0.5);
         background: rgba(12,17,26,0.82);
@@ -128,20 +155,24 @@
     .tk-card--error { border-color: rgba(224,92,92,0.5); background: rgba(20,8,8,0.75); }
 
     /* accent bar */
-    .tk-bar { width: 0.3rem; flex-shrink: 0; }
+    .tk-bar { width: 0.35rem; flex-shrink: 0; }
 
-    /* icon cell */
+    /* icon badge — rounded, tinted with task color */
     .tk-icon-cell {
-        width: 5.5rem; flex-shrink: 0;
+        width: 6.4rem; flex-shrink: 0;
         display: flex; align-items: center; justify-content: center;
-        background: rgba(0,0,0,0.25);
+        padding: 1rem;
+    }
+    .tk-icon-badge {
+        width: 100%; height: 100%; border-radius: 1rem;
+        display: flex; align-items: center; justify-content: center;
     }
 
     /* body */
     .tk-card-body {
         flex: 1; min-width: 0;
-        padding: 1.4rem 1.6rem;
-        display: flex; flex-direction: column; gap: 0.5rem;
+        padding: 1.5rem 1.6rem 1.5rem 0;
+        display: flex; flex-direction: column; justify-content: center; gap: 0.5rem;
     }
     .tk-card-title {
         color: #fff; font-size: 1.5rem; font-weight: 700;
@@ -161,6 +192,20 @@
         margin-top: 0.1rem;
     }
 
+    /* ── Task progress bar ── */
+    @@keyframes tk-skel-pulse { 0%,100% { opacity:0.5; } 50% { opacity:1; } }
+    .tk-progress { display: flex; align-items: center; gap: 0.7rem; margin-top: 0.6rem; }
+    .tk-progress-track {
+        flex: 1; height: 0.45rem; border-radius: 0.3rem;
+        background: rgba(255,255,255,0.08); overflow: hidden;
+    }
+    .tk-progress-fill { height: 100%; border-radius: 0.3rem; transition: width 0.3s ease; }
+    .tk-progress-label {
+        font-size: 1.05rem; font-weight: 700; color: rgba(255,255,255,0.45);
+        font-variant-numeric: tabular-nums; white-space: nowrap; flex-shrink: 0;
+    }
+    .tk-progress-skeleton { background: rgba(255,255,255,0.14); animation: tk-skel-pulse 1.1s ease-in-out infinite; }
+
     /* action area */
     .tk-card-action {
         display: flex; align-items: center; justify-content: center;
@@ -175,18 +220,19 @@
         color: rgba(255,255,255,0.22);
     }
     .tk-claim-btn {
-        padding: 0.65rem 1.5rem; border-radius: 0.7rem; border: none; cursor: pointer;
+        padding: 0.7rem 1.6rem; border-radius: 0.8rem; border: none; cursor: pointer;
         background: var(--gg-accent);
-        color: #fff; font-size: 0.95rem; font-weight: 700;
+        color: #0a0e16; font-size: 1rem; font-weight: 700;
         white-space: nowrap;
         display: flex; align-items: center; gap: 0.4rem;
-        transition: opacity 0.15s, transform 0.1s;
+        transition: filter 0.15s, transform 0.1s;
         box-shadow: 0 0.2rem 0.8rem rgba(var(--gg-accent-rgb),0.3);
     }
-    .tk-claim-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .tk-claim-btn:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
     .tk-claim-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
     .tk-claim-btn--error {
         background: linear-gradient(135deg, #e05c5c, #c0392b) !important;
+        color: #fff !important;
         box-shadow: 0 0.2rem 0.8rem rgba(224,92,92,0.3) !important;
     }
 
@@ -219,10 +265,84 @@
 else if (GGModConfig.Tasks)
 {
 <div class="tk-shell">
-    <div class="tk-body giz-scrollbar--v">
+
+    @if (_groups.Count > 1)
+    {
+        <!-- SIDEBAR: page title + vertical tabs + unclaimed banner -->
+        <div class="tk-sidebar">
+            <div class="tk-sidebar-head">
+                <span class="tk-title">@GGModL10n.Get(GGModL10n.TasksTitle)</span>
+            </div>
+            <div class="tk-sidebar-body giz-scrollbar--v">
+                <div class="tk-vtabs">
+                    @for (int i = 0; i < _groups.Count; i++)
+                    {
+                        var idx = i;
+                        var g   = _groups[i];
+                        var claimableCount = ClaimableCount(g);
+                        <button class="tk-vtab @(_activeTab == idx ? "tk-vtab--active" : "")"
+                                @onclick="() => _activeTab = idx">
+                            <div class="tk-vtab-icon">
+                                <Icon SVGIcon="@GroupTabIcon(g)" Size="IconSizes.Small" Style="@($"color:{(_activeTab == idx ? "var(--gg-accent)" : "rgba(255,255,255,0.5)")};")" />
+                            </div>
+                            <span class="tk-vtab-label">@GroupTabLabel(g)</span>
+                            @if (claimableCount > 0)
+                            {
+                                <span class="tk-vtab-badge">@claimableCount</span>
+                            }
+                        </button>
+                    }
+                </div>
+
+                @if (_unclaimed.Count > 0)
+                {
+                    <div class="tk-unclaimed">
+                        <div class="tk-unclaimed-head">
+                            <Icon SVGIcon="Icons.Star_Client" Size="IconSizes.Small" Style="color:var(--gg-accent);" />
+                            @GGModL10n.Get(GGModL10n.UnclaimedTitle) &nbsp;<span style="opacity:0.6;font-weight:400;">(@_unclaimed.Count)</span>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:0.2rem;">
+                            @foreach (var r in _unclaimed)
+                            {
+                                <div class="tk-unclaimed-reward">· @RewardTitleFromUnclaimed(r)</div>
+                            }
+                        </div>
+                        <div class="tk-unclaimed-footer">
+                            @if (_claimAllError is not null)
+                            {
+                                <div class="tk-error" style="font-size:0.95rem;">@_claimAllError</div>
+                            }
+                            @if (_claimAllSuccess)
+                            {
+                                <div class="tk-success">@GGModL10n.Get(GGModL10n.ClaimAllSuccess)</div>
+                            }
+                            <button class="tk-claim-all-btn" disabled="@_claimingAll" @onclick="ClaimAllAsync">
+                                @if (_claimingAll)
+                                {
+                                    <div class="tk-spinner tk-spinner-sm"></div>
+                                    <span>@GGModL10n.Get(GGModL10n.Claiming)</span>
+                                }
+                                else
+                                {
+                                    <Icon SVGIcon="Icons.Star_Client" Size="IconSizes.Small" Style="color:#0a0e16;" />
+                                    <span>@GGModL10n.Get(GGModL10n.ClaimAllBtn)</span>
+                                }
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- MAIN -->
+    <div class="tk-main giz-scrollbar--v">
         <div class="tk-wrap">
 
-            <span class="tk-title">@GGModL10n.Get(GGModL10n.TasksTitle)</span>
+            @if (_groups.Count <= 1)
+            {
+                <span class="tk-title">@GGModL10n.Get(GGModL10n.TasksTitle)</span>
+            }
 
             @* ── Loading ── *@
             @if (_loading)
@@ -246,8 +366,8 @@ else if (GGModConfig.Tasks)
             }
             else
             {
-                @* ── Unclaimed rewards banner ── *@
-                @if (_unclaimed.Count > 0)
+                @* ── Unclaimed rewards banner (single-group layout only — sidebar owns it otherwise) ── *@
+                @if (_groups.Count <= 1 && _unclaimed.Count > 0)
                 {
                     <div class="tk-unclaimed">
                         <div class="tk-unclaimed-head">
@@ -260,7 +380,7 @@ else if (GGModConfig.Tasks)
                                 <div class="tk-unclaimed-reward">· @RewardTitleFromUnclaimed(r)</div>
                             }
                         </div>
-                        <div class="tk-unclaimed-footer">
+                        <div class="tk-unclaimed-footer" style="flex-direction:row;align-items:center;justify-content:space-between;">
                             <div>
                                 @if (_claimAllError is not null)
                                 {
@@ -271,7 +391,7 @@ else if (GGModConfig.Tasks)
                                     <div class="tk-success">@GGModL10n.Get(GGModL10n.ClaimAllSuccess)</div>
                                 }
                             </div>
-                            <button class="tk-claim-all-btn" disabled="@_claimingAll" @onclick="ClaimAllAsync">
+                            <button class="tk-claim-all-btn" disabled="@_claimingAll" @onclick="ClaimAllAsync" style="width:auto;">
                                 @if (_claimingAll)
                                 {
                                     <div class="tk-spinner tk-spinner-sm"></div>
@@ -279,27 +399,11 @@ else if (GGModConfig.Tasks)
                                 }
                                 else
                                 {
-                                    <Icon SVGIcon="Icons.Star_Client" Size="IconSizes.Small" Style="color:#fff;" />
+                                    <Icon SVGIcon="Icons.Star_Client" Size="IconSizes.Small" Style="color:#0a0e16;" />
                                     <span>@GGModL10n.Get(GGModL10n.ClaimAllBtn)</span>
                                 }
                             </button>
                         </div>
-                    </div>
-                }
-
-                @* ── Tabs ── *@
-                @if (_groups.Count > 1)
-                {
-                    <div class="tk-tabs">
-                        @for (int i = 0; i < _groups.Count; i++)
-                        {
-                            var idx = i;
-                            var g   = _groups[i];
-                            <button class="tk-tab @(_activeTab == idx ? "tk-tab--active" : "")"
-                                    @onclick="() => _activeTab = idx">
-                                @GroupTabLabel(g)
-                            </button>
-                        }
                     </div>
                 }
 
@@ -325,6 +429,7 @@ else if (GGModConfig.Tasks)
                             var color     = TaskColor(task.TaskType);
                             var rcolor    = RewardColor(task.RewardType);
                             var claiming  = _claimingIds.Contains(task.Id);
+                            var pct       = TaskProgressPercent(group, task);
                             _claimErrors.TryGetValue(task.Id, out var cardError);
 
                             <div class="tk-card @(claimable ? "tk-card--claimable" : "") @(done ? "tk-card--done" : "") @(cardError is not null ? "tk-card--error" : "")">
@@ -332,8 +437,10 @@ else if (GGModConfig.Tasks)
                                 <div class="tk-bar" style="background:@(cardError is not null ? "#e05c5c" : color);"></div>
 
                                 <div class="tk-icon-cell">
-                                    <Icon SVGIcon="@TaskIcon(task.TaskType)" Size="IconSizes.Medium"
-                                          Style="@($"color:{(cardError is not null ? "#e05c5c" : color)};")" />
+                                    <div class="tk-icon-badge" style="background:@(cardError is not null ? "#e05c5c" : color)22;">
+                                        <Icon SVGIcon="@TaskIcon(task.TaskType)" Size="IconSizes.Medium"
+                                              Style="@($"color:{(cardError is not null ? "#e05c5c" : color)};")" />
+                                    </div>
                                 </div>
 
                                 <div class="tk-card-body">
@@ -356,6 +463,21 @@ else if (GGModConfig.Tasks)
                                                   Style="@($"color:{rcolor};")" />
                                             <span class="tk-card-reward-lbl">@GGModL10n.Get(GGModL10n.RewardLabel)</span>
                                             <span class="tk-card-reward-val" style="color:@rcolor;">@RewardTitle(task)</span>
+                                        </div>
+                                    }
+                                    @if (pct is not null)
+                                    {
+                                        <div class="tk-progress">
+                                            <div class="tk-progress-track">
+                                                <div class="tk-progress-fill" style="width:@(pct)%;background:@color;"></div>
+                                            </div>
+                                            <span class="tk-progress-label" style="@(pct >= 100 ? $"color:{color};" : "")">@(pct)%</span>
+                                        </div>
+                                    }
+                                    else if (_progressValuesLoading)
+                                    {
+                                        <div class="tk-progress">
+                                            <div class="tk-progress-track tk-progress-skeleton"></div>
                                         </div>
                                     }
                                 </div>
@@ -411,4 +533,3 @@ else if (GGModConfig.Tasks)
     </div>
 </div>
 }
-
