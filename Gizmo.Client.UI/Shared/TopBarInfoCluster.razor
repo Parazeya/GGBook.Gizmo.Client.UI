@@ -1,6 +1,8 @@
 @namespace Gizmo.Client.UI
 @inherits CustomDOMComponentBase
 @using System.Globalization
+@using Gizmo.UI.Services
+@inject ILocalizationService LocalizationService
 
 <div class="giz-topbar-info">
     <div class="giz-topbar-info__pc">
@@ -42,7 +44,7 @@
     {
         <div class="giz-topbar-info__sep"></div>
         <div class="giz-topbar-info__stat giz-topbar-info__stat--hidden">
-            <span>Скрыто</span>
+            <span>@LocalizationService.GetString("GIZ_MENU_BALANCE_IS_HIDDEN")</span>
         </div>
         <button class="giz-topbar-info__toggle" @onclick="ToggleBalance" title="Показать баланс">
             <Icon Size="IconSizes.Small" SVGIcon="Icons.EyeOpen_Client" />
