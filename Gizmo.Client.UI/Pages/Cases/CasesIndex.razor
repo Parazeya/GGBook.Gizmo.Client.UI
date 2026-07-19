@@ -536,6 +536,36 @@ else if (GGModConfig.Cases)
                                     </div>
                                     <span style="font-size:1.3rem;font-weight:600;color:@h.RewardColor;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@h.RewardName</span>
                                 </div>
+                                @if (!string.IsNullOrEmpty(h.ClaimedCode) || !string.IsNullOrEmpty(h.WinNote))
+                                {
+                                    <div style="display:flex;align-items:center;gap:0.6rem;">
+                                        @if (!string.IsNullOrEmpty(h.ClaimedCode))
+                                        {
+                                            <div @onclick:stopPropagation="true"
+                                                 @onclick="() => CopyHistoryCodeAsync(h)"
+                                                 style="display:flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.06);border:1px dashed rgba(255,255,255,0.25);border-radius:0.6rem;padding:0.2rem 0.7rem;cursor:pointer;">
+                                                <span style="font-family:monospace;font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:0.04em;">@(h.CodeRevealed ? h.ClaimedCode : MaskCode(h.ClaimedCode!))</span>
+                                                <button type="button" @onclick:stopPropagation="true" @onclick="() => h.CodeRevealed = !h.CodeRevealed"
+                                                        style="display:flex;align-items:center;justify-content:center;padding:0;border:none;background:transparent;cursor:pointer;">
+                                                    <Icon SVGIcon="@(h.CodeRevealed ? Icons.EyeClose_Client : Icons.EyeOpen_Client)" Size="IconSizes.Small" Style="color:rgba(255,255,255,0.5);width:1.2rem;height:1.2rem;" />
+                                                </button>
+                                                <Icon SVGIcon="@(ReferenceEquals(_historyCodeCopied, h) ? Icons.Check : Icons.Copy)" Size="IconSizes.Small" Style="color:rgba(255,255,255,0.5);width:1.2rem;height:1.2rem;" />
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrEmpty(h.WinNote))
+                                        {
+                                            <button type="button" @onclick:stopPropagation="true"
+                                                    @onclick="() => h.NoteExpanded = !h.NoteExpanded"
+                                                    style="width:2.2rem;height:2.2rem;flex-shrink:0;border:none;border-radius:50%;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">
+                                                <Icon SVGIcon="Icons.Info_Client" Size="IconSizes.Small" Style="width:1.2rem;height:1.2rem;" />
+                                            </button>
+                                        }
+                                    </div>
+                                    @if (h.NoteExpanded && !string.IsNullOrEmpty(h.WinNote))
+                                    {
+                                        <span style="font-size:1.1rem;color:rgba(255,255,255,0.55);line-height:1.4;">@h.WinNote</span>
+                                    }
+                                }
                             </div>
 
                             <div style="flex-shrink:0;font-size:1.15rem;color:#4a5568;text-align:right;white-space:nowrap;">@FormatDate(h.Date)</div>
@@ -670,6 +700,27 @@ else if (GGModConfig.Cases)
             @if (_selectedCase is not null && _selectedCase.ShowRewardName)
             {
                 <span style="font-size:2.6rem;font-weight:700;color:#FAFAFA;font-family:Rubik,sans-serif;text-shadow:0 4px 20px rgba(0,0,0,0.8);">@_wonReward.Name</span>
+            }
+            @if (!string.IsNullOrEmpty(_wonReward.ClaimedCode))
+            {
+                <div @onclick:stopPropagation="true"
+                     @onclick="() => CopyClaimedCodeAsync(_wonReward.ClaimedCode!)"
+                     style="pointer-events:auto;display:flex;align-items:center;gap:1rem;background:rgba(255,255,255,0.1);border:1px dashed rgba(255,255,255,0.4);border-radius:1rem;padding:0.8rem 1.6rem;cursor:pointer;">
+                    <span style="font-family:monospace;font-size:1.6rem;font-weight:700;color:#fff;letter-spacing:0.05em;">@(_codeRevealed ? _wonReward.ClaimedCode : MaskCode(_wonReward.ClaimedCode!))</span>
+                    <button type="button" @onclick:stopPropagation="true" @onclick="() => _codeRevealed = !_codeRevealed"
+                            style="display:flex;align-items:center;justify-content:center;padding:0;border:none;background:transparent;cursor:pointer;">
+                        <Icon SVGIcon="@(_codeRevealed ? Icons.EyeClose_Client : Icons.EyeOpen_Client)" Size="IconSizes.Small" Style="color:rgba(255,255,255,0.6);" />
+                    </button>
+                    <Icon SVGIcon="@(_codeCopied ? Icons.Check : Icons.Copy)" Size="IconSizes.Small" Style="color:rgba(255,255,255,0.6);" />
+                </div>
+                @if (_codeCopied)
+                {
+                    <span style="pointer-events:none;font-size:1.1rem;color:var(--gg-accent);margin-top:-1.4rem;">@GGModL10n.Get(GGModL10n.RewardCodeCopied)</span>
+                }
+            }
+            @if (!string.IsNullOrEmpty(_wonReward.WinNote))
+            {
+                <p style="pointer-events:none;font-size:1.2rem;color:rgba(255,255,255,0.75);max-width:32rem;margin:0;line-height:1.6;">@_wonReward.WinNote</p>
             }
             <span style="font-size:1.2rem;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:0.7rem;">
                 <Icon SVGIcon="Icons.Info_Client" Size="IconSizes.Small" Style="color:rgba(255,255,255,0.3);" />

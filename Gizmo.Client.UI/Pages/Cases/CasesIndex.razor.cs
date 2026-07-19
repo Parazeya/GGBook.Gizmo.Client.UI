@@ -65,6 +65,9 @@ namespace Gizmo.Client.UI.Pages
         [JsonPropertyName("description")]  public string? Description  { get; init; }
         [JsonPropertyName("customValue")]  public string? CustomValue  { get; init; }
         [JsonPropertyName("position")]     public int     Position     { get; init; }
+        [JsonPropertyName("codePool")]     public string? CodePool     { get; init; }
+        [JsonPropertyName("winNote")]      public string? WinNote      { get; init; }
+        [JsonPropertyName("claimedCode")]  public string? ClaimedCode  { get; init; }
     }
 
     internal sealed class BuyKeyResponse
@@ -86,8 +89,9 @@ namespace Gizmo.Client.UI.Pages
 
     internal sealed class HistoryItemDto
     {
-        [JsonPropertyName("created")] public string           Created { get; init; } = "";
-        [JsonPropertyName("expand")]  public HistoryExpandDto? Expand { get; init; }
+        [JsonPropertyName("created")]     public string            Created     { get; init; } = "";
+        [JsonPropertyName("expand")]      public HistoryExpandDto? Expand      { get; init; }
+        [JsonPropertyName("claimedCode")] public string?           ClaimedCode { get; init; }
     }
 
     internal sealed class HistoryExpandDto
@@ -110,6 +114,7 @@ namespace Gizmo.Client.UI.Pages
         [JsonPropertyName("picture")]    public string? Picture    { get; init; }
         [JsonPropertyName("rewardType")] public string  RewardType { get; init; } = "";
         [JsonPropertyName("color")]      public string? Color      { get; init; }
+        [JsonPropertyName("winNote")]    public string? WinNote    { get; init; }
     }
 
     // ── Domain models ────────────────────────────────────────────────────────────
@@ -144,6 +149,9 @@ namespace Gizmo.Client.UI.Pages
         public string? CustomValue { get; init; }
         public bool?   EnableStock { get; init; }
         public double? StockAmount { get; set;  }
+        public string? CodePool    { get; init; }
+        public string? WinNote     { get; init; }
+        public string? ClaimedCode { get; init; }
     }
 
     public sealed class CaseHistoryEntry
@@ -155,6 +163,10 @@ namespace Gizmo.Client.UI.Pages
         public string   RewardType       { get; init; } = "gift";
         public string   RewardColor      { get; init; } = "#3F8CFF";
         public DateTime Date             { get; init; }
+        public string?  ClaimedCode      { get; init; }
+        public string?  WinNote          { get; init; }
+        public bool     NoteExpanded     { get; set;  }
+        public bool     CodeRevealed     { get; set;  }
     }
 
     // ── Component ────────────────────────────────────────────────────────────────
@@ -194,6 +206,7 @@ namespace Gizmo.Client.UI.Pages
         private bool             _isSpinning;
         private CaseReward?      _wonReward;
         private bool             _showRewardOverlay;
+        private bool             _wheelNeedsFreeze;
         private List<CaseReward> _wheelItems         = new();
         private string           _rouletteTransform  = "translateX(0px)";
         private string           _rouletteTransition = "none";
@@ -208,6 +221,10 @@ namespace Gizmo.Client.UI.Pages
 
         private CaseReward? _rewardInfo;
         private bool        _showRewardInfo;
+
+        private bool                 _codeCopied;
+        private bool                 _codeRevealed;
+        private CaseHistoryEntry?    _historyCodeCopied;
 
         private readonly List<CaseHistoryEntry> _history = new();
         private bool _historyLoading;
@@ -226,8 +243,14 @@ namespace Gizmo.Client.UI.Pages
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (_wheelItems.Count > 0)
+            // Canvas freeze rebuilds ~100 canvases with drawImage each — running it on every
+            // render (any click/toggle re-render) blocks the renderer main thread for hundreds
+            // of ms. Only run when the wheel content actually changed.
+            if (_wheelNeedsFreeze && _wheelItems.Count > 0)
+            {
+                _wheelNeedsFreeze = false;
                 await FreezeRouletteGifsAsync();
+            }
 
             await FixStuckImageShimmerAsync();
         }
@@ -309,7 +332,9 @@ namespace Gizmo.Client.UI.Pages
 
         private CaseReward RewardFromDto(RewardApiDto dto)
         {
-            var url = GGBook.RewardPicUrl(dto.Id, dto.Picture);
+            // 300x300 thumb (PWA parity): full-size multi-MB GIFs here get decoded into the
+            // 100-item roulette wheel and rewards grid — a per-render freeze source.
+            var url = GGBook.RewardPicUrl(dto.Id, dto.Picture, "300x300");
             if (GGModConfig.Debug && string.IsNullOrEmpty(url))
                 GGModDebugLog.Warn($"Cases: no picture for reward '{dto.Name}' (id={dto.Id}, picture='{dto.Picture}')");
             return new()
@@ -325,6 +350,9 @@ namespace Gizmo.Client.UI.Pages
                 CustomValue = dto.CustomValue,
                 EnableStock = dto.EnableStock,
                 StockAmount = dto.StockAmount,
+                CodePool    = dto.CodePool,
+                WinNote     = dto.WinNote,
+                ClaimedCode = dto.ClaimedCode,
             };
         }
 
@@ -388,6 +416,8 @@ namespace Gizmo.Client.UI.Pages
                                 RewardType       = r?.RewardType ?? "gift",
                                 RewardColor      = ColorFromType(r?.RewardType, r?.Color),
                                 Date             = ParsePbDate(item.Created),
+                                ClaimedCode      = item.ClaimedCode,
+                                WinNote          = r?.WinNote,
                             });
                         }
                     }
@@ -429,6 +459,8 @@ namespace Gizmo.Client.UI.Pages
                             RewardType       = r?.RewardType ?? "gift",
                             RewardColor      = ColorFromType(r?.RewardType, r?.Color),
                             Date             = ParsePbDate(item.Created),
+                            ClaimedCode      = item.ClaimedCode,
+                            WinNote          = r?.WinNote,
                         });
                     }
                     if (_historyPage == 1)
@@ -483,8 +515,10 @@ namespace Gizmo.Client.UI.Pages
                     _selectedCase.Rewards           = SortRewards(
                         data.Rewards.Select(RewardFromDto).ToList(), _selectedCase.Sort);
                     _availableKeys                  = data.AvailableKeys;
+                    _selectedCase.AvailableKeys     = data.AvailableKeys;
                 }
-                _wheelItems = BuildWheel(_selectedCase?.Rewards ?? new());
+                _wheelItems       = BuildWheel(_selectedCase?.Rewards ?? new());
+                _wheelNeedsFreeze = true;
             }
             catch (OperationCanceledException) { _detailError = GGModL10n.Get(GGModL10n.ErrTimeout); }
             catch                              { _detailError = GGModL10n.Get(GGModL10n.ErrNetwork); }
@@ -511,10 +545,40 @@ namespace Gizmo.Client.UI.Pages
         {
             _showRewardOverlay  = false;
             _wonReward          = null;
+            _codeCopied         = false;
+            _codeRevealed       = false;
             _rouletteTransform  = "translateX(0px)";
             _rouletteTransition = "none";
             if (_selectedCase is not null)
-                _wheelItems = BuildWheel(_selectedCase.Rewards);
+            {
+                _wheelItems       = BuildWheel(_selectedCase.Rewards);
+                _wheelNeedsFreeze = true;
+            }
+        }
+
+        private async Task CopyClaimedCodeAsync(string code)
+        {
+            try { await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", code); }
+            catch { return; }
+
+            _codeCopied = true;
+            StateHasChanged();
+            await Task.Delay(1500);
+            _codeCopied = false;
+            StateHasChanged();
+        }
+
+        private async Task CopyHistoryCodeAsync(CaseHistoryEntry entry)
+        {
+            if (string.IsNullOrEmpty(entry.ClaimedCode)) return;
+            try { await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", entry.ClaimedCode); }
+            catch { return; }
+
+            _historyCodeCopied = entry;
+            StateHasChanged();
+            await Task.Delay(1500);
+            if (ReferenceEquals(_historyCodeCopied, entry)) _historyCodeCopied = null;
+            StateHasChanged();
         }
 
         private void OpenRewardInfo(CaseReward r) { _rewardInfo = r; _showRewardInfo = true; }
@@ -543,6 +607,8 @@ namespace Gizmo.Client.UI.Pages
             if (_isSpinning || _selectedCase is null || _availableKeys <= 0 || !_selectedCase.AvailableToOpen) return;
             _isSpinning        = true;
             _showRewardOverlay = false;
+            _codeCopied        = false;
+            _codeRevealed      = false;
             _spinError         = null;
 
             UseKeyResponse? apiResult = null;
@@ -562,8 +628,10 @@ namespace Gizmo.Client.UI.Pages
 
             if (apiResult?.Reward is null) { _spinError = GGModL10n.Get(GGModL10n.ErrNoRewardData); _isSpinning = false; return; }
 
-            _availableKeys = apiResult.AvailableKeys;
-            var winner     = RewardFromDto(apiResult.Reward);
+            _availableKeys              = apiResult.AvailableKeys;
+            _selectedCase.AvailableKeys = _availableKeys;
+            GGModCache.Invalidate(CaseListCacheKey);
+            var winner = RewardFromDto(apiResult.Reward);
 
             // Decrement stock locally for the won reward, then recheck availability
             var wonInList = _selectedCase.Rewards.FirstOrDefault(r => r.Id == winner.Id);
@@ -573,7 +641,8 @@ namespace Gizmo.Client.UI.Pages
                 _selectedCase.AvailableToOpen = !HasExhaustedLimitedReward(_selectedCase.Rewards);
             }
 
-            _wheelItems = BuildWheel(_selectedCase.Rewards);
+            _wheelItems       = BuildWheel(_selectedCase.Rewards);
+            _wheelNeedsFreeze = true;
             int targetIdx = WinnerTargetIndex + _rng.Next(-3, 4);
             if (targetIdx >= 0 && targetIdx < _wheelItems.Count)
                 _wheelItems[targetIdx] = winner;
@@ -626,6 +695,8 @@ namespace Gizmo.Client.UI.Pages
                 RewardType       = winner.RewardType,
                 RewardPictureUrl = winner.PictureUrl,
                 Date             = DateTime.Now,
+                ClaimedCode      = winner.ClaimedCode,
+                WinNote          = winner.WinNote,
             });
 
             _wonReward         = winner;
@@ -651,7 +722,12 @@ namespace Gizmo.Client.UI.Pages
                 var respBody  = await resp.Content.ReadAsStringAsync(cts.Token);
                 if (!resp.IsSuccessStatusCode) { _buyError = ExtractApiError(respBody) ?? string.Format(GGModL10n.Get(GGModL10n.ErrServerCodeFmt), (int)resp.StatusCode); return; }
                 var data      = JsonSerializer.Deserialize<BuyKeyResponse>(respBody);
-                if (data is not null) _availableKeys = data.AvailableKeys;
+                if (data is not null)
+                {
+                    _availableKeys              = data.AvailableKeys;
+                    _selectedCase.AvailableKeys = _availableKeys;
+                    GGModCache.Invalidate(CaseListCacheKey);
+                }
                 _showBuyPanel = false;
                 _buyQty       = 1;
             }
@@ -661,6 +737,8 @@ namespace Gizmo.Client.UI.Pages
         }
 
         // ── Static helpers ───────────────────────────────────────────────────────
+
+        private static string MaskCode(string code) => new('•', code.Length);
 
         private static bool IsRewardOutOfStock(CaseReward r) =>
             r.EnableStock == true && (r.StockAmount ?? 1) <= 0;
